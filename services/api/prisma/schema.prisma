@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String
+  role      String     @default("user") // user, admin
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  notasFiscais NotaFiscal[]
+
+  @@index([email])
+}
+
+model NotaFiscal {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  nfNumber      String       // Número da NF
+  nfSeries      String       // Série
+  nfDate        DateTime     // Data de emissão
+
+  emitente      String       // CNPJ/CPF emitente
+  destinatario  String       // CNPJ/CPF destinatário
+
+  valorTotal    Decimal      @db.Decimal(12, 2)
+  valorBaseIcms Decimal      @db.Decimal(12, 2)
+  valorIcms     Decimal      @db.Decimal(12, 2)
+
+  xmlContent    String       // XML bruto armazenado
+  uploadedAt    DateTime     @default(now())
+  processedAt   DateTime?
+
+  items         SalesItem[]
+
+  @@index([userId])
+  @@index([nfDate])
+  @@unique([nfNumber, nfSeries, emitente])
+}
+
+model SalesItem {
+  id            String       @id @default(cuid())
+  notaFiscalId  String
+  notaFiscal    NotaFiscal   @relation(fields: [notaFiscalId], references: [id], onDelete: Cascade)
+
+  sku           String
+  descricao     String
+  quantidade    Decimal      @db.Decimal(12, 4)
+  valorUnitario Decimal      @db.Decimal(12, 2)
+  valorTotal    Decimal      @db.Decimal(12, 2)
+
+  marketplace   String?      // Identificar origem se souber
+
+  @@index([notaFiscalId])
+  @@index([sku])
+}
+
+model DashboardMetrics {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+
+  // Tier 1 KPIs
+  totalVendasMes    Decimal   @db.Decimal(12, 2) @default(0)
+  totalCustos       Decimal   @db.Decimal(12, 2) @default(0)
+  totalEstoque      Decimal   @db.Decimal(12, 4) @default(0)
+  pagamentosReceber Decimal   @db.Decimal(12, 2) @default(0)
+
+  // Breakdown por marketplace
+  mercadoLivrePct   Decimal   @db.Decimal(5, 2) @default(0)
+  amazonPct         Decimal   @db.Decimal(5, 2) @default(0)
+  shopeePct         Decimal   @db.Decimal(5, 2) @default(0)
+
+  calculatedAt      DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model PaymentSchedule {
+  id            String    @id @default(cuid())
+  userId        String
+
+  marketplace   String    // ML, AMAZON, SHOPEE
+  dataRecebimento DateTime
+  valor         Decimal   @db.Decimal(12, 2)
+  status        String    @default("pending") // pending, received, delayed
+
+  createdAt     DateTime  @default(now())
+
+  @@index([userId])
+  @@index([dataRecebimento])
+}

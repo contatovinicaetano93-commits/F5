@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F5 - Pitch Deck - INDÚSTRIA NO DIGITAL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .slide {
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16/9;
+            margin: 20px auto;
+            padding: 60px;
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            font-size: 24px;
+            line-height: 1.6;
+        }
+
+        .slide-navy {
+            background: linear-gradient(135deg, #0D1B2A 0%, #0066FF 100%);
+            color: white;
+        }
+
+        .slide-white {
+            background: white;
+            color: #2D3748;
+        }
+
+        .slide-offwhite {
+            background: #F4F6F9;
+            color: #2D3748;
+        }
+
+        h1 {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #0066FF;
+        }
+
+        .slide-navy h2 {
+            color: #00D4FF;
+        }
+
+        h3 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #0D1B2A;
+        }
+
+        .slide-navy h3 {
+            color: white;
+        }
+
+        p, li {
+            font-size: 24px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            margin-left: 40px;
+        }
+
+        .subtitle {
+            font-size: 32px;
+            color: #00D4FF;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .slide-navy .subtitle {
+            color: #00D4FF;
+        }
+
+        .tagline {
+            font-size: 28px;
+            color: #F4F6F9;
+            text-align: center;
+        }
+
+        .highlight {
+            color: #0066FF;
+            font-weight: 600;
+        }
+
+        .slide-navy .highlight {
+            color: #00D4FF;
+        }
+
+        .feature {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0, 102, 255, 0.1);
+            border-left: 4px solid #0066FF;
+            border-radius: 4px;
+        }
+
+        .slide-navy .feature {
+            background: rgba(0, 212, 255, 0.1);
+            border-left-color: #00D4FF;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #0D1B2A;
+            color: white;
+            font-weight: 600;
+        }
+
+        .cta {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        @media print {
+            body { padding: 0; }
+            .slide { margin: 0; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Hero -->
+    <div class="slide slide-navy">
+        <h1>🚀 INDÚSTRIA NO DIGITAL</h1>
+        <div class="subtitle">F5 — Operação completa de marketplaces</div>
+        <div class="tagline">Conectando indústrias ao mercado digital</div>
+    </div>
+
+    <!-- Slide 2: Problema -->
+    <div class="slide slide-offwhite">
+        <h2>O Problema</h2>
+        <p>❌ Desconexão do Mercado Digital</p>
+        <p>❌ Falta de Operação em Marketplace</p>
+        <p>❌ Complexidade (Múltiplas plataformas)</p>
+        <p><span class="highlight">❌ 30-40% de potencial não explorado</span></p>
+    </div>
+
+    <!-- Slide 3: Solução 1 -->
+    <div class="slide slide-white">
+        <h2>A Solução: F5</h2>
+        <h3>1️⃣ MARCA DO PARCEIRO (White Label)</h3>
+        <p>F5 opera com sua marca | Cliente: 95% | F5: 5%</p>
+        <div class="feature">
+            <p>✅ Manter marca própria</p>
+            <p>✅ Risco operacional zero</p>
+            <p>✅ White glove service</p>
+        </div>
+    </div>
+
+    <!-- Slide 4: Solução 2 -->
+    <div class="slide slide-white">
+        <h2>A Solução: F5 (continuação)</h2>
+        <h3>2️⃣ PRODUTO CONJUNTO (Co-Creation)</h3>
+        <p>Co-criam nova marca | Split customizado (40-60%)</p>
+        <div class="feature">
+            <p>✅ Crescimento agressivo</p>
+            <p>✅ Inovação radical</p>
+            <p>✅ Novo segmento de mercado</p>
+        </div>
+    </div>
+
+    <!-- Slide 5: Marketplaces -->
+    <div class="slide slide-offwhite">
+        <h2>Operação nos Marketplaces</h2>
+        <table>
+            <tr>
+                <th>Marketplace</th>
+                <th>Status</th>
+                <th>Modelo</th>
+                <th>Recebimento</th>
+            </tr>
+            <tr>
+                <td>🟢 Amazon</td>
+                <td>Ativo</td>
+                <td>1P (Venda Direta)</td>
+                <td><strong>D+60</strong></td>
+            </tr>
+            <tr>
+                <td>🟢 Mercado Livre</td>
+                <td>Ativo</td>
+                <td>3P (Intermediário)</td>
+                <td><strong>D+15 ⚡</strong></td>
+            </tr>
+            <tr>
+                <td>🚀 Shopee</td>
+                <td>Iniciando</td>
+                <td>3P/1P</td>
+                <td>D+30</td>
+            </tr>
+            <tr>
+                <td>🆕 TikTok Shop</td>
+                <td>Novo</td>
+                <td>3P</td>
+                <td>D+45</td>
+            </tr>
+        </table>
+        <p class="highlight">⚡ Recebimento 2-4x mais rápido que concorrentes</p>
+    </div>
+
+    <!-- Slide 6: Financeiro -->
+    <div class="slide slide-white">
+        <h2>Modelo Financeiro</h2>
+        <p>R$ 1M/mês GMV → Receita Líquida: R$ 670.000</p>
+        <div class="feature">
+            <p>📊 White Label (5%): F5 recebe R$ 33.500/mês</p>
+        </div>
+        <div class="feature">
+            <p>📊 Produto Conjunto (60/40): F5 recebe R$ 268.000/mês</p>
+        </div>
+        <p style="margin-top: 30px;"><strong>Projeção Year 1:</strong> R$ 1-2M | 5-10 clientes | &lt;5% churn</p>
+    </div>
+
+    <!-- Slide 7: Proposta de Valor -->
+    <div class="slide slide-navy">
+        <h2>Proposta de Valor</h2>
+        <div class="feature">
+            <p>✅ <strong>Crescimento</strong> — 4 marketplaces + consultoria</p>
+        </div>
+        <div class="feature">
+            <p>✅ <strong>Segurança</strong> — 100% operação F5 + risco zero</p>
+        </div>
+        <div class="feature">
+            <p>✅ <strong>Liquidez</strong> — D+15 vs D+90 do mercado</p>
+        </div>
+        <div class="feature">
+            <p>✅ <strong>Escala</strong> — Zero a 50+ SKUs em semanas</p>
+        </div>
+    </div>
+
+    <!-- Slide 8: Mercado -->
+    <div class="slide slide-offwhite">
+        <h2>Mercado & Oportunidade</h2>
+        <p>📊 <strong>70.000+</strong> indústrias no Brasil</p>
+        <p>📊 <strong>R$ 15-20B</strong> TAM | <strong>R$ 2-3B</strong> SAM | <strong>25% CAGR</strong></p>
+        <p>📊 <strong>SOM Year 1-3:</strong> R$ 50-100M</p>
+    </div>
+
+    <!-- Slide 9: Diferenciais -->
+    <div class="slide slide-white">
+        <h2>Por que F5?</h2>
+        <p>1️⃣ <span class="highlight">Licenças Próprias</span> (1P + 3P)</p>
+        <p>2️⃣ <span class="highlight">Recebimento Rápido</span> (D+15)</p>
+        <p>3️⃣ <span class="highlight">Operação 360</span> (Consultoria + Tech + People)</p>
+        <p>4️⃣ <span class="highlight">Flexibilidade de Modelo</span></p>
+        <p>5️⃣ <span class="highlight">Time Experiente</span> (Ex-Amazon, ML, Shopee)</p>
+    </div>
+
+    <!-- Slide 10: Roadmap -->
+    <div class="slide slide-offwhite">
+        <h2>Roadmap</h2>
+        <p>🚀 <strong>Phase 1 (Jun-Jul):</strong> MVP + Primeiro cliente</p>
+        <p>🚀 <strong>Phase 2 (Ago-Out):</strong> 5-10 clientes + Integrações</p>
+        <p>🚀 <strong>Phase 3 (Nov-Mar):</strong> 30-50 clientes + 4 marketplaces</p>
+        <p>🚀 <strong>Phase 4 (Abr+):</strong> Líder de mercado + Série B</p>
+    </div>
+
+    <!-- Slide 11: CTA -->
+    <div class="slide slide-navy">
+        <h1>Pronto para transformar sua indústria?</h1>
+        <p class="cta">Pilot White Label  •  Implementação Full  •  Partnership Estratégica</p>
+        <div style="text-align: center; margin-top: 80px; font-size: 32px; font-weight: 600;">
+            <span class="highlight">INDÚSTRIA NO DIGITAL — F5</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p>F5 Pitch Deck — 22 de Junho de 2026</p>
+        <p>Criado com Figma + Design System F5</p>
+    </div>
+</body>
+</html>

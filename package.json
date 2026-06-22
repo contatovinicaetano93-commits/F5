@@ -1,0 +1,17 @@
+{
+  "name": "f5",
+  "version": "0.1.0",
+  "private": true,
+  "description": "F5 - Independent platform (web + api + mobile)",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
