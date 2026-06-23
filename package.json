@@ -5,10 +5,15 @@
   "description": "F5 - Independent platform (web + api + mobile)",
   "scripts": {
     "dev": "turbo run dev --parallel",
+    "dev:api": "turbo run dev --filter=@f5/api",
+    "dev:web": "turbo run dev --filter=@f5/web",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "type-check": "turbo run type-check"
+    "type-check": "turbo run type-check",
+    "db:generate": "pnpm -F @f5/api exec prisma generate",
+    "db:migrate": "pnpm -F @f5/api exec prisma migrate deploy",
+    "db:seed": "pnpm -F @f5/api exec prisma db seed"
   },
   "devDependencies": {
     "turbo": "^2.0.0"
