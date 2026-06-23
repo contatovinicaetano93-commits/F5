@@ -1,13 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
-
-// Will import AppModule once created
-// import { AppModule } from './app.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
-    // AppModule,
+    AppModule,
     new FastifyAdapter(),
   );
 

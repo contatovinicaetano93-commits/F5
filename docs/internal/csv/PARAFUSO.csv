@@ -1,0 +1,4 @@
+sku_ref,produto,categoria,custo_industria,preco_mercado_ref,preco_sugerido,preco_compra_1p,cenario,volume_mes_est,gmv_mes,receita_f5_mes,margem_industria,giro_ok,obs_interna,status
+PAR-001,Parafuso chipboard 4x40 cx 1000un,PARAFUSO,,,,,1,,,,,S,,Pipeline
+PAR-002,Bucha nylon S8 cx 100un,PARAFUSO,,,,,1,,,,,S,,Pipeline
+PAR-003,Kit fixação drywall,PARAFUSO,,,,,4,,,,,S,,Pipeline

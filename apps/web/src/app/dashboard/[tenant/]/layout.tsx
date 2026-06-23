@@ -1,24 +1,22 @@
+'use client';
+
 import React from 'react';
+import { AuthProvider } from '@/providers/AuthProvider';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
-interface DashboardLayoutProps {
+export default function DashboardTenantLayout({
+  children,
+  params,
+}: {
   children: React.ReactNode;
-  params: {
-    tenant: string;
-  };
-}
-
-export const metadata = {
-  title: 'Dashboard - F5',
-};
-
-export default function Layout({ children, params }: DashboardLayoutProps) {
+  params: { tenant: string };
+}) {
   return (
-    <ProtectedRoute>
-      <DashboardLayout tenant={params.tenant}>
-        {children}
-      </DashboardLayout>
-    </ProtectedRoute>
+    <AuthProvider>
+      <ProtectedRoute>
+        <DashboardLayout tenant={params.tenant}>{children}</DashboardLayout>
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }

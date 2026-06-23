@@ -1,0 +1,4 @@
+sku_ref,produto,categoria,custo_industria,preco_mercado_ref,preco_sugerido,preco_compra_1p,cenario,volume_mes_est,gmv_mes,receita_f5_mes,margem_industria,giro_ok,obs_interna,status
+PAP-001,Resma papel A4 75g 500fl,PAPEL,,,,,1,,,,,S,,Pipeline
+PAP-002,Papel sulfite A3 180g,PAPEL,,,,,1,,,,,S,,Pipeline
+PAP-003,Embalagem kraft personalizada,PAPEL,,,,,2,,,,,S,,Pipeline

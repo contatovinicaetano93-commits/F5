@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F5 — Apresentação para Indústria</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #e8eaed;
+            padding: 20px;
+        }
+
+        .slide {
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16/9;
+            margin: 20px auto;
+            padding: 56px 64px;
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(13, 27, 42, 0.12);
+        }
+
+        .slide-navy {
+            background: #0D1B2A;
+            color: #fff;
+        }
+
+        .slide-white { background: #fff; color: #2D3748; }
+        .slide-offwhite { background: #F4F6F9; color: #2D3748; }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.15;
+        }
+
+        h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            color: #0066FF;
+        }
+
+        .slide-navy h2 { color: #00D4FF; }
+
+        h3 {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0D1B2A;
+        }
+
+        .slide-navy h3 { color: #fff; }
+
+        p, li {
+            font-size: 22px;
+            line-height: 1.65;
+            margin-bottom: 12px;
+        }
+
+        ul { margin-left: 28px; }
+
+        .tagline {
+            font-size: 28px;
+            color: #00D4FF;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .subtitle {
+            font-size: 26px;
+            color: #8B9CB6;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .slide-navy .subtitle { color: rgba(255,255,255,0.75); }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 8px;
+        }
+
+        .card {
+            background: #F4F6F9;
+            border-radius: 12px;
+            padding: 24px;
+            border-left: 4px solid #0066FF;
+        }
+
+        .slide-navy .card {
+            background: rgba(255,255,255,0.08);
+            border-left-color: #00D4FF;
+        }
+
+        .card p { font-size: 19px; margin: 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #0D1B2A;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) { background: #F4F6F9; }
+
+        .highlight {
+            color: #0066FF;
+            font-weight: 600;
+        }
+
+        .slide-navy .highlight { color: #00D4FF; }
+
+        .steps {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 20px 12px;
+            background: #F4F6F9;
+            border-radius: 12px;
+        }
+
+        .step-num {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0066FF;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .step p { font-size: 17px; margin: 0; }
+
+        .cta {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 600;
+            margin-top: 24px;
+            color: #00D4FF;
+        }
+
+        .footer-note {
+            text-align: center;
+            padding: 32px;
+            color: #8B9CB6;
+            font-size: 14px;
+        }
+
+        @media print {
+            body { padding: 0; background: #fff; }
+            .slide { margin: 0; box-shadow: none; }
+            .footer-note { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1 Capa -->
+    <div class="slide slide-navy">
+        <h1 style="text-align:center;">INDÚSTRIA NO DIGITAL</h1>
+        <p class="tagline">F5</p>
+        <p class="subtitle">Seu braço digital nos marketplaces.<br>Controle e clareza para quem fabrica.</p>
+    </div>
+
+    <!-- 2 Problema -->
+    <div class="slide slide-offwhite">
+        <h2>Sua indústria já entrega qualidade.</h2>
+        <p>O digital, muitas vezes, não acompanha.</p>
+        <ul style="margin-top: 20px;">
+            <li>Várias plataformas, pouca visão unificada</li>
+            <li>Preço, anúncio e logística consumindo tempo da fábrica</li>
+            <li>Dificuldade de saber <strong>o que gira</strong> e <strong>o que trava</strong> online</li>
+            <li>Recebimentos e números espalhados em planilhas e painéis diferentes</li>
+        </ul>
+    </div>
+
+    <!-- 3 Solução -->
+    <div class="slide slide-white">
+        <h2>O que é a F5</h2>
+        <p>A F5 conecta <span class="highlight">indústrias brasileiras</span> ao mercado digital com dois pilares:</p>
+        <div class="grid-2" style="margin-top: 28px;">
+            <div class="card">
+                <h3>Operação</h3>
+                <p>Nossa equipe cuida da presença nos marketplaces — você continua focado na produção.</p>
+            </div>
+            <div class="card">
+                <h3>Controle</h3>
+                <p>Uma plataforma com vendas, performance por produto e visão financeira — simples e objetiva.</p>
+            </div>
+        </div>
+        <p style="margin-top: 28px; font-size: 20px; color: #8B9CB6;">Você não precisa virar especialista em marketplace. Precisa ver resultado e confiar nos números.</p>
+    </div>
+
+    <!-- 4 O que a indústria recebe -->
+    <div class="slide slide-navy">
+        <h2>O que você acompanha na plataforma</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Vendas e recebimentos</h3>
+                <p>Quanto vendeu, quanto entra e quando — em um só lugar.</p>
+            </div>
+            <div class="card">
+                <h3>Performance por produto</h3>
+                <p>Quais itens giram, quais precisam de atenção, por canal.</p>
+            </div>
+            <div class="card">
+                <h3>Histórico e comparativos</h3>
+                <p>Mês a mês, sem planilha paralela.</p>
+            </div>
+            <div class="card">
+                <h3>Transparência</h3>
+                <p>Você vê. Nós operamos. Sem surpresa no fechamento.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5 O que a F5 faz (sem expor como) -->
+    <div class="slide slide-offwhite">
+        <h2>O que fazemos por você</h2>
+        <ul>
+            <li>Estruturamos e mantemos sua presença nos principais marketplaces</li>
+            <li>Acompanhamos preço, posicionamento e desempenho dos seus produtos</li>
+            <li>Identificamos oportunidades para <strong>aumentar o giro</strong> do catálogo</li>
+            <li>Organizamos a operação para você não depender de dezenas de ferramentas</li>
+            <li>Prestamos contas com dados claros — como um parceiro de confiança no digital</li>
+        </ul>
+        <p style="margin-top: 20px; font-size: 19px; color: #8B9CB6;">A metodologia é nossa. O resultado é seu.</p>
+    </div>
+
+    <!-- 6 Segmentos (produtos, não marcas) -->
+    <div class="slide slide-white">
+        <h2>Categorias que atendemos</h2>
+        <p>Experiência em levar ao digital produtos industriais de:</p>
+        <table>
+            <tr>
+                <th>Segmento</th>
+                <th>Exemplos de produto</th>
+            </tr>
+            <tr>
+                <td><strong>Pet</strong></td>
+                <td>Alimentação, higiene, acessórios</td>
+            </tr>
+            <tr>
+                <td><strong>Saúde</strong></td>
+                <td>EPIs, descartáveis, materiais hospitalares</td>
+            </tr>
+            <tr>
+                <td><strong>Papel</strong></td>
+                <td>Papelaria industrial, embalagens, derivados</td>
+            </tr>
+            <tr>
+                <td><strong>Ferramentas</strong></td>
+                <td>Parafusos, fixadores, hardware</td>
+            </tr>
+        </table>
+        <p style="margin-top: 20px; font-size: 18px; color: #8B9CB6;">Trabalhamos com o seu catálogo — não expomos parceiros por confidencialidade.</p>
+    </div>
+
+    <!-- 7 Formas de parceria (cliente-friendly) -->
+    <div class="slide slide-offwhite">
+        <h2>Formas de parceria</h2>
+        <p>Para cada indústria, definimos o <span class="highlight">melhor modelo</span> — não existe receita única.</p>
+        <table style="margin-top: 16px;">
+            <tr>
+                <th>Modelo</th>
+                <th>Em resumo</th>
+            </tr>
+            <tr>
+                <td><strong>1. Operação do seu canal</strong></td>
+                <td>Nós operamos sua loja nos marketplaces; você mantém sua marca.</td>
+            </tr>
+            <tr>
+                <td><strong>2. Parceria digital</strong></td>
+                <td>Sociedade em uma operação focada 100% no online.</td>
+            </tr>
+            <tr>
+                <td><strong>3. Distribuição</strong></td>
+                <td>Modelo em que a F5 compra, distribui e vende — conforme viabilidade.</td>
+            </tr>
+            <tr>
+                <td><strong>4. Grande marketplace</strong></td>
+                <td>Estruturação para venda direta em programas de compra das grandes plataformas.</td>
+            </tr>
+        </table>
+        <p style="margin-top: 16px; font-size: 18px;">Na conversa inicial, entendemos seu catálogo e indicamos o caminho mais adequado.</p>
+    </div>
+
+    <!-- 8 Canais -->
+    <div class="slide slide-white">
+        <h2>Onde sua indústria pode estar</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Marketplaces nacionais</h3>
+                <p>Mercado Livre, Amazon, Shopee e canais em expansão.</p>
+            </div>
+            <div class="card">
+                <h3>Uma visão só</h3>
+                <p>Todos os canais consolidados na plataforma F5 — para você.</p>
+            </div>
+        </div>
+        <p style="margin-top: 28px;">Nossa licença e experiência operacional permitem atuar em múltiplos modelos — <strong>venda direta e intermediada</strong> — conforme o produto.</p>
+    </div>
+
+    <!-- 9 Como começamos -->
+    <div class="slide slide-navy">
+        <h2>Como começamos</h2>
+        <div class="steps">
+            <div class="step" style="background: rgba(255,255,255,0.1);">
+                <span class="step-num" style="color: #00D4FF;">1</span>
+                <p><strong>Diagnóstico</strong><br>Seu catálogo e objetivo no digital</p>
+            </div>
+            <div class="step" style="background: rgba(255,255,255,0.1);">
+                <span class="step-num" style="color: #00D4FF;">2</span>
+                <p><strong>Modelo</strong><br>Escolhemos juntos a forma de parceria</p>
+            </div>
+            <div class="step" style="background: rgba(255,255,255,0.1);">
+                <span class="step-num" style="color: #00D4FF;">3</span>
+                <p><strong>Piloto</strong><br>Presença estruturada e primeiros indicadores</p>
+            </div>
+            <div class="step" style="background: rgba(255,255,255,0.1);">
+                <span class="step-num" style="color: #00D4FF;">4</span>
+                <p><strong>Escala</strong><br>Giro, novos produtos, novos canais</p>
+            </div>
+        </div>
+        <p class="cta">Próximo passo: uma conversa com seu catálogo em mãos.</p>
+    </div>
+
+    <!-- 10 CTA -->
+    <div class="slide slide-white" style="text-align: center;">
+        <h2 style="text-align: center;">Sua fábrica. Nosso digital.</h2>
+        <p style="font-size: 26px; margin: 32px 0;">Você fabrica com excelência.<br>A F5 leva isso ao mercado — com controle e clareza.</p>
+        <p class="highlight" style="font-size: 28px;">INDÚSTRIA NO DIGITAL</p>
+        <p style="margin-top: 40px; font-size: 20px; color: #8B9CB6;">F5 — Parceria sob medida para indústrias brasileiras</p>
+    </div>
+
+    <div class="footer-note">
+        Apresentação comercial F5 — uso externo. Não distribuir material interno (tabelas de preço, nomes de parceiros).<br>
+        Gerar PDF: Arquivo → Imprimir → Salvar como PDF (Chrome/Safari).
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+sku_ref,produto,categoria,custo_industria,preco_mercado_ref,preco_sugerido,preco_compra_1p,cenario,volume_mes_est,gmv_mes,receita_f5_mes,margem_industria,giro_ok,obs_interna,status
+SAU-001,Máscara cirúrgica tripla 50un,SAUDE,,,,,1,,,,,S,,Pipeline
+SAU-002,Avental procedimento descartável cx,SAUDE,,,,,1,,,,,S,,Pipeline
+SAU-003,Touca descartável 100un,SAUDE,,,,,1,,,,,S,,Pipeline
+SAU-004,Propé descartável 100un,SAUDE,,,,,1,,,,,S,,Pipeline
+SAU-005,Invólucro esterilização SMMMS,SAUDE,,,,,4,,,,,S,,Pipeline

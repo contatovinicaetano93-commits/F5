@@ -1,478 +1,367 @@
-'use client';
-
 import Link from 'next/link';
-import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
+import { Navbar } from '@/components/landing/Navbar';
+import {
+  IconArrow,
+  IconChart,
+  IconPackage,
+  IconReceipt,
+  IconShield,
+  IconTrend,
+  IconWallet,
+} from '@/components/landing/icons';
+import styles from '@/styles/landing.module.css';
+
+const MARKETPLACES = [
+  'Mercado Livre',
+  'Amazon',
+  'Shopee',
+  'TikTok Shop',
+  'Magalu',
+  'B2B Digital',
+];
+
+const FEATURES = [
+  {
+    icon: <IconChart />,
+    title: 'KPIs em tempo real',
+    desc: 'Vendas, variação mensal e distribuição por canal — tudo consolidado para a indústria enxergar resultado.',
+    large: true,
+  },
+  {
+    icon: <IconWallet />,
+    title: 'Contador digital',
+    desc: 'Recebimentos D+15 e D+60, pagamentos pendentes e visão financeira clara.',
+    large: false,
+  },
+  {
+    icon: <IconPackage />,
+    title: 'Performance por SKU',
+    desc: 'Receita, unidades, conversão e giro por produto — sem precisar abrir o painel do marketplace.',
+    large: false,
+  },
+  {
+    icon: <IconReceipt />,
+    title: 'NF-e integrada',
+    desc: 'Upload de XML alimenta vendas, itens e calendário de recebimentos automaticamente.',
+    large: false,
+  },
+  {
+    icon: <IconTrend />,
+    title: 'Insights de giro',
+    desc: 'Recomendações semanais da operação F5 traduzidas em ações para o cliente.',
+    large: false,
+  },
+  {
+    icon: <IconShield />,
+    title: 'Transparência total',
+    desc: 'A indústria vê números e confia. A F5 opera. Divisão clara de papéis.',
+    large: true,
+  },
+];
+
+const MODELS = [
+  {
+    num: '01',
+    title: 'Braço do online',
+    desc: 'F5 opera a conta do cliente nos marketplaces. Indústria fabrica; F5 vende online em nome dela.',
+    tag: 'Comissão sobre vendas',
+    featured: false,
+  },
+  {
+    num: '02',
+    title: 'Sócio digital',
+    desc: 'Parceria em operação 100% focada no online. Nova estrutura com split de resultado.',
+    tag: 'Split da operação',
+    featured: true,
+  },
+  {
+    num: '03',
+    title: 'Comprar e revender',
+    desc: 'F5 compra, estoca e revende. Margem na operação com capital de giro da F5.',
+    tag: 'Margem compra → venda',
+    featured: false,
+  },
+  {
+    num: '04',
+    title: 'Amazon 1P',
+    desc: 'Cadastro para venda direta Amazon. F5 intermedia operação e ganha comissão.',
+    tag: 'Comissão na intermediação',
+    featured: false,
+  },
+];
+
+const PROCESS = [
+  { step: '1', title: 'Diagnóstico', desc: 'Mapeamos catálogo, margem e fit por canal' },
+  { step: '2', title: 'Piloto', desc: 'Operação manual com KPIs na plataforma' },
+  { step: '3', title: 'Escala', desc: 'Expansão de SKUs e canais com dados' },
+  { step: '4', title: 'Prestação de contas', desc: 'Indústria acompanha; F5 executa' },
+];
+
+const BAR_HEIGHTS = [35, 55, 42, 70, 58, 82, 65, 90, 75, 88];
 
 export default function LandingPage() {
   return (
-    <div style={{ fontFamily: typography.fontFamily.primary }}>
-      {/* Navigation */}
-      <nav
-        style={{
-          backgroundColor: colors.white,
-          padding: `${spacing[4]} ${spacing[8]}`,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div style={{ fontSize: 24, fontWeight: 800, color: colors.navy }}>
-            🚀 F5
-          </div>
-          <div style={{ display: 'flex', gap: spacing[6], alignItems: 'center' }}>
-            <Link href="#features" style={{ color: colors.darkGray, textDecoration: 'none' }}>
-              Features
-            </Link>
-            <Link href="#pricing" style={{ color: colors.darkGray, textDecoration: 'none' }}>
-              Pricing
-            </Link>
-            <Link href="/login" style={{ color: colors.white, backgroundColor: colors.blue, padding: `${spacing[2]} ${spacing[4]}`, borderRadius: borderRadius.md, textDecoration: 'none', fontWeight: 600 }}>
-              Login
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className={styles.page}>
+      <Navbar />
 
-      {/* Hero Section */}
-      <section
-        style={{
-          background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.blue} 100%)`,
-          color: colors.white,
-          padding: `${spacing[20]} ${spacing[8]}`,
-          textAlign: 'center',
-          minHeight: '600px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <h1
-          style={{
-            fontSize: 72,
-            fontWeight: 800,
-            marginBottom: spacing[4],
-            textAlign: 'center',
-          }}
-        >
-          INDÚSTRIA NO DIGITAL
-        </h1>
-        <p
-          style={{
-            fontSize: 28,
-            marginBottom: spacing[8],
-            maxWidth: '800px',
-            opacity: 0.95,
-          }}
-        >
-          Acompanhe suas vendas, custos e pagamentos em um só lugar
-        </p>
-        <div style={{ display: 'flex', gap: spacing[4], justifyContent: 'center' }}>
-          <Link
-            href="/login"
-            style={{
-              backgroundColor: colors.cyan,
-              color: colors.navy,
-              padding: `${spacing[3]} ${spacing[6]}`,
-              fontSize: 18,
-              fontWeight: 700,
-              borderRadius: borderRadius.md,
-              textDecoration: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Começar Agora
-          </Link>
-          <Link
-            href="#features"
-            style={{
-              backgroundColor: 'transparent',
-              color: colors.cyan,
-              padding: `${spacing[3]} ${spacing[6]}`,
-              fontSize: 18,
-              fontWeight: 700,
-              border: `2px solid ${colors.cyan}`,
-              borderRadius: borderRadius.md,
-              textDecoration: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Saber Mais
-          </Link>
-        </div>
-      </section>
+      {/* Hero */}
+      <section className={styles.hero}>
+        <div className={styles.heroGrid} />
+        <div className={styles.heroOrb1} />
+        <div className={styles.heroOrb2} />
 
-      {/* Features Section */}
-      <section
-        id="features"
-        style={{
-          backgroundColor: colors.offWhite,
-          padding: `${spacing[16]} ${spacing[8]}`,
-        }}
-      >
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2
-            style={{
-              fontSize: 56,
-              fontWeight: 700,
-              color: colors.navy,
-              textAlign: 'center',
-              marginBottom: spacing[12],
-            }}
-          >
-            Seu Dashboard Operacional
-          </h2>
+        <div className={styles.heroInner}>
+          <div className={styles.heroContent}>
+            <div className={styles.eyebrow}>
+              <span className={styles.eyebrowDot} />
+              Operação + tecnologia
+            </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: spacing[8],
-            }}
-          >
-            {[
-              {
-                icon: '📊',
-                title: 'Vendas em Tempo Real',
-                description: 'Acompanhe todas as suas vendas por marketplace em um dashboard unificado',
-              },
-              {
-                icon: '💰',
-                title: 'Custos Operacionais',
-                description: 'Registre e acompanhe todos os seus custos de forma organizada',
-              },
-              {
-                icon: '📦',
-                title: 'Controle de Estoque',
-                description: 'Gerencie seu inventário e receba alertas de reposição',
-              },
-              {
-                icon: '💳',
-                title: 'Pagamentos a Receber',
-                description: 'Acompanhe prazos e status de pagamentos dos marketplaces',
-              },
-              {
-                icon: '📈',
-                title: 'Relatórios Detalhados',
-                description: 'Gere relatórios de performance e análises de rentabilidade',
-              },
-              {
-                icon: '📄',
-                title: 'Integração com NF',
-                description: 'Importe dados de notas fiscais automaticamente',
-              },
-            ].map((feature, idx) => (
-              <div
-                key={idx}
-                style={{
-                  backgroundColor: colors.white,
-                  padding: spacing[6],
-                  borderRadius: borderRadius.lg,
-                  border: `1px solid ${colors.offWhite}`,
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontSize: 48, marginBottom: spacing[4] }}>
-                  {feature.icon}
-                </div>
-                <h3
-                  style={{
-                    fontSize: 24,
-                    fontWeight: 600,
-                    color: colors.navy,
-                    marginBottom: spacing[2],
-                  }}
-                >
-                  {feature.title}
-                </h3>
-                <p
-                  style={{
-                    fontSize: 16,
-                    color: colors.gray,
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {feature.description}
-                </p>
+            <h1 className={styles.heroTitle}>
+              A indústria fabrica.
+              <br />
+              A F5 <span className={styles.heroTitleAccent}>opera o digital</span>
+              <br />
+              e presta contas.
+            </h1>
+
+            <p className={styles.heroSubtitle}>
+              Consultoria estratégica e operação 360 em marketplaces.
+              Você vê vendas, performance e recebimentos — nós fazemos o resto.
+            </p>
+
+            <div className={styles.heroActions}>
+              <Link href="/login" className={styles.btnPrimary}>
+                Falar com a F5
+                <IconArrow />
+              </Link>
+              <Link href="#plataforma" className={styles.btnSecondary}>
+                Conhecer a plataforma
+              </Link>
+            </div>
+
+            <div className={styles.heroStats}>
+              <div>
+                <div className={styles.statValue}>D+15</div>
+                <div className={styles.statLabel}>Recebimento Mercado Livre</div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it Works */}
-      <section
-        style={{
-          backgroundColor: colors.white,
-          padding: `${spacing[16]} ${spacing[8]}`,
-        }}
-      >
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2
-            style={{
-              fontSize: 56,
-              fontWeight: 700,
-              color: colors.navy,
-              textAlign: 'center',
-              marginBottom: spacing[12],
-            }}
-          >
-            Como Funciona
-          </h2>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: spacing[6],
-              alignItems: 'start',
-            }}
-          >
-            {[
-              { step: '1', title: 'Cadastre-se', desc: 'Crie sua conta em minutos' },
-              { step: '2', title: 'Conecte Dados', desc: 'Importe suas notas fiscais' },
-              { step: '3', title: 'Acompanhe', desc: 'Visualize vendas e custos' },
-              { step: '4', title: 'Otimize', desc: 'Tome decisões com dados' },
-            ].map((item, idx) => (
-              <div key={idx} style={{ textAlign: 'center' }}>
-                <div
-                  style={{
-                    width: 60,
-                    height: 60,
-                    backgroundColor: colors.blue,
-                    color: colors.white,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 28,
-                    fontWeight: 700,
-                    margin: '0 auto',
-                    marginBottom: spacing[4],
-                  }}
-                >
-                  {item.step}
-                </div>
-                <h3
-                  style={{
-                    fontSize: 20,
-                    fontWeight: 600,
-                    color: colors.navy,
-                    marginBottom: spacing[2],
-                  }}
-                >
-                  {item.title}
-                </h3>
-                <p style={{ color: colors.gray, fontSize: 14 }}>
-                  {item.desc}
-                </p>
+              <div>
+                <div className={styles.statValue}>D+60</div>
+                <div className={styles.statLabel}>Recebimento Amazon</div>
               </div>
-            ))}
+              <div>
+                <div className={styles.statValue}>4</div>
+                <div className={styles.statLabel}>Modelos de parceria</div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Pricing Section */}
-      <section
-        id="pricing"
-        style={{
-          backgroundColor: colors.offWhite,
-          padding: `${spacing[16]} ${spacing[8]}`,
-        }}
-      >
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2
-            style={{
-              fontSize: 56,
-              fontWeight: 700,
-              color: colors.navy,
-              textAlign: 'center',
-              marginBottom: spacing[12],
-            }}
-          >
-            Modelos de Negócio
-          </h2>
+          <div className={styles.heroVisual}>
+            <div className={styles.dashboardMock}>
+              <div className={styles.mockHeader}>
+                <div className={styles.mockDots}>
+                  <span className={styles.mockDot} />
+                  <span className={styles.mockDot} />
+                  <span className={styles.mockDot} />
+                </div>
+                <span className={styles.mockTitle}>Painel F5</span>
+              </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: spacing[8],
-            }}
-          >
-            {[
-              {
-                name: 'Marca do Parceiro',
-                desc: 'White Label',
-                price: '5%',
-                detail: 'das vendas',
-                features: [
-                  'Sua marca nos marketplaces',
-                  'F5 gerencia tudo',
-                  'Você recebe 95%',
-                  'Risco zero operacional',
-                ],
-              },
-              {
-                name: 'Produto Conjunto',
-                desc: 'Co-Creation',
-                price: '40-60%',
-                detail: 'split customizado',
-                features: [
-                  'Nova marca/linha',
-                  'Co-criação com F5',
-                  'Split de receita',
-                  'Crescimento agressivo',
-                ],
-              },
-            ].map((plan, idx) => (
-              <div
-                key={idx}
-                style={{
-                  backgroundColor: colors.white,
-                  padding: spacing[8],
-                  borderRadius: borderRadius.lg,
-                  border: `2px solid ${colors.blue}`,
-                  textAlign: 'center',
-                }}
-              >
-                <h3
-                  style={{
-                    fontSize: 28,
-                    fontWeight: 700,
-                    color: colors.navy,
-                    marginBottom: spacing[2],
-                  }}
-                >
-                  {plan.name}
-                </h3>
-                <p style={{ color: colors.blue, fontWeight: 600, marginBottom: spacing[4] }}>
-                  {plan.desc}
-                </p>
-                <div style={{ marginBottom: spacing[6] }}>
+              <div className={styles.mockKpis}>
+                <div className={styles.mockKpi}>
+                  <div className={styles.mockKpiLabel}>Vendas do mês</div>
+                  <div className={styles.mockKpiValue}>R$ 284k</div>
+                  <div className={styles.mockKpiChange}>+18,4% vs anterior</div>
+                </div>
+                <div className={styles.mockKpi}>
+                  <div className={styles.mockKpiLabel}>A receber</div>
+                  <div className={styles.mockKpiValue}>R$ 42k</div>
+                  <div className={styles.mockKpiChange}>3 repasses pendentes</div>
+                </div>
+              </div>
+
+              <div className={styles.mockChart}>
+                {BAR_HEIGHTS.map((h, i) => (
                   <div
-                    style={{
-                      fontSize: 48,
-                      fontWeight: 800,
-                      color: colors.blue,
-                    }}
-                  >
-                    {plan.price}
-                  </div>
-                  <p style={{ color: colors.gray, fontSize: 14 }}>
-                    {plan.detail}
-                  </p>
-                </div>
-                <ul
-                  style={{
-                    listStyle: 'none',
-                    marginBottom: spacing[6],
-                    textAlign: 'left',
-                  }}
-                >
-                  {plan.features.map((f, i) => (
-                    <li
-                      key={i}
-                      style={{
-                        padding: `${spacing[2]} 0`,
-                        borderBottom: `1px solid ${colors.offWhite}`,
-                        color: colors.darkGray,
-                      }}
-                    >
-                      ✅ {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/login"
-                  style={{
-                    display: 'inline-block',
-                    backgroundColor: colors.blue,
-                    color: colors.white,
-                    padding: `${spacing[3]} ${spacing[6]}`,
-                    borderRadius: borderRadius.md,
-                    textDecoration: 'none',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Começar Agora
-                </Link>
+                    key={i}
+                    className={styles.mockBar}
+                    style={{ height: `${h}%` }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Marquee */}
+      <div className={styles.marquee}>
+        <div className={styles.marqueeTrack}>
+          {[...MARKETPLACES, ...MARKETPLACES].map((name, i) => (
+            <span key={i} className={styles.marqueeItem}>
+              {name}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Platform */}
+      <section id="plataforma" className={styles.section}>
+        <div className={styles.sectionInner}>
+          <div className={`${styles.sectionHeader} ${styles.sectionHeaderCenter}`}>
+            <div className={styles.sectionLabel}>Plataforma</div>
+            <h2 className={styles.sectionTitle}>
+              O contador digital da sua indústria no marketplace
+            </h2>
+            <p className={styles.sectionDesc}>
+              Sem painel técnico, sem sync confuso. A indústria enxerga resultado.
+              A operação F5 registra, analisa e recomenda.
+            </p>
+          </div>
+
+          <div className={styles.bento}>
+            {FEATURES.map((f, i) => (
+              <div
+                key={i}
+                className={`${styles.bentoCard} ${f.large ? styles.bentoLarge : ''}`}
+              >
+                <div className={styles.bentoIcon}>{f.icon}</div>
+                <h3 className={styles.bentoTitle}>{f.title}</h3>
+                <p className={styles.bentoDesc}>{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section
-        style={{
-          background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.blue} 100%)`,
-          color: colors.white,
-          padding: `${spacing[16]} ${spacing[8]}`,
-          textAlign: 'center',
-        }}
-      >
-        <h2 style={{ fontSize: 48, fontWeight: 700, marginBottom: spacing[4] }}>
-          Pronto para transformar sua operação?
-        </h2>
-        <p
-          style={{
-            fontSize: 20,
-            marginBottom: spacing[8],
-            maxWidth: '600px',
-            margin: '0 auto',
-            marginBottom: spacing[8],
-          }}
-        >
-          Comece a acompanhar suas vendas, custos e pagamentos hoje mesmo
-        </p>
-        <Link
-          href="/login"
-          style={{
-            display: 'inline-block',
-            backgroundColor: colors.cyan,
-            color: colors.navy,
-            padding: `${spacing[3]} ${spacing[8]}`,
-            fontSize: 18,
-            fontWeight: 700,
-            borderRadius: borderRadius.md,
-            textDecoration: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          Acessar Platform
-        </Link>
+      {/* Process */}
+      <section id="processo" className={styles.section} style={{ background: 'var(--surface-elevated)' }}>
+        <div className={styles.sectionInner}>
+          <div className={`${styles.sectionHeader} ${styles.sectionHeaderCenter}`}>
+            <div className={styles.sectionLabel}>Processo</div>
+            <h2 className={styles.sectionTitle}>Do diagnóstico à escala</h2>
+            <p className={styles.sectionDesc}>
+              Entendemos o caminho do cliente antes de fechar o modelo.
+              Cada indústria tem o cenário certo.
+            </p>
+          </div>
+
+          <div className={styles.process}>
+            {PROCESS.map((p) => (
+              <div key={p.step} className={styles.processStep}>
+                <div className={styles.processNum}>{p.step}</div>
+                <h3 className={styles.processTitle}>{p.title}</h3>
+                <p className={styles.processDesc}>{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Models */}
+      <section id="modelos" className={styles.section}>
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionLabel}>Parceria</div>
+            <h2 className={styles.sectionTitle}>
+              Quatro formas de operar.
+              <br />
+              Uma escolhida para você.
+            </h2>
+            <p className={styles.sectionDesc}>
+              Para cada cliente, a F5 identifica o melhor cenário —
+              braço online, sócio digital, revenda ou Amazon 1P.
+            </p>
+          </div>
+
+          <div className={styles.modelsGrid}>
+            {MODELS.map((m) => (
+              <div
+                key={m.num}
+                className={`${styles.modelCard} ${m.featured ? styles.modelCardFeatured : ''}`}
+              >
+                <div className={styles.modelNum}>Cenário {m.num}</div>
+                <h3 className={styles.modelTitle}>{m.title}</h3>
+                <p className={styles.modelDesc}>{m.desc}</p>
+                <span className={styles.modelTag}>{m.tag}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Segments */}
+      <section className={styles.section} style={{ background: 'var(--surface-elevated)', paddingTop: 80, paddingBottom: 80 }}>
+        <div className={styles.sectionInner}>
+          <div className={`${styles.sectionHeader} ${styles.sectionHeaderCenter}`}>
+            <div className={styles.sectionLabel}>Segmentos</div>
+            <h2 className={styles.sectionTitle}>Indústrias que atendemos</h2>
+          </div>
+
+          <div className={styles.segments}>
+            {[
+              { name: 'Pet', hint: 'Alimentação e acessórios' },
+              { name: 'Saúde', hint: 'EPI e equipamentos' },
+              { name: 'Papel', hint: 'Papelaria e escritório' },
+              { name: 'Ferramentas', hint: 'Parafuso e hardware' },
+            ].map((s) => (
+              <div key={s.name} className={styles.segmentCard}>
+                <div className={styles.segmentName}>{s.name}</div>
+                <div className={styles.segmentHint}>{s.hint}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className={styles.cta}>
+        <div className={styles.ctaOrb} />
+        <div className={styles.ctaInner}>
+          <h2 className={styles.ctaTitle}>
+            Pronto para ver seu digital com clareza de contador?
+          </h2>
+          <p className={styles.ctaDesc}>
+            Diagnóstico sem compromisso. Piloto com KPIs reais.
+            Escala quando os números fecharem.
+          </p>
+          <Link href="/login" className={styles.btnPrimary}>
+            Iniciar conversa
+            <IconArrow />
+          </Link>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer
-        style={{
-          backgroundColor: colors.darkGray,
-          color: colors.white,
-          padding: `${spacing[8]} ${spacing[8]}`,
-          textAlign: 'center',
-          fontSize: 14,
-        }}
-      >
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p style={{ marginBottom: spacing[2] }}>
-            © 2026 F5 — INDÚSTRIA NO DIGITAL. Todos os direitos reservados.
-          </p>
-          <p style={{ opacity: 0.8 }}>
-            Conectando indústrias ao mercado digital
-          </p>
+      <footer className={styles.footer}>
+        <div className={styles.footerInner}>
+          <div className={styles.footerTop}>
+            <div className={styles.footerBrand}>
+              <div className={styles.footerBrandName}>F5</div>
+              <p className={styles.footerBrandDesc}>
+                Indústria no digital. Operação completa de marketplaces
+                para fabricantes brasileiros.
+              </p>
+            </div>
+
+            <div className={styles.footerLinks}>
+              <div className={styles.footerCol}>
+                <h4>Plataforma</h4>
+                <Link href="#plataforma">KPIs e financeiro</Link>
+                <Link href="/login">Área do cliente</Link>
+              </div>
+              <div className={styles.footerCol}>
+                <h4>Empresa</h4>
+                <Link href="#modelos">Modelos de parceria</Link>
+                <Link href="/pitch">Apresentação</Link>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.footerBottom}>
+            <span>© 2026 F5 — Indústria no Digital</span>
+            <span>Consultoria + operação + software</span>
+          </div>
         </div>
       </footer>
     </div>

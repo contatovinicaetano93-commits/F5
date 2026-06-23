@@ -1,0 +1,6 @@
+sku_ref,produto,categoria,custo_industria,preco_mercado_ref,preco_sugerido,preco_compra_1p,cenario,volume_mes_est,gmv_mes,receita_f5_mes,margem_industria,giro_ok,obs_interna,status
+PET-001,Ração extrusada aves 500g,PET,,,,,1,,,,,S,,Pipeline
+PET-002,Alimento extrusado cães 1kg,PET,,,,,4,,,,,S,,Pipeline
+PET-003,Tapete higiênico 50un 60x60,PET,,,,,3,,,,,S,,Pipeline
+PET-004,Mistura sementes calopsita 500g,PET,,,,,1,,,,,S,,Pipeline
+PET-005,Ração papagaio mix 500g,PET,,,,,4,,,,,S,,Pipeline

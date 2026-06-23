@@ -6,18 +6,29 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
 import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
 
+const supabaseConfigured = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+);
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!supabaseConfigured) {
+      setError('Login de clientes em configuração. Use o portal demo ou fale com a F5.');
+      setLoading(false);
+      return;
+    }
+
+    const supabase = createClient();
 
     try {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -31,7 +42,6 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        // Fetch user to get tenant_id
         const { data: userData, error: fetchError } = await supabase
           .from('users')
           .select('tenant_id')
@@ -90,6 +100,35 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {!supabaseConfigured && (
+          <div
+            style={{
+              padding: spacing[4],
+              backgroundColor: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              borderRadius: borderRadius.md,
+              marginBottom: spacing[4],
+            }}
+          >
+            <p style={{ color: colors.navy, fontSize: 14, margin: 0, marginBottom: spacing[3] }}>
+              O login de clientes ainda não está ativo neste ambiente. Enquanto isso, você pode
+              explorar o portal demo ou falar com a equipe F5.
+            </p>
+            <Link
+              href="/portal"
+              style={{
+                display: 'inline-block',
+                color: colors.blue,
+                fontWeight: 600,
+                textDecoration: 'none',
+                fontSize: 14,
+              }}
+            >
+              Ver portal demo do cliente →
+            </Link>
+          </div>
+        )}
+
         {error && (
           <div
             style={{
@@ -122,6 +161,7 @@ export default function LoginPage() {
               placeholder="seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={!supabaseConfigured}
               style={{
                 width: '100%',
                 padding: spacing[3],
@@ -129,6 +169,7 @@ export default function LoginPage() {
                 borderRadius: borderRadius.md,
                 fontSize: 14,
                 fontFamily: typography.fontFamily.primary,
+                opacity: supabaseConfigured ? 1 : 0.6,
               }}
             />
           </div>
@@ -150,6 +191,7 @@ export default function LoginPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={!supabaseConfigured}
               style={{
                 width: '100%',
                 padding: spacing[3],
@@ -157,13 +199,14 @@ export default function LoginPage() {
                 borderRadius: borderRadius.md,
                 fontSize: 14,
                 fontFamily: typography.fontFamily.primary,
+                opacity: supabaseConfigured ? 1 : 0.6,
               }}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !supabaseConfigured}
             style={{
               width: '100%',
               backgroundColor: colors.blue,
@@ -173,10 +216,10 @@ export default function LoginPage() {
               borderRadius: borderRadius.md,
               fontWeight: 700,
               fontSize: 16,
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: loading || !supabaseConfigured ? 'not-allowed' : 'pointer',
               marginBottom: spacing[4],
               fontFamily: typography.fontFamily.primary,
-              opacity: loading ? 0.5 : 1,
+              opacity: loading || !supabaseConfigured ? 0.5 : 1,
             }}
           >
             {loading ? 'Entrando...' : 'Entrar'}
@@ -184,19 +227,21 @@ export default function LoginPage() {
         </form>
 
         <div style={{ textAlign: 'center' }}>
-          <p style={{ color: colors.gray, fontSize: 14, marginBottom: spacing[4] }}>
-            Não tem conta?{' '}
-            <Link
-              href="/signup"
-              style={{
-                color: colors.blue,
-                fontWeight: 600,
-                textDecoration: 'none',
-              }}
-            >
-              Criar conta
-            </Link>
-          </p>
+          {supabaseConfigured && (
+            <p style={{ color: colors.gray, fontSize: 14, marginBottom: spacing[4] }}>
+              Não tem conta?{' '}
+              <Link
+                href="/signup"
+                style={{
+                  color: colors.blue,
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                }}
+              >
+                Criar conta
+              </Link>
+            </p>
+          )}
           <Link
             href="/"
             style={{

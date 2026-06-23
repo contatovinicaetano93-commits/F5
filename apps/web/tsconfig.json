@@ -1,0 +1,47 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowJs": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@f5/schemas": [
+        "../../packages/schemas/src"
+      ],
+      "@f5/schemas/*": [
+        "../../packages/schemas/src/*"
+      ],
+      "@f5/core": [
+        "../../packages/core/src"
+      ],
+      "@f5/core/*": [
+        "../../packages/core/src/*"
+      ],
+      "@f5/ui": [
+        "../../packages/ui/src"
+      ],
+      "@f5/ui/*": [
+        "../../packages/ui/src/*"
+      ]
+    },
+    "jsx": "preserve"
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

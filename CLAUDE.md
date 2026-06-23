@@ -19,17 +19,22 @@ Este projeto é **completamente independente** de imobi e amet.
 - ✅ Zero dependências de outros projetos
 - ✅ Deployment independente
 
-## 💼 Modelos de Negócio
+## 💼 Os 4 Cenários de Operação (Raul, jun/2026)
 
-### 1️⃣ MARCA DO PARCEIRO (White Label)
-- F5 opera marketplaces com marca do cliente
-- Cliente recebe 95% das vendas
-- F5 recebe 5% do GMV
+Para **cada cliente**, a F5 escolhe o **melhor cenário** — não aplicamos o mesmo modelo para todos.
 
-### 2️⃣ PRODUTO CONJUNTO (Co-Creation)
-- F5 + Cliente co-criam nova marca
-- Split de receita customizado (40-60%)
-- Crescimento agressivo
+| # | Cenário | Resumo | Receita F5 |
+|---|---------|--------|------------|
+| **1** | **Braço do online** | Operamos a conta ML (3P) do cliente; comissão | % comissão |
+| **2** | **Distribuidor / Sócio** | Sociedade em operação 100% online | Split |
+| **3** | **Comprar e revender** | Compramos, estocamos, vendemos | Margem |
+| **4** | **Amazon 1P** | Cadastramos o cliente para Amazon comprar dele; comissão | % comissão |
+
+**Plataforma F5** (KPIs + controle financeiro) acompanha **todos** os cenários.  
+**Operação marketplace** = manual F5. **Integrações API** = mínimas.
+
+Detalhes: `docs/OPERATING_MODEL.md`  
+Drive gestão: https://drive.google.com/drive/folders/1OtIFt1GdenuExvwGvYMnw9SXJMVl5Cfu
 
 ## 🏪 Plataformas Operadas
 
@@ -77,12 +82,36 @@ pnpm test             # rodar testes
 2. **Nunca compartilhar código** com outros projetos
 3. **Git sempre separado** — commit/push apenas para f5 repo
 4. **.env nunca commitado** — use .env.example
-5. **Operação 360** — Tecnologia é enabler, não o core business
+5. **Operação 360** — Tecnologia é enabler; operação marketplace é manual F5
+6. **Mínimas integrações** — não depender de API de marketplace no MVP
+
+## 👥 Portfólio de Clientes (Jun/2026)
+
+| Segmento | Cliente | Catálogo | Cenário sugerido |
+|----------|---------|----------|------------------|
+| PET | Nutripássaros | ✅ | 4 — Amazon 1P (+ ML se fizer sentido) |
+| PET | Extrutécnica / Colosso | ✅ | 4 — 1P ou 2 — Sócio |
+| PET | Tapetes (import) | 🔄 | 3 — Comprar e revender |
+| PAPEL | Sirius | ✅ | 1 — Braço online (a validar) |
+| SAÚDE | Medway | ✅ | 1 — Braço online / 4 — 1P |
+| PARAFUSO | — | — | A definir (1P incerto) |
+
+**Prioridade P0**: Nutripássaros + Extrutécnica (catálogo e site prontos)  
+**Grupo WhatsApp**: "F5 mkt place" (Vinicius Caetano)
 
 ## 📚 Documentação
 
+- `PITCH_V3.md` — Pitch atualizado com portfólio e AI-first
 - `PITCH_V2.md` — Pitch executivo com modelo de negócio
 - `BUSINESS_MODEL.md` — Detalhes de modelos e finanças
+- `docs/OPERATING_MODEL.md` — **Modelo operacional (contador + KPIs + manual)**
+- `docs/ARCHITECTURE_STRATEGY.md` — Arquitetura alinhada ao modelo (mínimas integrações)
+- `docs/UI_UX_PRINCIPLES.md` — Simplicidade e objetividade na interface
+- `docs/APRESENTACAO_CLIENTE.md` — Roteiro call com indústria (sem sigilos)
+- `pitch_comercial_f5.html` — **Pitch comercial (PDF)** — uso em calls com indústria
+- `PITCH_COMERCIAL_F5.md` — Texto do pitch comercial
+- `apresentacao_cliente.html` — Versão anterior do deck cliente
+- `docs/internal/TABELA_PRECO_TEMPLATE.md` — **INTERNO** — planilha de preço e cenários
 - `PRESENTATION_COMERCIAL.md` — Apresentação comercial
 - `DESIGN_SYSTEM.md` — Identidade visual e componentes
 - `SETUP_INSTRUCTIONS.md` — Instruções de setup

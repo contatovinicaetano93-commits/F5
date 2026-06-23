@@ -1,0 +1,141 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import styles from '@/styles/client.module.css';
+
+interface ProfileData {
+  company: {
+    displayName: string;
+    legalName: string;
+    cnpj: string;
+    segmentLabel: string;
+    scenarioLabel: string;
+    statusLabel: string;
+    marketplacesLabels: string[];
+    since: string;
+  };
+  contact: {
+    name: string;
+    manager: string;
+    role: string;
+    email: string;
+    phone: string;
+    whatsapp: string;
+  };
+}
+
+export default function ClientePerfilPage() {
+  const [data, setData] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    fetch('/api/client/profile')
+      .then((r) => r.json())
+      .then(setData)
+      .catch(console.error);
+  }, []);
+
+  if (!data) {
+    return <p className={styles.loading}>Carregando perfil...</p>;
+  }
+
+  const { company, contact } = data;
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.pageIntro}>
+        <h2 className={styles.pageTitle}>Dados da operação</h2>
+        <p className={styles.pageSubtitle}>
+          Informações da sua empresa na plataforma F5 e canal direto com a equipe
+          de operação marketplace.
+        </p>
+      </div>
+
+      <div className={styles.profileGrid}>
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Empresa</h3>
+          <div className={styles.fieldList}>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Nome comercial</span>
+              <span className={styles.fieldValue}>{company.displayName}</span>
+            </div>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Razão social</span>
+              <span className={styles.fieldValue}>{company.legalName}</span>
+            </div>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>CNPJ</span>
+              <span className={styles.fieldValue}>{company.cnpj}</span>
+            </div>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Segmento</span>
+              <span className={styles.fieldValue}>{company.segmentLabel}</span>
+            </div>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Modelo de operação F5</span>
+              <span className={styles.fieldValue}>{company.scenarioLabel}</span>
+            </div>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Status</span>
+              <span className={styles.fieldValue}>
+                <span className={`${styles.badge} ${styles.badgePositive}`}>
+                  {company.statusLabel}
+                </span>
+              </span>
+            </div>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Cliente desde</span>
+              <span className={styles.fieldValue}>{company.since}</span>
+            </div>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Marketplaces operados</span>
+              <div className={styles.tagList}>
+                {company.marketplacesLabels.map((m) => (
+                  <span key={m} className={styles.tag}>
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Contato F5</h3>
+          <div className={styles.contactCard}>
+            <div className={styles.contactRow}>
+              <span className={styles.fieldLabel}>Equipe</span>
+              <span className={styles.fieldValue}>{contact.name}</span>
+            </div>
+            <div className={styles.contactRow}>
+              <span className={styles.fieldLabel}>Responsável</span>
+              <span className={styles.fieldValue}>
+                {contact.manager} — {contact.role}
+              </span>
+            </div>
+            <div className={styles.contactRow}>
+              <span className={styles.fieldLabel}>E-mail</span>
+              <a href={`mailto:${contact.email}`} className={styles.contactLink}>
+                {contact.email}
+              </a>
+            </div>
+            <div className={styles.contactRow}>
+              <span className={styles.fieldLabel}>Telefone</span>
+              <span className={styles.fieldValue}>{contact.phone}</span>
+            </div>
+            <div className={styles.contactRow}>
+              <span className={styles.fieldLabel}>WhatsApp</span>
+              <a
+                href={`https://wa.me/${contact.whatsapp}`}
+                className={styles.contactLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Enviar mensagem
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

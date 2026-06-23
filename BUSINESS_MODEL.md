@@ -23,53 +23,88 @@
 
 ---
 
-## 💡 Dois Modelos de Negócio
+## 💡 Quatro Cenários de Operação
 
-### 1️⃣ MARCA DO PARCEIRO (White Label)
+> Para cada cliente, a F5 escolhe **o melhor cenário**. Fonte: alinhamento Raul + Vinicius, jun/2026.
+
+### 1️⃣ BRAÇO DO ONLINE (Mercado Livre / 3P)
 
 **Como funciona**:
-- F5 opera os marketplaces **com a marca do parceiro**
-- Cliente mantém identidade e relacionamento
-- F5 fica com **5% das vendas líquidas**
-
-**Exemplo**:
-```
-Indústria XYZ vende pelo Mercado Livre
-→ Loja "Indústria XYZ" no ML
-→ F5 gerencia tudo por trás
-→ XYZ recebe 95%, F5 recebe 5%
-```
+- F5 opera a **conta do cliente** no Mercado Livre (e canais 3P)
+- Cliente fabrica; F5 vende online em nome da marca dele
+- F5 ganha **comissão** sobre as vendas
 
 **Quando usar**:
-- Cliente quer manter marca
-- Baixa capacidade operacional interna
-- Quer "white glove service"
+- Cliente não tem (ou não quer) operação ML interna
+- Marca já existe; falta braço operacional digital
 
-**Revenue**: 5% do GMV (Gross Merchandise Value)
+**Revenue**: Comissão (% sobre vendas)
 
 ---
 
-### 2️⃣ PRODUTO CONJUNTO (Co-Creation)
+### 2️⃣ DISTRIBUIDOR / SÓCIO (Operação 100% online)
 
 **Como funciona**:
-- F5 e cliente **co-criam produto/marca**
-- Estrutura F5 acoplada 100%
-- Split de receita por modelo acordado (típico: 50/50, 60/40, etc.)
-
-**Exemplo**:
-```
-Indústria XYZ + F5 criam "Linha Digital XYZ"
-→ Nova marca no marketplace
-→ F5 opera tudo (marketing, fulfillment, etc.)
-→ Split de receita 60% XYZ / 40% F5
-```
+- F5 e cliente viram **sócios** em estrutura focada **só no digital**
+- Nova operação (pode ser nova marca, CNPJ, conta)
+- Split de resultado acordado
 
 **Quando usar**:
-- Cliente quer crescimento agressivo
-- Disposição para inovação
-- Quer expandir portfólio
+- Cliente quer crescimento agressivo online
+- Aceita sociedade dedicada ao canal digital
 
-**Revenue**: Acordo customizado (50/50 a 80/20)
+**Revenue**: Split da operação (custom)
+
+---
+
+### 3️⃣ COMPRAR E REVENDER
+
+**Como funciona**:
+- F5 **compra** do fabricante/fornecedor
+- F5 **estoca** e **vende** nos marketplaces
+- Margem = preço de venda − custo de compra − operação
+
+**Quando usar**:
+- Importação viável (ex.: tapetes China)
+- Volume e margem na revenda
+- F5 assume capital de giro e estoque
+
+**Revenue**: Margem na revenda
+
+---
+
+### 4️⃣ AMAZON 1P (Venda Direta)
+
+**Como funciona**:
+- F5 **cadastra a empresa do cliente** no programa 1P da Amazon
+- **Amazon compra direto** do cliente (consignação/venda direta)
+- F5 ganha **comissão** pela intermediação, cadastro e operação
+- Recebimento típico: **D+60**
+
+**Quando usar**:
+- Produto com fit para Amazon Vendor / 1P
+- Escala industrial (ex.: **segmento PET** — "cabe 1P tranquilamente")
+
+**Revenue**: Comissão sobre volume 1P
+
+---
+
+### Plataforma F5 (todos os cenários)
+
+Independente do cenário, o cliente recebe:
+- KPIs de vendas e performance por produto
+- Controle financeiro (NF-e, recebimentos)
+- Visibilidade sem operar marketplace
+
+Ver `docs/OPERATING_MODEL.md`.
+
+---
+
+## 💡 Modelos legados (referência)
+
+Os nomes **White Label** e **Co-Creation** mapeiam aproximadamente para:
+- White Label ≈ **Cenário 1** (Braço online) ou **4** (1P com marca do cliente)
+- Co-Creation ≈ **Cenário 2** (Sócio digital)
 
 ---
 

@@ -2,105 +2,216 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+function weekStart(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 async function main() {
-  // Limpar dados anteriores (ordem importa por foreign keys)
-  await prisma.paymentSchedule.deleteMany({});
-  await prisma.dashboardMetrics.deleteMany({});
-  await prisma.salesItem.deleteMany({});
-  await prisma.notaFiscal.deleteMany({});
-  await prisma.user.deleteMany({});
+  await prisma.insightNote.deleteMany();
+  await prisma.productMetric.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.paymentSchedule.deleteMany();
+  await prisma.dashboardMetrics.deleteMany();
+  await prisma.salesItem.deleteMany();
+  await prisma.notaFiscal.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.tenant.deleteMany();
 
-  // Criar usuário de teste
-  const user = await prisma.user.create({
+  const tenants = await Promise.all([
+    prisma.tenant.create({
+      data: {
+        name: 'Indústria Pet — Piloto A',
+        segment: 'PET',
+        scenario: 'AMAZON_1P',
+        status: 'active',
+      },
+    }),
+    prisma.tenant.create({
+      data: {
+        name: 'Indústria Pet — Piloto B',
+        segment: 'PET',
+        scenario: 'BRACO_ONLINE',
+        status: 'trial',
+      },
+    }),
+    prisma.tenant.create({
+      data: {
+        name: 'Indústria Saúde — Piloto',
+        segment: 'SAUDE',
+        scenario: 'BRACO_ONLINE',
+        status: 'active',
+      },
+    }),
+    prisma.tenant.create({
+      data: {
+        name: 'Indústria Papel — Piloto',
+        segment: 'PAPEL',
+        scenario: 'BRACO_ONLINE',
+        status: 'active',
+      },
+    }),
+    prisma.tenant.create({
+      data: {
+        name: 'Ferramentas — Prospect',
+        segment: 'PARAFUSO',
+        scenario: 'BRACO_ONLINE',
+        status: 'inactive',
+      },
+    }),
+  ]);
+
+  const [petA, petB, saude, papel] = tenants;
+
+  const products = await Promise.all([
+    prisma.product.create({
+      data: {
+        tenantId: petA.id,
+        sku: 'PET-RA-001',
+        name: 'Ração premium aves 1kg',
+        category: 'Alimentação',
+        marketplace: 'amazon',
+      },
+    }),
+    prisma.product.create({
+      data: {
+        tenantId: petA.id,
+        sku: 'PET-SN-002',
+        name: 'Snack natural pet 500g',
+        category: 'Alimentação',
+        marketplace: 'mercado_livre',
+      },
+    }),
+    prisma.product.create({
+      data: {
+        tenantId: petB.id,
+        sku: 'PET-EX-010',
+        name: 'Extrusado pequenos animais 2kg',
+        category: 'Alimentação',
+        marketplace: 'mercado_livre',
+      },
+    }),
+    prisma.product.create({
+      data: {
+        tenantId: saude.id,
+        sku: 'SAU-EPI-001',
+        name: 'Kit EPI descartável',
+        category: 'EPI',
+        marketplace: 'mercado_livre',
+      },
+    }),
+    prisma.product.create({
+      data: {
+        tenantId: papel.id,
+        sku: 'PAP-RES-100',
+        name: 'Resma A4 75g 500fl',
+        category: 'Papelaria',
+        marketplace: 'mercado_livre',
+      },
+    }),
+  ]);
+
+  const [prodPetA1, , prodPetB1] = products;
+  const periodStart = weekStart();
+  const periodEnd = new Date();
+
+  await prisma.productMetric.createMany({
+    data: [
+      {
+        tenantId: petA.id,
+        productId: prodPetA1.id,
+        marketplace: 'amazon',
+        periodStart,
+        periodEnd,
+        impressions: 12400,
+        visits: 890,
+        unitsSold: 42,
+        revenue: 8316,
+        searchPosition: 8,
+        conversionRate: 0.047,
+      },
+      {
+        tenantId: petB.id,
+        productId: prodPetB1.id,
+        marketplace: 'mercado_livre',
+        periodStart,
+        periodEnd,
+        impressions: 3200,
+        visits: 210,
+        unitsSold: 8,
+        revenue: 1440,
+        searchPosition: 22,
+        conversionRate: 0.038,
+        notes: 'Giro abaixo da meta — revisar preço e fotos',
+      },
+    ],
+  });
+
+  await prisma.insightNote.createMany({
+    data: [
+      {
+        tenantId: petB.id,
+        productId: prodPetB1.id,
+        title: 'Giro baixo na semana',
+        body: 'Conversão caiu 12% vs semana anterior. Concorrência na primeira página com preço 8% menor. Sugestão: ajustar título + testar preço promocional.',
+        visibleToClient: true,
+        weekOf: periodStart,
+      },
+      {
+        tenantId: petA.id,
+        productId: prodPetA1.id,
+        title: 'Posição estável Amazon',
+        body: 'SKU mantém top 10 na busca principal. Manter estoque e monitorar sazonalidade.',
+        visibleToClient: false,
+        weekOf: periodStart,
+      },
+    ],
+  });
+
+  const operator = await prisma.user.create({
     data: {
-      email: 'teste@f5.com',
-      password: 'hashed_password_here', // Em produção, seria bcrypt
-      name: 'Indústria Teste',
-      role: 'user',
+      email: 'ops@f5.internal',
+      password: 'hashed_password_stub',
+      name: 'Operador F5',
+      role: 'operator',
     },
   });
 
-  console.log('✅ Usuário criado:', user.email);
-
-  // Criar notas fiscais de teste (últimos 10 dias)
-  const now = new Date();
-
-  for (let i = 0; i < 5; i++) {
-    const nfDate = new Date(now);
-    nfDate.setDate(nfDate.getDate() - i);
-
-    const notaFiscal = await prisma.notaFiscal.create({
-      data: {
-        userId: user.id,
-        nfNumber: String(1000 + i),
-        nfSeries: '1',
-        nfDate,
-        emitente: '12.345.678/0001-90',
-        destinatario: '98.765.432/0001-10',
-        valorTotal: 10000 + i * 1000,
-        valorBaseIcms: 8000 + i * 800,
-        valorIcms: 1600 + i * 160,
-        xmlContent: '<xml>fake content</xml>',
-        processedAt: new Date(),
-        items: {
-          create: [
-            {
-              sku: `SKU-${i}-1`,
-              descricao: 'Produto A',
-              quantidade: 100,
-              valorUnitario: 50,
-              valorTotal: 5000,
-              marketplace: 'Mercado Livre',
-            },
-            {
-              sku: `SKU-${i}-2`,
-              descricao: 'Produto B',
-              quantidade: 50,
-              valorUnitario: 100,
-              valorTotal: 5000,
-              marketplace: 'Amazon',
-            },
-          ],
-        },
-      },
-      include: { items: true },
-    });
-
-    console.log(`✅ NF criada: ${notaFiscal.nfNumber}`);
-  }
-
-  // Criar metrics
-  await prisma.dashboardMetrics.create({
+  const nfDate = new Date(Date.now() - 2 * 86400000);
+  await prisma.notaFiscal.create({
     data: {
-      userId: user.id,
-      totalVendasMes: 50000,
-      totalCustos: 8500,
-      mercadoLivrePct: 60,
-      amazonPct: 25,
-      shopeePct: 15,
+      userId: operator.id,
+      tenantId: petA.id,
+      nfNumber: '000142',
+      nfSeries: '1',
+      nfDate,
+      emitente: '00.000.000/0001-00',
+      destinatario: '00.000.000/0002-00',
+      valorTotal: 4280.5,
+      valorBaseIcms: 3500,
+      valorIcms: 630,
+      xmlContent: '<xml>seed</xml>',
+      processedAt: new Date(),
+      items: {
+        create: [
+          {
+            sku: 'PET-RA-001',
+            descricao: 'Ração premium aves 1kg',
+            quantidade: 3,
+            valorUnitario: 198,
+            valorTotal: 594,
+            marketplace: 'amazon',
+          },
+        ],
+      },
     },
   });
 
-  console.log('✅ Metrics criadas');
-
-  // Criar schedule de pagamentos
-  for (let i = 1; i <= 3; i++) {
-    const payDate = new Date(now);
-    payDate.setDate(payDate.getDate() + i * 15);
-
-    await prisma.paymentSchedule.create({
-      data: {
-        userId: user.id,
-        marketplace: ['Mercado Livre', 'Amazon', 'Shopee'][i - 1],
-        dataRecebimento: payDate,
-        valor: 10000 + i * 5000,
-        status: 'pending',
-      },
-    });
-  }
-
-  console.log('✅ Schedule de pagamentos criado');
-  console.log('🎉 Seed concluído!');
+  console.log(`✅ Seed: ${tenants.length} tenants, ${products.length} products`);
 }
 
 main()

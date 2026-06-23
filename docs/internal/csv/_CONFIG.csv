@@ -1,0 +1,8 @@
+parametro,valor_pct,notas
+comissao_cenario_1_braço_ml,,Preencher - cenário 1 braço online
+split_f5_cenario_2_socio,,Preencher - cenário 2 sócio digital (parte F5)
+margem_min_cenario_3_revenda,,Preencher - cenário 3 comprar e revender
+comissao_cenario_4_1p,,Preencher - cenário 4 venda direta marketplace
+comissao_marketplace_media,,ML/Amazon média por categoria
+custo_logistico_pct_gmv,,Estimativa % sobre GMV
+custo_operacional_f5_pct_gmv,,Interno - não revelar ao cliente

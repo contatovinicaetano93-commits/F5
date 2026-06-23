@@ -7,96 +7,216 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  admin
+  operator
+  client_viewer
+}
+
+enum TenantSegment {
+  PET
+  SAUDE
+  PAPEL
+  PARAFUSO
+}
+
+enum OperatingScenario {
+  BRACO_ONLINE
+  SOCIO_DIGITAL
+  COMPRAR_REVENDER
+  AMAZON_1P
+}
+
+enum Marketplace {
+  mercado_livre
+  amazon
+  shopee
+  tiktok
+  outros
+}
+
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
+  id        String   @id @default(cuid())
+  email     String   @unique
   password  String
   name      String
-  role      String     @default("user") // user, admin
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  role      UserRole @default(operator)
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   notasFiscais NotaFiscal[]
+  insightNotes InsightNote[]
 
   @@index([email])
+  @@index([tenantId])
+}
+
+model Tenant {
+  id        String            @id @default(cuid())
+  name      String
+  cnpj      String?
+  segment   TenantSegment
+  scenario  OperatingScenario @default(BRACO_ONLINE)
+  status    String            @default("active") // active, inactive, trial
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  users         User[]
+  products      Product[]
+  productMetrics ProductMetric[]
+  insightNotes  InsightNote[]
+  notasFiscais  NotaFiscal[]
+  dashboardMetrics DashboardMetrics?
+  paymentSchedules PaymentSchedule[]
+
+  @@index([segment])
+  @@index([status])
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  tenantId    String
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sku         String
+  name        String
+  description String?
+  category    String?
+  marketplace Marketplace @default(mercado_livre)
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  metrics      ProductMetric[]
+  insightNotes InsightNote[]
+
+  @@unique([tenantId, sku])
+  @@index([tenantId])
+}
+
+model ProductMetric {
+  id           String      @id @default(cuid())
+  tenantId     String
+  tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  marketplace  Marketplace
+  periodStart  DateTime
+  periodEnd    DateTime
+  impressions  Int         @default(0)
+  visits       Int         @default(0)
+  unitsSold    Int         @default(0)
+  revenue      Decimal     @db.Decimal(12, 2) @default(0)
+  searchPosition Int?
+  conversionRate Decimal?  @db.Decimal(5, 4)
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([tenantId])
+  @@index([productId])
+  @@index([periodStart])
+}
+
+model InsightNote {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  title       String
+  body        String
+  visibleToClient Boolean @default(false)
+  weekOf      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([productId])
 }
 
 model NotaFiscal {
-  id            String       @id @default(cuid())
+  id            String   @id @default(cuid())
   userId        String
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenantId      String?
+  tenant        Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
 
-  nfNumber      String       // Número da NF
-  nfSeries      String       // Série
-  nfDate        DateTime     // Data de emissão
+  nfNumber      String
+  nfSeries      String
+  nfDate        DateTime
 
-  emitente      String       // CNPJ/CPF emitente
-  destinatario  String       // CNPJ/CPF destinatário
+  emitente      String
+  destinatario  String
 
-  valorTotal    Decimal      @db.Decimal(12, 2)
-  valorBaseIcms Decimal      @db.Decimal(12, 2)
-  valorIcms     Decimal      @db.Decimal(12, 2)
+  valorTotal    Decimal  @db.Decimal(12, 2)
+  valorBaseIcms Decimal  @db.Decimal(12, 2)
+  valorIcms     Decimal  @db.Decimal(12, 2)
 
-  xmlContent    String       // XML bruto armazenado
-  uploadedAt    DateTime     @default(now())
+  xmlContent    String
+  uploadedAt    DateTime @default(now())
   processedAt   DateTime?
 
   items         SalesItem[]
 
   @@index([userId])
+  @@index([tenantId])
   @@index([nfDate])
   @@unique([nfNumber, nfSeries, emitente])
 }
 
 model SalesItem {
-  id            String       @id @default(cuid())
+  id            String     @id @default(cuid())
   notaFiscalId  String
-  notaFiscal    NotaFiscal   @relation(fields: [notaFiscalId], references: [id], onDelete: Cascade)
+  notaFiscal    NotaFiscal @relation(fields: [notaFiscalId], references: [id], onDelete: Cascade)
 
   sku           String
   descricao     String
-  quantidade    Decimal      @db.Decimal(12, 4)
-  valorUnitario Decimal      @db.Decimal(12, 2)
-  valorTotal    Decimal      @db.Decimal(12, 2)
+  quantidade    Decimal    @db.Decimal(12, 4)
+  valorUnitario Decimal    @db.Decimal(12, 2)
+  valorTotal    Decimal    @db.Decimal(12, 2)
 
-  marketplace   String?      // Identificar origem se souber
+  marketplace   String?
 
   @@index([notaFiscalId])
   @@index([sku])
 }
 
 model DashboardMetrics {
-  id                String    @id @default(cuid())
-  userId            String    @unique
+  id                String   @id @default(cuid())
+  tenantId          String   @unique
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  // Tier 1 KPIs
-  totalVendasMes    Decimal   @db.Decimal(12, 2) @default(0)
-  totalCustos       Decimal   @db.Decimal(12, 2) @default(0)
-  totalEstoque      Decimal   @db.Decimal(12, 4) @default(0)
-  pagamentosReceber Decimal   @db.Decimal(12, 2) @default(0)
+  totalVendasMes    Decimal  @db.Decimal(12, 2) @default(0)
+  totalCustos       Decimal  @db.Decimal(12, 2) @default(0)
+  totalEstoque      Decimal  @db.Decimal(12, 4) @default(0)
+  pagamentosReceber Decimal  @db.Decimal(12, 2) @default(0)
 
-  // Breakdown por marketplace
-  mercadoLivrePct   Decimal   @db.Decimal(5, 2) @default(0)
-  amazonPct         Decimal   @db.Decimal(5, 2) @default(0)
-  shopeePct         Decimal   @db.Decimal(5, 2) @default(0)
+  mercadoLivrePct   Decimal  @db.Decimal(5, 2) @default(0)
+  amazonPct         Decimal  @db.Decimal(5, 2) @default(0)
+  shopeePct         Decimal  @db.Decimal(5, 2) @default(0)
 
-  calculatedAt      DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  calculatedAt      DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  @@index([userId])
+  @@index([tenantId])
 }
 
 model PaymentSchedule {
-  id            String    @id @default(cuid())
-  userId        String
+  id              String   @id @default(cuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  marketplace   String    // ML, AMAZON, SHOPEE
+  marketplace     String
   dataRecebimento DateTime
-  valor         Decimal   @db.Decimal(12, 2)
-  status        String    @default("pending") // pending, received, delayed
+  valor           Decimal  @db.Decimal(12, 2)
+  status          String   @default("pending")
 
-  createdAt     DateTime  @default(now())
+  createdAt       DateTime @default(now())
 
-  @@index([userId])
+  @@index([tenantId])
   @@index([dataRecebimento])
 }

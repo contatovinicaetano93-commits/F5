@@ -1,0 +1,133 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import styles from '@/styles/client.module.css';
+import { formatBRL, formatPct } from '@/lib/admin/styles';
+
+interface Overview {
+  period: { month: string };
+  monthSales: number;
+  variationPct: number;
+  totalReceivable: number;
+  paymentsReceivable: {
+    id: string;
+    label: string;
+    amount: number;
+    expectedDate: string;
+    settlementDays: number;
+  }[];
+  channelDistribution: {
+    label: string;
+    amount: number;
+    share: number;
+  }[];
+}
+
+export default function ClienteInicioPage() {
+  const [data, setData] = useState<Overview | null>(null);
+
+  useEffect(() => {
+    fetch('/api/client/overview')
+      .then((r) => r.json())
+      .then(setData)
+      .catch(console.error);
+  }, []);
+
+  if (!data) {
+    return <p className={styles.loading}>Carregando indicadores...</p>;
+  }
+
+  const variationPositive = data.variationPct >= 0;
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.pageIntro}>
+        <h2 className={styles.pageTitle}>Resultado do digital</h2>
+        <p className={styles.pageSubtitle}>
+          Visão consolidada de vendas e recebimentos para {data.period.month}. A F5
+          opera os marketplaces — você acompanha os números aqui.
+        </p>
+      </div>
+
+      <div className={styles.kpiGrid}>
+        <div className={styles.card}>
+          <p className={styles.kpiLabel}>Vendas do mês</p>
+          <p className={styles.kpiValue}>{formatBRL(data.monthSales)}</p>
+          <p className={styles.kpiMeta}>
+            <span
+              className={`${styles.badge} ${
+                variationPositive ? styles.badgePositive : styles.badgeNegative
+              }`}
+            >
+              {variationPositive ? '+' : ''}
+              {formatPct(data.variationPct)}
+            </span>
+            <span className={styles.cellMuted}>vs mês anterior</span>
+          </p>
+        </div>
+
+        <div className={styles.card}>
+          <p className={styles.kpiLabel}>Pagamentos a receber</p>
+          <p className={styles.kpiValue}>{formatBRL(data.totalReceivable)}</p>
+          <p className={styles.kpiMeta}>
+            <span className={styles.cellMuted}>
+              {data.paymentsReceivable.length} repasses programados
+            </span>
+          </p>
+        </div>
+
+        <div className={styles.card}>
+          <p className={styles.kpiLabel}>Canais ativos</p>
+          <p className={styles.kpiValue}>{data.channelDistribution.length}</p>
+          <p className={styles.kpiMeta}>
+            <span className={styles.cellMuted}>ML, Amazon e Shopee</span>
+          </p>
+        </div>
+      </div>
+
+      <div className={styles.twoCol}>
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Distribuição por canal</h3>
+          <div className={styles.channelList}>
+            {data.channelDistribution.map((ch) => (
+              <div key={ch.label} className={styles.channelRow}>
+                <div className={styles.channelHeader}>
+                  <span className={styles.channelName}>{ch.label}</span>
+                  <span className={styles.channelAmount}>{formatBRL(ch.amount)}</span>
+                </div>
+                <div className={styles.barTrack}>
+                  <div
+                    className={styles.barFill}
+                    style={{ width: `${Math.round(ch.share * 100)}%` }}
+                  />
+                </div>
+                <span className={styles.channelShare}>
+                  {formatPct(ch.share)} do faturamento
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Próximos recebimentos</h3>
+          <div className={styles.paymentList}>
+            {data.paymentsReceivable.map((p) => (
+              <div key={p.id} className={styles.paymentItem}>
+                <div className={styles.paymentInfo}>
+                  <span className={styles.paymentLabel}>{p.label}</span>
+                  <span className={styles.paymentDate}>
+                    Previsão:{' '}
+                    {new Date(p.expectedDate).toLocaleDateString('pt-BR')} — D+
+                    {p.settlementDays}
+                  </span>
+                </div>
+                <span className={styles.paymentAmount}>{formatBRL(p.amount)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

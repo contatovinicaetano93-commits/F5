@@ -1,6 +1,10 @@
 # STEP 30: Sincronização — Fluxos Detalhados
 
-**Status:** ✅ FASE 3 Completa  
+> ⚠️ **DOCUMENTO LEGADO** — Descreve visão com sync API marketplace (5–15 min).  
+> **Não é o modelo atual.** Ver `docs/OPERATING_MODEL.md` e `docs/ARCHITECTURE_STRATEGY.md` v2.  
+> MVP atual: NF-e + lançamento manual + operação humana nos marketplaces.
+
+**Status:** 📦 Arquivado (referência histórica)  
 **Componentes:** InventorySyncService + OrdersSyncService + CategoryMappingService + SyncQueueService  
 **Horários:** Inventário a cada 5min | Pedidos a cada 15min
 
