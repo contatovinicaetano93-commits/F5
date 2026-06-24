@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
 
 function mapClientLoginError(message: string): string {
@@ -171,20 +172,12 @@ function LoginForm() {
             >
               {supabaseConfigured ? 'Senha' : 'Senha do portal'}
             </label>
-            <input
-              type="password"
+            <PasswordInput
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{
-                width: '100%',
-                padding: spacing[3],
-                border: `1px solid ${colors.offWhite}`,
-                borderRadius: borderRadius.md,
-                fontSize: 14,
-                fontFamily: typography.fontFamily.primary,
-              }}
+              autoComplete="current-password"
             />
           </div>
 

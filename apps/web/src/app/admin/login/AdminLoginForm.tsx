@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { colors, spacing, typography, borderRadius } from '@f5/ui';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 
 function mapLoginError(message: string): string {
@@ -208,22 +209,12 @@ export function AdminLoginForm() {
             >
               Senha
             </label>
-            <input
-              type="password"
+            <PasswordInput
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              style={{
-                width: '100%',
-                padding: spacing[3],
-                border: `1px solid ${colors.offWhite}`,
-                borderRadius: borderRadius.md,
-                fontSize: 14,
-                fontFamily: typography.fontFamily.primary,
-                boxSizing: 'border-box',
-              }}
             />
           </div>
 
