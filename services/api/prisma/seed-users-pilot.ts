@@ -60,8 +60,10 @@ async function findSupabaseUserIdByEmail(
   secret: string,
   email: string,
 ): Promise<string | null> {
-  const res = await fetch(
-    `${baseUrl}/auth/v1/admin/users?filter=${encodeURIComponent(`email.eq.${email}`)}`,
+  const normalized = email.toLowerCase();
+
+  const filterRes = await fetch(
+    `${baseUrl}/auth/v1/admin/users?filter=${encodeURIComponent(`email.eq.${email}`)}&per_page=200`,
     {
       headers: {
         Authorization: `Bearer ${secret}`,
@@ -70,17 +72,35 @@ async function findSupabaseUserIdByEmail(
     },
   );
 
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Supabase list users failed (${res.status}): ${body}`);
+  if (filterRes.ok) {
+    const data = (await filterRes.json()) as {
+      users?: { id: string; email?: string }[];
+    };
+    const users = data.users ?? [];
+    const match = users.find((u) => u.email?.toLowerCase() === normalized);
+    if (match?.id) return match.id;
+    if (users[0]?.id) return users[0].id;
   }
 
-  const data = (await res.json()) as { users?: { id: string; email?: string }[] };
-  const users = data.users ?? [];
-  const match = users.find(
-    (u) => u.email?.toLowerCase() === email.toLowerCase(),
+  const listRes = await fetch(`${baseUrl}/auth/v1/admin/users?per_page=200`, {
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      apikey: secret,
+    },
+  });
+
+  if (!listRes.ok) {
+    const body = await listRes.text();
+    throw new Error(`Supabase list users failed (${listRes.status}): ${body}`);
+  }
+
+  const listData = (await listRes.json()) as {
+    users?: { id: string; email?: string }[];
+  };
+  const match = (listData.users ?? []).find(
+    (u) => u.email?.toLowerCase() === normalized,
   );
-  return match?.id ?? users[0]?.id ?? null;
+  return match?.id ?? null;
 }
 
 async function upsertSupabaseUser(
