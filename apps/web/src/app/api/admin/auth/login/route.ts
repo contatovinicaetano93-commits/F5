@@ -5,6 +5,7 @@ import {
   setAdminSessionCookie,
   verifyAdminCredentials,
 } from '@/lib/admin-auth';
+import { verifyAdminViaSupabasePassword } from '@/lib/admin/supabase-login';
 import { logAdminAudit } from '@/lib/admin/audit';
 import {
   isAdminLoginRateLimited,
@@ -42,7 +43,11 @@ export async function POST(request: NextRequest) {
   const email = typeof body.email === 'string' ? body.email : '';
   const password = typeof body.password === 'string' ? body.password : '';
 
-  if (!verifyAdminCredentials(email, password)) {
+  const authenticated =
+    verifyAdminCredentials(email, password) ||
+    (await verifyAdminViaSupabasePassword(email, password));
+
+  if (!authenticated) {
     await recordAdminLoginFailure(ip);
     await logAdminAudit({
       action: 'admin.login_failed',

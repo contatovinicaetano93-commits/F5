@@ -149,6 +149,9 @@ export function AdminLoginForm() {
           <p style={{ color: colors.gray, fontSize: 14 }}>
             Acesso interno — operação F5
           </p>
+          <p style={{ color: colors.gray, fontSize: 12, marginTop: spacing[2] }}>
+            admin@f5digital.com.br · senha padrão: Adminf5@123
+          </p>
         </div>
 
         {error && (
