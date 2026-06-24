@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, Button } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Button } from '@f5/ui';
 import { adminStyles } from '@/lib/admin/styles';
 import {
   MARKETPLACE_LABELS,
@@ -84,8 +85,7 @@ export default function CatalogoPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Adicionar SKU</h2>
+        <AdminPanelCard title="Adicionar SKU">
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -147,12 +147,9 @@ export default function CatalogoPage() {
             </label>
             <Button type="submit">Cadastrar SKU</Button>
           </form>
-        </Card>
+        </AdminPanelCard>
 
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>
-            {products.length} SKUs monitorados
-          </h2>
+        <AdminPanelCard title={`${products.length} SKUs monitorados`}>
           <table style={adminStyles.table}>
             <thead>
               <tr>
@@ -175,7 +172,7 @@ export default function CatalogoPage() {
               ))}
             </tbody>
           </table>
-        </Card>
+        </AdminPanelCard>
       </div>
     </div>
   );

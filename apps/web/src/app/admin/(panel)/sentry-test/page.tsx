@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
-import { Card } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { adminStyles } from '@/lib/admin/styles';
 
 const SENTRY_DASHBOARD =
@@ -47,7 +47,7 @@ export default function AdminSentryTestPage() {
         </p>
       </div>
 
-      <Card>
+      <AdminPanelCard title="Enviar teste">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 480 }}>
           <button
             type="button"
@@ -97,7 +97,7 @@ export default function AdminSentryTestPage() {
             Abrir dashboard Sentry (filtro service:f5-web) →
           </a>
         </div>
-      </Card>
+      </AdminPanelCard>
     </div>
   );
 }

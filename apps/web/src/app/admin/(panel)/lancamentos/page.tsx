@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, Button } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Button } from '@f5/ui';
 import { adminStyles, formatBRL, formatPct } from '@/lib/admin/styles';
 import {
   MARKETPLACE_LABELS,
@@ -154,8 +155,7 @@ export default function LancamentosPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Novo lançamento</h2>
+        <AdminPanelCard title="Novo lançamento">
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -284,10 +284,9 @@ export default function LancamentosPage() {
               {saving ? 'Salvando...' : 'Registrar lançamento'}
             </Button>
           </form>
-        </Card>
+        </AdminPanelCard>
 
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Histórico recente</h2>
+        <AdminPanelCard title="Histórico recente">
           <table style={adminStyles.table}>
             <thead>
               <tr>
@@ -310,11 +309,10 @@ export default function LancamentosPage() {
               ))}
             </tbody>
           </table>
-        </Card>
+        </AdminPanelCard>
       </div>
 
-      <Card>
-        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>Importar CSV (quinta-feira)</h2>
+      <AdminPanelCard title="Importar CSV (quinta-feira)">
         <p style={{ margin: '0 0 16px', fontSize: 14, color: '#64748B' }}>
           Exporte o relatório do ML/Amazon, ajuste colunas ou use o template F5.
           Colunas: sku, canal, impressoes, visitas, unidades, receita, posicao.
@@ -372,7 +370,7 @@ export default function LancamentosPage() {
             ))}
           </ul>
         )}
-      </Card>
+      </AdminPanelCard>
     </div>
   );
 }

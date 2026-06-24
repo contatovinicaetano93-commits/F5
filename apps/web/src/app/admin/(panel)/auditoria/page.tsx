@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { adminStyles } from '@/lib/admin/styles';
 import type { AdminAuditEntry } from '@/lib/admin/audit';
 
@@ -42,14 +43,19 @@ export default function AdminAuditoriaPage() {
       </div>
 
       {loading ? (
-        <p style={{ color: '#64748B' }}>Carregando…</p>
+        <AdminPanelCard title="Registro de ações">
+          <p style={{ color: '#64748B' }}>Carregando…</p>
+        </AdminPanelCard>
       ) : logs.length === 0 ? (
-        <p style={{ color: '#64748B' }}>
-          Nenhum registro ainda. Ações passam a aparecer após login e operações no admin.
-        </p>
+        <AdminPanelCard title="Registro de ações">
+          <p style={{ color: '#64748B' }}>
+            Nenhum registro ainda. Ações passam a aparecer após login e operações no admin.
+          </p>
+        </AdminPanelCard>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={adminStyles.table}>
+        <AdminPanelCard title="Registro de ações">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={adminStyles.table}>
             <thead>
               <tr>
                 <th style={adminStyles.th}>Quando</th>
@@ -75,7 +81,8 @@ export default function AdminAuditoriaPage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </AdminPanelCard>
       )}
     </div>
   );

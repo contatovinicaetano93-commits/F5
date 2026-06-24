@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, Button } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Button } from '@f5/ui';
 import { adminStyles, formatBRL, formatDate } from '@/lib/admin/styles';
 import { type InternalTenant, type Marketplace, type NfRecord, MARKETPLACE_LABELS } from '@/types/internal';
 
@@ -143,8 +144,7 @@ export default function NfePage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Upload XML</h2>
+        <AdminPanelCard title="Upload XML">
           <form onSubmit={handleUpload} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -205,10 +205,9 @@ export default function NfePage() {
               Baixar XML de exemplo (Gate 2)
             </a>
           </form>
-        </Card>
+        </AdminPanelCard>
 
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Registro manual</h2>
+        <AdminPanelCard title="Registro manual">
           <form onSubmit={handleRegister} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -265,11 +264,10 @@ export default function NfePage() {
             </label>
             <Button type="submit">Registrar NF</Button>
           </form>
-        </Card>
+        </AdminPanelCard>
       </div>
 
-      <Card>
-        <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>NF-e registradas</h2>
+      <AdminPanelCard title="NF-e registradas">
         <table style={adminStyles.table}>
           <thead>
             <tr>
@@ -303,10 +301,9 @@ export default function NfePage() {
             ))}
           </tbody>
         </table>
-      </Card>
+      </AdminPanelCard>
 
-      <Card>
-        <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Repasses pendentes (D+15 / D+60)</h2>
+      <AdminPanelCard title="Repasses pendentes (D+15 / D+60)">
         {payments.length === 0 ? (
           <p style={{ margin: 0, color: '#8B9CB6', fontSize: 14 }}>
             Nenhum repasse pendente. Aparecem após processar NF-e.
@@ -339,7 +336,7 @@ export default function NfePage() {
             </tbody>
           </table>
         )}
-      </Card>
+      </AdminPanelCard>
     </div>
   );
 }

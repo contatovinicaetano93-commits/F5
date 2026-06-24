@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, Button } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Button } from '@f5/ui';
 import { adminStyles, formatDate } from '@/lib/admin/styles';
 import {
   type InternalTenant,
@@ -72,8 +73,7 @@ export default function InsightsPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Novo insight</h2>
+        <AdminPanelCard title="Novo insight">
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -144,10 +144,9 @@ export default function InsightsPage() {
 
             <Button type="submit">Salvar insight</Button>
           </form>
-        </Card>
+        </AdminPanelCard>
 
-        <Card>
-          <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Insights registrados</h2>
+        <AdminPanelCard title="Insights registrados">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {insights.map((insight) => (
               <div
@@ -200,7 +199,7 @@ export default function InsightsPage() {
               </div>
             ))}
           </div>
-        </Card>
+        </AdminPanelCard>
       </div>
     </div>
   );

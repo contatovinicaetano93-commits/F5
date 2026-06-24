@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Card } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { adminStyles } from '@/lib/admin/styles';
 import { SEGMENT_LABELS, type TenantSegment } from '@/types/internal';
 
@@ -63,7 +63,7 @@ export default function AdminHomePage() {
       </div>
 
       {loadError && (
-        <Card variant="outlined">
+        <AdminPanelCard title="Erro ao carregar" variant="outlined">
           <p style={{ margin: 0, color: '#DC2626' }}>{loadError}</p>
           <p style={{ margin: '8px 0 0', fontSize: 14, color: '#8B9CB6' }}>
             Tente{' '}
@@ -72,36 +72,31 @@ export default function AdminHomePage() {
             </Link>
             .
           </p>
-        </Card>
+        </AdminPanelCard>
       )}
 
       <div style={adminStyles.grid4}>
-        <Card>
-          <p style={adminStyles.kpiLabel}>Clientes ativos</p>
+        <AdminPanelCard title="Clientes ativos">
           <p style={adminStyles.kpiValue}>
             {data?.activeTenants ?? '—'} / {data?.totalTenants ?? '—'}
           </p>
-        </Card>
-        <Card>
-          <p style={adminStyles.kpiLabel}>Lançamentos esta semana</p>
+        </AdminPanelCard>
+        <AdminPanelCard title="Lançamentos esta semana">
           <p style={adminStyles.kpiValue}>{data?.metricsThisWeek ?? '—'}</p>
-        </Card>
-        <Card>
-          <p style={adminStyles.kpiLabel}>Produtos com giro baixo</p>
+        </AdminPanelCard>
+        <AdminPanelCard title="Produtos com giro baixo">
           <p style={{ ...adminStyles.kpiValue, color: '#F59E0B' }}>
             {data?.lowGiroCount ?? '—'}
           </p>
-        </Card>
-        <Card>
-          <p style={adminStyles.kpiLabel}>Insights para cliente</p>
+        </AdminPanelCard>
+        <AdminPanelCard title="Insights para cliente">
           <p style={adminStyles.kpiValue}>{data?.clientInsights ?? '—'}</p>
-        </Card>
+        </AdminPanelCard>
       </div>
 
       <div style={adminStyles.grid2}>
-        <Card>
-          <h2 style={{ margin: 0, fontSize: '18px' }}>Por segmento</h2>
-          <table style={{ ...adminStyles.table, marginTop: 16 }}>
+        <AdminPanelCard title="Por segmento">
+          <table style={adminStyles.table}>
             <thead>
               <tr>
                 <th style={adminStyles.th}>Segmento</th>
@@ -117,11 +112,10 @@ export default function AdminHomePage() {
               ))}
             </tbody>
           </table>
-        </Card>
+        </AdminPanelCard>
 
-        <Card>
-          <h2 style={{ margin: 0, fontSize: '18px' }}>Fluxo semanal (operador)</h2>
-          <ol style={{ margin: '16px 0 0', paddingLeft: 20, lineHeight: 1.8, color: '#2D3748' }}>
+        <AdminPanelCard title="Fluxo semanal (operador)">
+          <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8, color: '#2D3748' }}>
             <li><strong>Segunda</strong> — Revisar KPIs e giro baixo abaixo</li>
             <li><strong>Ter–Qua</strong> — Otimizar anúncios nos marketplaces (manual)</li>
             <li><strong>Quinta</strong> — Importar CSV + processar NF-e</li>
@@ -141,11 +135,10 @@ export default function AdminHomePage() {
               Upload NF-e
             </Link>
           </div>
-        </Card>
+        </AdminPanelCard>
       </div>
 
-      <Card variant="outlined">
-        <h2 style={{ margin: '0 0 12px', fontSize: '18px' }}>Readiness piloto comercial</h2>
+      <AdminPanelCard title="Readiness piloto comercial" variant="outlined">
         {data?.pilotReadiness ? (
           <>
             <p style={{ margin: '0 0 12px', color: data.pilotReadiness.ready ? '#0D9F6E' : '#C98A0A' }}>
@@ -163,13 +156,13 @@ export default function AdminHomePage() {
         ) : (
           <p style={{ margin: 0, color: '#8B9CB6' }}>Carregando…</p>
         )}
-      </Card>
+      </AdminPanelCard>
 
-      <Card variant="outlined">
+      <AdminPanelCard title="Validação técnica (gates)" variant="outlined" defaultOpen={false}>
         <p style={{ margin: 0, fontSize: 14, color: '#8B9CB6' }}>
           Gates: `pnpm gate1:validate` · `pnpm gate2:validate` · `pnpm gate3:validate`
         </p>
-      </Card>
+      </AdminPanelCard>
     </div>
   );
 }

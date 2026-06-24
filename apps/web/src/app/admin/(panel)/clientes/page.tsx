@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Card } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { adminStyles } from '@/lib/admin/styles';
 import {
   SEGMENT_LABELS,
@@ -54,7 +54,7 @@ export default function ClientesPage() {
         </select>
       </div>
 
-      <Card>
+      <AdminPanelCard title="Lista de clientes">
         <table style={adminStyles.table}>
           <thead>
             <tr>
@@ -83,7 +83,7 @@ export default function ClientesPage() {
             ))}
           </tbody>
         </table>
-      </Card>
+      </AdminPanelCard>
     </div>
   );
 }

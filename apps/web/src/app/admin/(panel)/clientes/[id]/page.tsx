@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Card } from '@f5/ui';
+import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { adminStyles, formatBRL, formatPct } from '@/lib/admin/styles';
 import {
   SEGMENT_LABELS,
@@ -54,26 +54,21 @@ export default function ClienteDetailPage({ params }: { params: { id: string } }
       </div>
 
       <div style={adminStyles.grid4}>
-        <Card>
-          <p style={adminStyles.kpiLabel}>SKUs monitorados</p>
+        <AdminPanelCard title="SKUs monitorados">
           <p style={adminStyles.kpiValue}>{products.length}</p>
-        </Card>
-        <Card>
-          <p style={adminStyles.kpiLabel}>Receita (lançamentos)</p>
+        </AdminPanelCard>
+        <AdminPanelCard title="Receita (lançamentos)">
           <p style={adminStyles.kpiValue}>{formatBRL(revenue)}</p>
-        </Card>
-        <Card>
-          <p style={adminStyles.kpiLabel}>Insights</p>
+        </AdminPanelCard>
+        <AdminPanelCard title="Insights">
           <p style={adminStyles.kpiValue}>{insights.length}</p>
-        </Card>
-        <Card>
-          <p style={adminStyles.kpiLabel}>NF-e processadas</p>
+        </AdminPanelCard>
+        <AdminPanelCard title="NF-e processadas">
           <p style={adminStyles.kpiValue}>{nfs.length}</p>
-        </Card>
+        </AdminPanelCard>
       </div>
 
-      <Card>
-        <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Últimos lançamentos</h2>
+      <AdminPanelCard title="Últimos lançamentos">
         {metrics.length === 0 ? (
           <p style={{ color: '#8B9CB6' }}>Nenhum lançamento ainda.</p>
         ) : (
@@ -105,7 +100,7 @@ export default function ClienteDetailPage({ params }: { params: { id: string } }
             </tbody>
           </table>
         )}
-      </Card>
+      </AdminPanelCard>
     </div>
   );
 }
