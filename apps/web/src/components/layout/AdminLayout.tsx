@@ -18,12 +18,8 @@ const menuItems = [
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const [open, setOpen] = useState(true);
-
-  if (!pathname || pathname === '/admin/login') {
-    return <>{children}</>;
-  }
 
   const handleLogout = async () => {
     if (isSupabaseConfigured()) {
