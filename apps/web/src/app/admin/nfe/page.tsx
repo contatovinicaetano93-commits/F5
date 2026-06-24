@@ -16,6 +16,15 @@ const MARKETPLACES: Marketplace[] = [
 export default function NfePage() {
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [nfs, setNfs] = useState<NfRecord[]>([]);
+  const [payments, setPayments] = useState<
+    {
+      id: string;
+      tenantName: string;
+      marketplace: string;
+      dataRecebimento: string;
+      valor: number;
+    }[]
+  >([]);
   const [uploadTenantId, setUploadTenantId] = useState('');
   const [uploadMarketplace, setUploadMarketplace] = useState<Marketplace>('mercado_livre');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -36,12 +45,27 @@ export default function NfePage() {
       .then(setNfs)
       .catch(console.error);
 
+  const loadPayments = () =>
+    fetch('/api/admin/payments', { credentials: 'include' })
+      .then((r) => r.json())
+      .then(setPayments)
+      .catch(console.error);
+
   useEffect(() => {
     fetch('/api/admin/tenants', { credentials: 'include' })
       .then((r) => r.json())
       .then(setTenants);
     loadNfs();
+    loadPayments();
   }, []);
+
+  const markPaid = async (id: string) => {
+    const res = await fetch(`/api/admin/payments/${id}`, {
+      method: 'PATCH',
+      credentials: 'include',
+    });
+    if (res.ok) loadPayments();
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +97,7 @@ export default function NfePage() {
       setUploadFile(null);
       setUploadTenantId('');
       await loadNfs();
+      await loadPayments();
     } catch {
       setUploadError('Falha na conexão');
     } finally {
@@ -278,6 +303,42 @@ export default function NfePage() {
             ))}
           </tbody>
         </table>
+      </Card>
+
+      <Card>
+        <h2 style={{ margin: '0 0 16px', fontSize: 18 }}>Repasses pendentes (D+15 / D+60)</h2>
+        {payments.length === 0 ? (
+          <p style={{ margin: 0, color: '#8B9CB6', fontSize: 14 }}>
+            Nenhum repasse pendente. Aparecem após processar NF-e.
+          </p>
+        ) : (
+          <table style={adminStyles.table}>
+            <thead>
+              <tr>
+                <th style={adminStyles.th}>Cliente</th>
+                <th style={adminStyles.th}>Canal</th>
+                <th style={adminStyles.th}>Previsão</th>
+                <th style={adminStyles.th}>Valor</th>
+                <th style={adminStyles.th}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((p) => (
+                <tr key={p.id}>
+                  <td style={adminStyles.td}>{p.tenantName}</td>
+                  <td style={adminStyles.td}>{p.marketplace}</td>
+                  <td style={adminStyles.td}>{formatDate(p.dataRecebimento)}</td>
+                  <td style={adminStyles.td}>{formatBRL(p.valor)}</td>
+                  <td style={adminStyles.td}>
+                    <Button type="button" onClick={() => markPaid(p.id)}>
+                      Marcar recebido
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </Card>
     </div>
   );

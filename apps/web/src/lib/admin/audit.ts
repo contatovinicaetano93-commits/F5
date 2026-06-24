@@ -9,7 +9,8 @@ export type AdminAuditAction =
   | 'admin.login_rate_limited'
   | 'admin.logout'
   | 'admin.nf_upload'
-  | 'admin.metrics_import';
+  | 'admin.metrics_import'
+  | 'admin.payment_mark_paid';
 
 export interface AdminAuditEntry {
   id: string;

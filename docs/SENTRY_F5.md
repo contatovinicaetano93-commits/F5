@@ -14,7 +14,8 @@ Código já configurado: `next.config.js` → org `imobi-hl`, project `f5-web`.
 
 ## Criar o projeto (Owner/Manager da org)
 
-> A API retorna **403** para Members — só **Owner** ou **Manager** da org `imobi-hl` consegue criar.
+> **Tentativa via Cursor MCP (Jun 2026):** autenticado na org `imobi-hl`, mas `create_project` retorna **403** — *"organization has disabled this feature for members"*.  
+> Só **Owner/Manager** cria `f5-web`, ou habilita Members em Settings → General.
 
 1. Abra https://imobi-hl.sentry.io  
 2. Menu **Projects** → **Create Project**  
@@ -68,6 +69,10 @@ cp apps/web/.env.sentry-build-plugin.example apps/web/.env.sentry-build-plugin
 ---
 
 ## Verificar
+
+```bash
+pnpm sentry:verify   # checa DSN nas env vars
+```
 
 1. Deploy concluído  
 2. Console do browser em https://f5-industria-digital.vercel.app:

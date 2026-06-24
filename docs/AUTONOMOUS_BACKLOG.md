@@ -22,7 +22,7 @@
 
 | # | Passo | Status |
 |---|--------|--------|
-| 1 | Sentry `f5-web` + DSN Vercel | ⚠️ código ✅ |
+| 1 | Sentry `f5-web` + DSN Vercel | ⚠️ MCP 403 — Owner cria projeto |
 | 2 | `SENTRY_AUTH_TOKEN` + source maps | 🟡 `withSentryConfig` ✅ |
 | 3 | GitHub Action type-check + build | ✅ `.github/workflows/ci.yml` |
 | 4 | GitHub Action `gate2:validate` | ✅ job `gate2` (secret `DATABASE_URL`) |
@@ -38,7 +38,7 @@
 | # | Passo | Status |
 |---|--------|--------|
 | 11 | `/admin/clientes/[id]` 360° | ✅ |
-| 12 | CRUD tenant edit | ⬜ |
+| 12 | CRUD tenant edit | ✅ PATCH API |
 | 13 | CRUD produto edit | ⬜ |
 | 14 | Bulk import catálogo CSV | ⬜ |
 | 15 | Filtro + busca listas | ⬜ |
@@ -86,8 +86,8 @@
 | 47 | Histórico mensal | ⬜ |
 | 48 | Regra giro baixo documentada | ⬜ |
 | 49 | Recalc pós NF/CSV | ✅ |
-| 50 | PaymentSchedule `paid` manual | ⬜ |
-| 51 | Marcar repasse recebido | ⬜ |
+| 50 | PaymentSchedule `paid` manual | ✅ |
+| 51 | Marcar repasse recebido | ✅ |
 | 52 | Conciliação A receber | ✅ |
 | 53 | Parser NF namespaces | 🟡 parcial |
 | 54 | Erros parser amigáveis | 🟡 |

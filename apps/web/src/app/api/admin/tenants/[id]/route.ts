@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { internalData } from '@/lib/internal/data';
+import { hasDatabase, prisma } from '@/lib/prisma';
+import type { OperatingScenario, TenantSegment } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -14,4 +16,51 @@ export async function GET(
     return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });
   }
   return NextResponse.json(detail);
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  const authError = requireAdmin(request);
+  if (authError) return authError;
+
+  if (!hasDatabase()) {
+    return NextResponse.json({ error: 'Banco não configurado' }, { status: 503 });
+  }
+
+  const body = await request.json();
+  const data: {
+    name?: string;
+    segment?: TenantSegment;
+    scenario?: OperatingScenario;
+    status?: string;
+  } = {};
+
+  if (typeof body.name === 'string' && body.name.trim()) {
+    data.name = body.name.trim();
+  }
+  if (typeof body.segment === 'string') {
+    data.segment = body.segment as TenantSegment;
+  }
+  if (typeof body.scenario === 'string') {
+    data.scenario = body.scenario as OperatingScenario;
+  }
+  if (typeof body.status === 'string') {
+    data.status = body.status;
+  }
+
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ error: 'Nenhum campo para atualizar' }, { status: 400 });
+  }
+
+  try {
+    const tenant = await prisma.tenant.update({
+      where: { id: params.id },
+      data,
+    });
+    return NextResponse.json({ ok: true, tenant });
+  } catch {
+    return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });
+  }
 }

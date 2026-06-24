@@ -749,4 +749,47 @@ export const internalData = {
 
     return { tenant, products, metrics, insights, nfs };
   },
+
+  payments: {
+    async listPending(tenantId?: string) {
+      if (!hasDatabase()) return [];
+
+      const rows = await prisma.paymentSchedule.findMany({
+        where: {
+          status: 'pending',
+          ...(tenantId ? { tenantId } : {}),
+        },
+        orderBy: { dataRecebimento: 'asc' },
+        include: { tenant: { select: { name: true } } },
+      });
+
+      return rows.map((row) => ({
+        id: row.id,
+        tenantId: row.tenantId,
+        tenantName: row.tenant.name,
+        marketplace: row.marketplace,
+        dataRecebimento: row.dataRecebimento.toISOString(),
+        valor: Number(row.valor),
+        status: row.status as 'pending' | 'paid',
+      }));
+    },
+
+    async markPaid(id: string) {
+      if (!hasDatabase()) {
+        throw new Error('Banco não configurado');
+      }
+
+      const row = await prisma.paymentSchedule.findUnique({ where: { id } });
+      if (!row) throw new Error('Repasse não encontrado');
+      if (row.status === 'paid') return { id, alreadyPaid: true };
+
+      await prisma.paymentSchedule.update({
+        where: { id },
+        data: { status: 'paid' },
+      });
+      await updateDashboardMetrics(row.tenantId);
+
+      return { id, tenantId: row.tenantId, alreadyPaid: false };
+    },
+  },
 };

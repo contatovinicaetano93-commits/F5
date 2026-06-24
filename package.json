@@ -23,6 +23,7 @@
     "db:recalc-all-tenants": "pnpm -F @f5/web db:recalc-all-tenants",
     "onboard:tenant": "pnpm -F @f5/api exec tsx prisma/onboard-tenant.ts",
     "demo:reset": "node scripts/demo-reset.mjs",
+    "sentry:verify": "node scripts/sentry-verify.mjs",
     "ci:check": "pnpm db:generate && pnpm type-check && pnpm test:unit",
     "db:recalc-dashboard": "pnpm -F @f5/web db:recalc-dashboard",
     "supabase:link": "npx supabase link --project-ref jaokeypptatywvarwlao",
