@@ -45,5 +45,13 @@ export async function verifyAdminViaSupabasePassword(
 
   if (!res.ok) return false;
 
+  const normalizedEmail = email.trim().toLowerCase();
+  const expectedEmail = getAdminEmail().trim().toLowerCase();
+
+  // Conta admin configurada — confia no Supabase mesmo se Neon estiver desatualizado.
+  if (normalizedEmail === expectedEmail) {
+    return true;
+  }
+
   return adminHasOperatorRole(email);
 }

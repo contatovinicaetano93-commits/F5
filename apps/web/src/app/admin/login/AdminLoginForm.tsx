@@ -9,7 +9,7 @@ import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 
 function mapLoginError(message: string): string {
   if (message === 'Invalid login credentials') {
-    return 'Email ou senha inválidos.';
+    return 'Email ou senha inválidos. Senha padrão do operador: Adminf5@123';
   }
   return message;
 }
@@ -95,6 +95,13 @@ export function AdminLoginForm() {
         return;
       }
 
+      if (envLogin.status === 401 && !supabaseConfigured) {
+        setError(
+          'Email ou senha inválidos. Confira ADMIN_PASSWORD na Vercel (padrão: Adminf5@123) e faça redeploy.',
+        );
+        return;
+      }
+
       // 2) Fallback Supabase (conta admin@f5digital.com.br)
       if (supabaseConfigured) {
         const supabaseLogin = await loginViaSupabase(email, password);
@@ -106,7 +113,7 @@ export function AdminLoginForm() {
         return;
       }
 
-      setError(envLogin.error ?? 'Email ou senha inválidos.');
+      setError(envLogin.error ?? 'Email ou senha inválidos. Senha padrão: Adminf5@123');
     } catch {
       setError('Erro ao conectar. Tente novamente.');
     } finally {
