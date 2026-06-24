@@ -29,7 +29,12 @@ export function AdminLoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'Falha no login');
+        setError(
+          data.error ??
+            (res.status === 429
+              ? 'Muitas tentativas. Aguarde 15 minutos.'
+              : 'Falha no login'),
+        );
         return;
       }
 

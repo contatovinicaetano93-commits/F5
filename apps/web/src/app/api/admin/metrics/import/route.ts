@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin-auth';
+import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
+import { logAdminAudit } from '@/lib/admin/audit';
 import { internalData } from '@/lib/internal/data';
 import { parseMetricsCsv } from '@/lib/metrics/csv-import';
 
@@ -30,6 +31,17 @@ export async function POST(request: NextRequest) {
   }
 
   const result = await internalData.metrics.importFromCsv(tenantId.trim(), rows);
+
+  await logAdminAudit({
+    action: 'admin.metrics_import',
+    actorEmail: getAdminEmail(),
+    request,
+    metadata: {
+      tenantId: tenantId.trim(),
+      created: result.created,
+      rows: rows.length,
+    },
+  });
 
   return NextResponse.json({
     ok: true,

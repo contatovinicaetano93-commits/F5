@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin-auth';
+import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
+import { logAdminAudit } from '@/lib/admin/audit';
 import { internalData } from '@/lib/internal/data';
 
 export async function POST(request: NextRequest) {
@@ -32,6 +33,16 @@ export async function POST(request: NextRequest) {
       xmlContent,
       marketplace,
     );
+    await logAdminAudit({
+      action: 'admin.nf_upload',
+      actorEmail: getAdminEmail(),
+      request,
+      metadata: {
+        tenantId,
+        nfNumber: nf.nfNumber,
+        valorTotal: nf.valorTotal,
+      },
+    });
     return NextResponse.json(
       {
         success: true,

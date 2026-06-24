@@ -14,10 +14,41 @@ const outfit = Outfit({
   display: 'swap',
 });
 
+const SITE_DESCRIPTION =
+  'Operação completa de marketplaces para indústrias brasileiras. KPIs, recebimentos e prestação de contas — sem expor painéis técnicos.';
+
 export const metadata: Metadata = {
-  title: 'F5 — Indústria no Digital',
-  description:
-    'Operação completa de marketplaces para indústrias brasileiras. Controle, KPIs e recebimentos em um só lugar.',
+  title: {
+    default: 'F5 — Indústria no Digital',
+    template: '%s | F5',
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    'marketplace',
+    'indústria',
+    'operação digital',
+    'Amazon',
+    'Mercado Livre',
+    'KPIs',
+    'contador digital',
+    'recebimentos',
+  ],
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    siteName: 'F5 — Indústria no Digital',
+    title: 'F5 — Indústria no Digital',
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'F5 — Indústria no Digital',
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

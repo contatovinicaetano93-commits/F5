@@ -220,3 +220,17 @@ model PaymentSchedule {
   @@index([tenantId])
   @@index([dataRecebimento])
 }
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  actorEmail String?
+  ip         String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([createdAt])
+  @@index([ip, createdAt])
+}

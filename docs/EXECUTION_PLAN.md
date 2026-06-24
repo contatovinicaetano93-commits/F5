@@ -239,11 +239,11 @@ Cada fase tem **critério de saída (gate)**. Não avançar sem gate verde.
 13. ✅ Login `/login` funcional
 14. ✅ `/cliente` exige sessão em produção
 
-### Sprint D — Hardening
+### Sprint D — Hardening 🟡 em progresso
 14. Sentry `f5-web` (**VOCÊ**: criar projeto + DSN)
-15. Rate limit admin login
-16. Audit log operador
-17. Landing tags client-safe
+15. ✅ Rate limit admin login (5 tentativas / 15 min)
+16. ✅ Audit log operador (`/admin/auditoria`)
+17. ✅ Landing meta tags client-safe + admin noindex
 
 ---
 
