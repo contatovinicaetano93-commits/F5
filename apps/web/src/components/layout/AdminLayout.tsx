@@ -21,7 +21,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
 
-  if (pathname === '/admin/login') {
+  if (!pathname || pathname === '/admin/login') {
     return <>{children}</>;
   }
 

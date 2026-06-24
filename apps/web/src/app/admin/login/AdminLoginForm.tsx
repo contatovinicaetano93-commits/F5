@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
+import { colors, spacing, typography, borderRadius } from '@f5/ui';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 
 function mapLoginError(message: string): string {

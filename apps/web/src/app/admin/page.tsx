@@ -18,8 +18,15 @@ interface Overview {
     ready: boolean;
     tenantName?: string;
     tenantId?: string;
-    checks: { label: string; ok: boolean }[];
+    checks?: { label: string; ok: boolean }[];
   };
+}
+
+function parseOverview(body: unknown): Overview | null {
+  if (!body || typeof body !== 'object') return null;
+  const record = body as Record<string, unknown>;
+  if (!Array.isArray(record.segments)) return null;
+  return body as Overview;
 }
 
 export default function AdminHomePage() {
@@ -34,7 +41,12 @@ export default function AdminHomePage() {
           setLoadError(body.error ?? 'Não foi possível carregar o painel.');
           return;
         }
-        setData(body as Overview);
+        const overview = parseOverview(body);
+        if (!overview) {
+          setLoadError('Resposta inválida do servidor.');
+          return;
+        }
+        setData(overview);
       })
       .catch(() => {
         setLoadError('Erro de rede ao carregar o painel.');
@@ -141,7 +153,7 @@ export default function AdminHomePage() {
               {data.pilotReadiness.tenantName}
             </p>
             <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
-              {data.pilotReadiness.checks.map((c) => (
+              {data.pilotReadiness.checks?.map((c) => (
                 <li key={c.label} style={{ color: c.ok ? '#0D9F6E' : '#8B9CB6' }}>
                   {c.ok ? '✓' : '○'} {c.label}
                 </li>
