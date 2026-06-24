@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
 import { adminStyles, formatDate } from '@/lib/admin/styles';
 import {
@@ -23,8 +24,8 @@ export default function InsightsPage() {
   });
 
   useEffect(() => {
-    fetch('/api/admin/tenants').then((r) => r.json()).then(setTenants);
-    fetch('/api/admin/insights').then((r) => r.json()).then(setInsights);
+    fetchAdminList<InternalTenant>('/api/admin/tenants').then(setTenants);
+    fetchAdminList<InsightNote>('/api/admin/insights').then(setInsights);
   }, []);
 
   useEffect(() => {
@@ -32,8 +33,7 @@ export default function InsightsPage() {
       setProducts([]);
       return;
     }
-    fetch(`/api/admin/products?tenantId=${form.tenantId}`)
-      .then((r) => r.json())
+    fetchAdminList<InternalProduct>(`/api/admin/products?tenantId=${form.tenantId}`)
       .then(setProducts);
   }, [form.tenantId]);
 

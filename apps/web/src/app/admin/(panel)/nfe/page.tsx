@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
 import { adminStyles, formatBRL, formatDate } from '@/lib/admin/styles';
 import { type InternalTenant, type Marketplace, type NfRecord, MARKETPLACE_LABELS } from '@/types/internal';
@@ -41,20 +42,23 @@ export default function NfePage() {
   });
 
   const loadNfs = () =>
-    fetch('/api/admin/nfs', { credentials: 'include' })
-      .then((r) => r.json())
+    fetchAdminList<NfRecord>('/api/admin/nfs', { credentials: 'include' })
       .then(setNfs)
       .catch(console.error);
 
   const loadPayments = () =>
-    fetch('/api/admin/payments', { credentials: 'include' })
-      .then((r) => r.json())
+    fetchAdminList<{
+      id: string;
+      tenantName: string;
+      marketplace: string;
+      dataRecebimento: string;
+      valor: number;
+    }>('/api/admin/payments', { credentials: 'include' })
       .then(setPayments)
       .catch(console.error);
 
   useEffect(() => {
-    fetch('/api/admin/tenants', { credentials: 'include' })
-      .then((r) => r.json())
+    fetchAdminList<InternalTenant>('/api/admin/tenants', { credentials: 'include' })
       .then(setTenants);
     loadNfs();
     loadPayments();

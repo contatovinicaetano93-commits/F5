@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
@@ -17,8 +17,23 @@ const menuItems = [
   { label: 'Sentry', href: '/admin/sentry-test', icon: '🐛' },
 ];
 
+function useSafePathname() {
+  const routerPath = usePathname();
+  const [pathname, setPathname] = useState('');
+
+  useEffect(() => {
+    const next =
+      typeof routerPath === 'string' && routerPath.length > 0
+        ? routerPath
+        : window.location.pathname;
+    setPathname(next);
+  }, [routerPath]);
+
+  return pathname;
+}
+
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname() ?? '';
+  const pathname = useSafePathname();
   const [open, setOpen] = useState(true);
 
   const handleLogout = async () => {

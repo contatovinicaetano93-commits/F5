@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminJson } from '@/lib/admin/fetch';
 import { adminStyles } from '@/lib/admin/styles';
 import { SEGMENT_LABELS, type TenantSegment } from '@/types/internal';
 
@@ -34,14 +35,13 @@ export default function AdminHomePage() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/overview', { credentials: 'include' })
-      .then(async (r) => {
-        const body = await r.json();
-        if (!r.ok) {
-          setLoadError(body.error ?? 'Não foi possível carregar o painel.');
+    fetchAdminJson<Overview>('/api/admin/overview')
+      .then((result) => {
+        if (!result.ok) {
+          setLoadError(result.error || 'Não foi possível carregar o painel.');
           return;
         }
-        const overview = parseOverview(body);
+        const overview = parseOverview(result.data);
         if (!overview) {
           setLoadError('Resposta inválida do servidor.');
           return;
@@ -106,7 +106,9 @@ export default function AdminHomePage() {
             <tbody>
               {data?.segments?.map((s) => (
                 <tr key={s.segment}>
-                  <td style={adminStyles.td}>{SEGMENT_LABELS[s.segment]}</td>
+                  <td style={adminStyles.td}>
+                    {SEGMENT_LABELS[s.segment as TenantSegment] ?? s.segment}
+                  </td>
                   <td style={adminStyles.td}>{s.count}</td>
                 </tr>
               ))}

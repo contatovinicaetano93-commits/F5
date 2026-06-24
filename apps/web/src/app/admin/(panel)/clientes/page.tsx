@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminList } from '@/lib/admin/fetch';
 import { adminStyles } from '@/lib/admin/styles';
 import {
   SEGMENT_LABELS,
@@ -17,10 +18,7 @@ export default function ClientesPage() {
 
   useEffect(() => {
     const url = filter ? `/api/admin/tenants?segment=${filter}` : '/api/admin/tenants';
-    fetch(url)
-      .then((r) => r.json())
-      .then(setTenants)
-      .catch(console.error);
+    fetchAdminList<InternalTenant>(url).then(setTenants).catch(console.error);
   }, [filter]);
 
   const statusBadge = (status: InternalTenant['status']) => {
@@ -71,7 +69,9 @@ export default function ClientesPage() {
                 <td style={adminStyles.td}>
                   <strong>{t.name}</strong>
                 </td>
-                <td style={adminStyles.td}>{SEGMENT_LABELS[t.segment]}</td>
+                <td style={adminStyles.td}>
+                  {SEGMENT_LABELS[t.segment as TenantSegment] ?? t.segment}
+                </td>
                 <td style={adminStyles.td}>{SCENARIO_LABELS[t.scenario]}</td>
                 <td style={adminStyles.td}>{statusBadge(t.status)}</td>
                 <td style={adminStyles.td}>

@@ -78,7 +78,7 @@ export function AdminLoginForm() {
       // 1) Senha da Vercel (ADMIN_PASSWORD) — caminho principal
       const envLogin = await loginViaEnv(email, password);
       if (envLogin.ok) {
-        window.location.assign(target);
+        window.location.href = target;
         return;
       }
 
@@ -106,7 +106,7 @@ export function AdminLoginForm() {
       if (supabaseConfigured) {
         const supabaseLogin = await loginViaSupabase(email, password);
         if (supabaseLogin.ok) {
-          window.location.assign(target);
+          window.location.href = target;
           return;
         }
         setError(supabaseLogin.error);

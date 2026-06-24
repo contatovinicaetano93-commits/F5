@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
 import { adminStyles } from '@/lib/admin/styles';
 import {
@@ -27,13 +28,11 @@ export default function CatalogoPage() {
     const url = tenantId
       ? `/api/admin/products?tenantId=${tenantId}`
       : '/api/admin/products';
-    fetch(url)
-      .then((r) => r.json())
-      .then(setProducts);
+    fetchAdminList<InternalProduct>(url).then(setProducts);
   };
 
   useEffect(() => {
-    fetch('/api/admin/tenants').then((r) => r.json()).then(setTenants);
+    fetchAdminList<InternalTenant>('/api/admin/tenants').then(setTenants);
     loadProducts();
   }, []);
 

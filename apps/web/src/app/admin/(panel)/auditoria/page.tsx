@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminJson } from '@/lib/admin/fetch';
 import { adminStyles } from '@/lib/admin/styles';
 import type { AdminAuditEntry } from '@/lib/admin/audit';
 
@@ -26,9 +27,12 @@ export default function AdminAuditoriaPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/audit?limit=100', { credentials: 'include' })
-      .then((r) => r.json())
-      .then((data) => setLogs(data.logs ?? []))
+    fetchAdminJson<{ logs?: AdminAuditEntry[] }>('/api/admin/audit?limit=100')
+      .then((result) => {
+        if (result.ok) {
+          setLogs(Array.isArray(result.data.logs) ? result.data.logs : []);
+        }
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

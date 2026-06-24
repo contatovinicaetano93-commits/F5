@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
 import { adminStyles, formatBRL, formatPct } from '@/lib/admin/styles';
 import {
@@ -36,11 +37,9 @@ export default function LancamentosPage() {
   });
 
   useEffect(() => {
-    fetch('/api/admin/tenants', { credentials: 'include' })
-      .then((r) => r.json())
+    fetchAdminList<InternalTenant>('/api/admin/tenants', { credentials: 'include' })
       .then(setTenants);
-    fetch('/api/admin/metrics', { credentials: 'include' })
-      .then((r) => r.json())
+    fetchAdminList<ProductMetric>('/api/admin/metrics', { credentials: 'include' })
       .then(setMetrics);
   }, []);
 
@@ -49,15 +48,16 @@ export default function LancamentosPage() {
       setProducts([]);
       return;
     }
-    fetch(`/api/admin/products?tenantId=${form.tenantId}`, { credentials: 'include' })
-      .then((r) => r.json())
-      .then(setProducts);
+    fetchAdminList<InternalProduct>(
+      `/api/admin/products?tenantId=${form.tenantId}`,
+      { credentials: 'include' },
+    ).then(setProducts);
   }, [form.tenantId]);
 
   const reloadMetrics = () =>
-    fetch('/api/admin/metrics', { credentials: 'include' })
-      .then((r) => r.json())
-      .then(setMetrics);
+    fetchAdminList<ProductMetric>('/api/admin/metrics', { credentials: 'include' }).then(
+      setMetrics,
+    );
 
   const handleCsvImport = async (e: React.FormEvent) => {
     e.preventDefault();

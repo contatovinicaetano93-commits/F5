@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { fetchAdminJson } from '@/lib/admin/fetch';
 import { adminStyles, formatBRL, formatPct } from '@/lib/admin/styles';
 import {
   SEGMENT_LABELS,
@@ -27,9 +28,10 @@ export default function ClienteDetailPage({ params }: { params: { id: string } }
   const [data, setData] = useState<TenantDetail | null>(null);
 
   useEffect(() => {
-    fetch(`/api/admin/tenants/${params.id}`)
-      .then((r) => r.json())
-      .then(setData)
+    fetchAdminJson<TenantDetail>(`/api/admin/tenants/${params.id}`)
+      .then((result) => {
+        if (result.ok) setData(result.data);
+      })
       .catch(console.error);
   }, [params.id]);
 

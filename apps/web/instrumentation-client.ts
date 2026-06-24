@@ -13,8 +13,13 @@ if (dsn) {
   }
 }
 
-export const onRouterTransitionStart =
-  Sentry.captureRouterTransitionStart ??
-  (() => {
-    /* noop */
-  });
+export function onRouterTransitionStart(...args: unknown[]) {
+  try {
+    const capture = Sentry.captureRouterTransitionStart as
+      | ((...a: unknown[]) => void)
+      | undefined;
+    capture?.(...args);
+  } catch (error) {
+    console.warn('Sentry router hook skipped:', error);
+  }
+}
