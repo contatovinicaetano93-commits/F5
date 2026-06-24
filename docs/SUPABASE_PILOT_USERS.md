@@ -1,10 +1,24 @@
-# Supabase Auth — usuários demo F5
+# Supabase Auth — usuários F5
 
-Projeto: `jaokeypptatywvarwlao` · Portal: https://f5-industria-digital.vercel.app/login
+Projeto: `jaokeypptatywvarwlao`
 
 ---
 
-## Usuários atuais (Jun 2026)
+## Admin operador
+
+| Email | Senha | Onde entrar |
+|-------|-------|-------------|
+| `admin@f5digital.com.br` | `Adminf5@123` (ou `ADMIN_PASSWORD` na Vercel) | https://f5-industria-digital.vercel.app/admin/login |
+
+Registrar no Supabase + Neon:
+
+```bash
+pnpm db:seed:users
+```
+
+---
+
+## Portal cliente (demo)
 
 | Email | Senha | Tenant Prisma |
 |-------|-------|---------------|

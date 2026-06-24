@@ -5,6 +5,14 @@
 
 export const PILOT_CLIENT_PASSWORD = 'F5Demo2026!';
 
+/** Senha padrão do operador — deve coincidir com ADMIN_PASSWORD na Vercel. */
+export const ADMIN_PORTAL_PASSWORD = 'Adminf5@123';
+
+export const ADMIN_PORTAL_USER = {
+  email: 'admin@f5digital.com.br',
+  name: 'F5 Admin Operador',
+} as const;
+
 export type PilotUserSeed = {
   email: string;
   name: string;

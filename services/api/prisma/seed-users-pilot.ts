@@ -7,6 +7,8 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PrismaClient } from '@prisma/client';
 import {
+  ADMIN_PORTAL_PASSWORD,
+  ADMIN_PORTAL_USER,
   PILOT_CLIENT_PASSWORD,
   PILOT_PORTAL_USERS,
 } from './pilot-users.config';
@@ -73,8 +75,12 @@ async function findSupabaseUserIdByEmail(
     throw new Error(`Supabase list users failed (${res.status}): ${body}`);
   }
 
-  const data = (await res.json()) as { users?: { id: string }[] };
-  return data.users?.[0]?.id ?? null;
+  const data = (await res.json()) as { users?: { id: string; email?: string }[] };
+  const users = data.users ?? [];
+  const match = users.find(
+    (u) => u.email?.toLowerCase() === email.toLowerCase(),
+  );
+  return match?.id ?? users[0]?.id ?? null;
 }
 
 async function upsertSupabaseUser(
@@ -127,6 +133,30 @@ async function upsertSupabaseUser(
 
   if (!res.ok) {
     const body = await res.text();
+    if (res.status === 422 && body.includes('email_exists')) {
+      const retryId = await findSupabaseUserIdByEmail(baseUrl, secret, email);
+      if (retryId) {
+        const updateRes = await fetch(`${baseUrl}/auth/v1/admin/users/${retryId}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${secret}`,
+            apikey: secret,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            email_confirm: true,
+            user_metadata: metadata,
+          }),
+        });
+        if (!updateRes.ok) {
+          const updateBody = await updateRes.text();
+          throw new Error(`Supabase update user failed (${updateRes.status}): ${updateBody}`);
+        }
+        return 'updated';
+      }
+    }
     throw new Error(`Supabase create user failed (${res.status}): ${body}`);
   }
 
@@ -146,8 +176,46 @@ async function main() {
     );
   }
 
-  console.log('\n=== F5 — registrar usuários portal (demo) ===\n');
-  console.log(`Senha: ${PILOT_CLIENT_PASSWORD}\n`);
+  console.log('\n=== F5 — registrar usuários (admin + portal demo) ===\n');
+
+  /** Deve coincidir com ADMIN_PASSWORD na Vercel. */
+  const adminPassword = ADMIN_PORTAL_PASSWORD;
+
+  const adminUser = await prisma.user.upsert({
+    where: { email: ADMIN_PORTAL_USER.email },
+    create: {
+      email: ADMIN_PORTAL_USER.email,
+      password: 'supabase-auth',
+      name: ADMIN_PORTAL_USER.name,
+      role: 'admin',
+    },
+    update: {
+      name: ADMIN_PORTAL_USER.name,
+      role: 'admin',
+    },
+  });
+
+  let adminSupabaseStatus = 'skip (sem credenciais Supabase)';
+  if (supabase) {
+    const action = await upsertSupabaseUser(
+      supabase.url,
+      supabase.secret,
+      ADMIN_PORTAL_USER.email,
+      adminPassword,
+      {
+        f5_role: 'admin',
+        prisma_user_id: adminUser.id,
+      },
+    );
+    adminSupabaseStatus =
+      action === 'created' ? 'Supabase ✅ criado' : 'Supabase ✅ atualizado';
+  }
+
+  console.log(`✅ ${ADMIN_PORTAL_USER.email} (operador admin)`);
+  console.log(`   Senha: ${adminPassword}`);
+  console.log(`   Neon: admin · ${adminSupabaseStatus}\n`);
+
+  console.log(`Portal demo — senha: ${PILOT_CLIENT_PASSWORD}\n`);
 
   for (const viewer of PILOT_PORTAL_USERS) {
     const tenant = await prisma.tenant.findFirst({
@@ -197,7 +265,8 @@ async function main() {
     console.log(`   Neon: client_viewer · ${supabaseStatus}\n`);
   }
 
-  console.log('Login: https://f5-industria-digital.vercel.app/login\n');
+  console.log('Admin: https://f5-industria-digital.vercel.app/admin/login');
+  console.log('Cliente: https://f5-industria-digital.vercel.app/login\n');
 }
 
 main()

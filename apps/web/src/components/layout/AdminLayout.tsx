@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 import { colors, spacing, typography, borderRadius } from '@f5/ui';
 
 const menuItems = [
@@ -25,6 +26,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }
 
   const handleLogout = async () => {
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    }
     await fetch('/api/admin/auth/logout', { method: 'POST' });
     window.location.href = '/admin/login';
   };

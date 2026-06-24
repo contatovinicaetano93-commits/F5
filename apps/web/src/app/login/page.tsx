@@ -7,6 +7,13 @@ import { useRouter } from 'next/navigation';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
 
+function mapClientLoginError(message: string): string {
+  if (message === 'Invalid login credentials') {
+    return 'Email ou senha inválidos. Cliente: demo.nutri@f5digital.com.br — Operador F5: use /admin/login';
+  }
+  return message;
+}
+
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +38,7 @@ function LoginForm() {
         });
 
         if (signInError) {
-          setError(signInError.message);
+          setError(mapClientLoginError(signInError.message));
           return;
         }
 
@@ -202,6 +209,21 @@ function LoginForm() {
             {loading ? 'Entrando...' : 'Entrar no portal'}
           </button>
         </form>
+
+        <p
+          style={{
+            marginBottom: spacing[4],
+            fontSize: 12,
+            color: colors.gray,
+            textAlign: 'center',
+            lineHeight: 1.5,
+          }}
+        >
+          Equipe F5 (operador)?{' '}
+          <Link href="/admin/login" style={{ color: colors.blue, fontWeight: 600 }}>
+            Entrar no admin
+          </Link>
+        </p>
 
         <div style={{ textAlign: 'center' }}>
           <Link

@@ -5,11 +5,23 @@ export const ADMIN_COOKIE_NAME = 'f5_admin_session';
 
 const DEFAULT_ADMIN_EMAIL = 'admin@f5digital.com.br';
 
+/** Remove aspas acidentais coladas na Vercel e espaços extras. */
+export function normalizeEnvValue(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  let trimmed = value.trim();
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    trimmed = trimmed.slice(1, -1).trim();
+  }
+  return trimmed || undefined;
+}
+
 /** Token de sessão — nunca reutilizar ADMIN_PASSWORD. */
 export function getAdminSessionToken(): string | undefined {
-  if (process.env.ADMIN_SECRET?.trim()) {
-    return process.env.ADMIN_SECRET.trim();
-  }
+  const secret = normalizeEnvValue(process.env.ADMIN_SECRET);
+  if (secret) return secret;
   if (!isProductionDeploy()) {
     return 'f5-dev-session';
   }
@@ -17,17 +29,21 @@ export function getAdminSessionToken(): string | undefined {
 }
 
 export function isAdminAuthConfigured(): boolean {
-  if (!process.env.ADMIN_PASSWORD?.trim()) return false;
+  if (!normalizeEnvValue(process.env.ADMIN_PASSWORD)) return false;
   if (isProductionDeploy() && !getAdminSessionToken()) return false;
   return true;
 }
 
 export function getAdminEmail(): string {
-  return process.env.ADMIN_EMAIL ?? DEFAULT_ADMIN_EMAIL;
+  return normalizeEnvValue(process.env.ADMIN_EMAIL) ?? DEFAULT_ADMIN_EMAIL;
+}
+
+export function getAdminPassword(): string | undefined {
+  return normalizeEnvValue(process.env.ADMIN_PASSWORD);
 }
 
 export function verifyAdminCredentials(email: string, password: string): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminPassword = getAdminPassword();
   if (!adminPassword) return false;
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -35,7 +51,7 @@ export function verifyAdminCredentials(email: string, password: string): boolean
 
   return (
     normalizedEmail === expectedEmail &&
-    password.trim() === adminPassword.trim()
+    password.trim() === adminPassword
   );
 }
 

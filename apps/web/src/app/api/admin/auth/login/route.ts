@@ -15,7 +15,10 @@ import { getClientIp } from '@/lib/http/client-ip';
 export async function POST(request: NextRequest) {
   if (!isAdminAuthConfigured()) {
     return NextResponse.json(
-      { error: 'Admin auth not configured. Set ADMIN_PASSWORD on the server.' },
+      {
+        error:
+          'Admin não configurado na Vercel. Defina ADMIN_PASSWORD e ADMIN_SECRET (valores diferentes), opcionalmente ADMIN_EMAIL, e faça redeploy.',
+      },
       { status: 503 },
     );
   }

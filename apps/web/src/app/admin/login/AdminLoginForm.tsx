@@ -4,15 +4,24 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
+
+function mapLoginError(message: string): string {
+  if (message === 'Invalid login credentials') {
+    return 'Email ou senha inválidos. Use admin@f5digital.com.br e a senha do operador F5.';
+  }
+  return message;
+}
 
 export function AdminLoginForm() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('admin@f5digital.com.br');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') ?? '/admin';
+  const supabaseConfigured = isSupabaseConfigured();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,22 +29,51 @@ export function AdminLoginForm() {
     setError('');
 
     try {
-      const res = await fetch('/api/admin/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      if (supabaseConfigured) {
+        const supabase = createClient();
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
 
-      const data = await res.json();
+        if (signInError) {
+          setError(mapLoginError(signInError.message));
+          return;
+        }
 
-      if (!res.ok) {
-        setError(
-          data.error ??
-            (res.status === 429
-              ? 'Muitas tentativas. Aguarde 15 minutos.'
-              : 'Falha no login'),
-        );
-        return;
+        const sessionRes = await fetch('/api/admin/auth/establish-session', {
+          method: 'POST',
+          credentials: 'include',
+        });
+
+        if (!sessionRes.ok) {
+          const data = await sessionRes.json().catch(() => ({}));
+          await supabase.auth.signOut();
+          setError(
+            data.error ??
+              'Sem permissão de operador. Confirme a conta admin no Supabase.',
+          );
+          return;
+        }
+      } else {
+        const res = await fetch('/api/admin/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(
+            data.error ??
+              (res.status === 429
+                ? 'Muitas tentativas. Aguarde 15 minutos.'
+                : 'Falha no login'),
+          );
+          return;
+        }
       }
 
       router.push(redirectTo);
@@ -117,7 +155,7 @@ export function AdminLoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              autoComplete="off"
+              autoComplete="username"
               style={{
                 width: '100%',
                 padding: spacing[3],
@@ -148,7 +186,7 @@ export function AdminLoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="new-password"
+              autoComplete="current-password"
               style={{
                 width: '100%',
                 padding: spacing[3],
@@ -182,7 +220,22 @@ export function AdminLoginForm() {
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: spacing[6] }}>
+        <p
+          style={{
+            marginTop: spacing[4],
+            fontSize: 12,
+            color: colors.gray,
+            lineHeight: 1.5,
+            textAlign: 'center',
+          }}
+        >
+          Cliente (portal)?{' '}
+          <Link href="/login" style={{ color: colors.blue }}>
+            Área do cliente
+          </Link>
+        </p>
+
+        <div style={{ textAlign: 'center', marginTop: spacing[4] }}>
           <Link
             href="/"
             style={{
