@@ -8,9 +8,53 @@ import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 
 function mapLoginError(message: string): string {
   if (message === 'Invalid login credentials') {
-    return 'Email ou senha inválidos. Use admin@f5digital.com.br e a senha do operador F5.';
+    return 'Email ou senha inválidos.';
   }
   return message;
+}
+
+async function loginViaEnv(email: string, password: string) {
+  const res = await fetch('/api/admin/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email: email.trim(), password }),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, error: data.error as string | undefined };
+}
+
+async function loginViaSupabase(email: string, password: string) {
+  const supabase = createClient();
+  const { data: signInData, error: signInError } =
+    await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+  if (signInError) {
+    return { ok: false as const, error: mapLoginError(signInError.message) };
+  }
+
+  const accessToken = signInData.session?.access_token;
+  const sessionRes = await fetch('/api/admin/auth/establish-session', {
+    method: 'POST',
+    credentials: 'include',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+
+  if (!sessionRes.ok) {
+    const data = await sessionRes.json().catch(() => ({}));
+    await supabase.auth.signOut();
+    return {
+      ok: false as const,
+      error:
+        (data.error as string | undefined) ??
+        'Sem permissão de operador F5.',
+    };
+  }
+
+  return { ok: true as const };
 }
 
 export function AdminLoginForm() {
@@ -27,62 +71,41 @@ export function AdminLoginForm() {
     setLoading(true);
     setError('');
 
+    const target = redirectTo.startsWith('/') ? redirectTo : '/admin';
+
     try {
-      if (supabaseConfigured) {
-        const supabase = createClient();
-        const { data: signInData, error: signInError } =
-          await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password,
-          });
-
-        if (signInError) {
-          setError(mapLoginError(signInError.message));
-          return;
-        }
-
-        const accessToken = signInData.session?.access_token;
-        const sessionRes = await fetch('/api/admin/auth/establish-session', {
-          method: 'POST',
-          credentials: 'include',
-          headers: accessToken
-            ? { Authorization: `Bearer ${accessToken}` }
-            : undefined,
-        });
-
-        if (!sessionRes.ok) {
-          const data = await sessionRes.json().catch(() => ({}));
-          await supabase.auth.signOut();
-          setError(
-            data.error ??
-              'Sem permissão de operador. Confirme a conta admin no Supabase.',
-          );
-          return;
-        }
-      } else {
-        const res = await fetch('/api/admin/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email, password }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setError(
-            data.error ??
-              (res.status === 429
-                ? 'Muitas tentativas. Aguarde 15 minutos.'
-                : 'Falha no login'),
-          );
-          return;
-        }
+      // 1) Senha da Vercel (ADMIN_PASSWORD) — caminho principal
+      const envLogin = await loginViaEnv(email, password);
+      if (envLogin.ok) {
+        window.location.assign(target);
+        return;
       }
 
-      window.location.assign(
-        redirectTo.startsWith('/') ? redirectTo : '/admin',
-      );
+      if (envLogin.status === 429) {
+        setError(envLogin.error ?? 'Muitas tentativas. Aguarde 15 minutos.');
+        return;
+      }
+
+      if (envLogin.status === 503) {
+        setError(
+          envLogin.error ??
+            'Admin não configurado na Vercel (ADMIN_PASSWORD + ADMIN_SECRET).',
+        );
+        return;
+      }
+
+      // 2) Fallback Supabase (conta admin@f5digital.com.br)
+      if (supabaseConfigured) {
+        const supabaseLogin = await loginViaSupabase(email, password);
+        if (supabaseLogin.ok) {
+          window.location.assign(target);
+          return;
+        }
+        setError(supabaseLogin.error);
+        return;
+      }
+
+      setError(envLogin.error ?? 'Email ou senha inválidos.');
     } catch {
       setError('Erro ao conectar. Tente novamente.');
     } finally {
