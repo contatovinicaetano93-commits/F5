@@ -8,7 +8,8 @@ const nextConfig = {
 
 module.exports = withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG ?? 'imobi-hl',
-  project: process.env.SENTRY_PROJECT ?? 'f5-web',
+  // Interim: DSN key "f5-web" lives on project `javascript` until Owner creates `f5-web`
+  project: process.env.SENTRY_PROJECT ?? 'javascript',
   authToken: process.env.SENTRY_AUTH_TOKEN,
   widenClientFileUpload: true,
   tunnelRoute: '/monitoring',

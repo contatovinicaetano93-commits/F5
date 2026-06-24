@@ -1,38 +1,43 @@
 # Sentry F5 — projeto separado do imobi
 
-**Objetivo:** erros do F5 em `f5-web`, sem misturar com o projeto `javascript` / imobi.
+**Objetivo:** erros do F5 identificados por tags `service:f5-web`, sem misturar com imobi no mesmo DSN.
 
 | | imobi | F5 |
 |---|-------|-----|
-| Org Sentry | `imobi-hl` (mesma conta) | `imobi-hl` |
-| Projeto | `javascript` (ou imobi) | **`f5-web`** |
-| DSN | ❌ não reutilizar | ✅ próprio |
+| Org Sentry | `imobi-hl` | `imobi-hl` |
+| Projeto ideal | `javascript` | **`f5-web`** (Owner cria) |
+| DSN F5 | ❌ não reutilizar | ✅ key **`f5-web`** (via MCP) |
+| Tags eventos | — | `service:f5-web` |
 
-Código já configurado: `next.config.js` → org `imobi-hl`, project `f5-web`.
-
----
-
-## Criar o projeto (Owner/Manager da org)
-
-> **Tentativa via Cursor MCP (Jun 2026):** autenticado na org `imobi-hl`, mas `create_project` retorna **403** — *"organization has disabled this feature for members"*.  
-> Só **Owner/Manager** cria `f5-web`, ou habilita Members em Settings → General.
-
-1. Abra https://imobi-hl.sentry.io  
-2. Menu **Projects** → **Create Project**  
-3. Platform: **Next.js**  
-4. Nome do projeto: **`f5-web`**  
-5. Team: **imobi**  
-6. **Create Project**
-
-Alternativa (habilitar Members):  
-**Settings → General Settings** → permitir que Members criem projetos (se disponível no plano).
+Código: `@sentry/nextjs` + `instrumentation-client.ts` + `withSentryConfig`.
 
 ---
 
-## Copiar DSN
+## Status MCP (Jun 2026)
 
-1. No projeto **f5-web** → **Settings → Client Keys (DSN)**  
-2. Copie a URL (formato `https://…@…ingest.us.sentry.io/…`)
+| Ação MCP | Resultado |
+|----------|-----------|
+| `create_project` → `f5-web` | ❌ 403 — Members não podem criar projeto |
+| `create_dsn` → key **`f5-web`** no projeto `javascript` | ✅ DSN dedicado F5 |
+| `whoami` | `contato.vinicaetano93@gmail.com` |
+
+**Interim:** DSN separado, eventos no projeto Sentry `javascript` com tag `service:f5-web`.  
+Filtrar no dashboard: `service:f5-web` ou DSN key `f5-web`.
+
+**Ideal (Owner):** criar projeto `f5-web` → migrar DSN → `SENTRY_PROJECT=f5-web` na Vercel.
+
+---
+
+## DSN F5 (key `f5-web`)
+
+> Copie para Vercel — **não commitar** no repo.
+
+```
+NEXT_PUBLIC_SENTRY_DSN=https://1450b74cfefdd0f2187679abff9a4e80@o4511474932514816.ingest.us.sentry.io/4511474938478592
+SENTRY_DSN=https://1450b74cfefdd0f2187679abff9a4e80@o4511474932514816.ingest.us.sentry.io/4511474938478592
+```
+
+Dashboard: https://imobi-hl.sentry.io/projects/javascript/
 
 ---
 
@@ -40,11 +45,11 @@ Alternativa (habilitar Members):
 
 | Variável | Valor |
 |----------|-------|
-| `NEXT_PUBLIC_SENTRY_DSN` | DSN do f5-web |
+| `NEXT_PUBLIC_SENTRY_DSN` | DSN acima |
 | `SENTRY_DSN` | mesmo DSN |
-| `SENTRY_AUTH_TOKEN` | (opcional) token para source maps |
 | `SENTRY_ORG` | `imobi-hl` |
-| `SENTRY_PROJECT` | `f5-web` |
+| `SENTRY_PROJECT` | `javascript` (interim) ou `f5-web` (após Owner criar) |
+| `SENTRY_AUTH_TOKEN` | (opcional) source maps |
 
 Ambientes: **Production** + **Preview** → **Redeploy**.
 
@@ -52,14 +57,16 @@ Ambientes: **Production** + **Preview** → **Redeploy**.
 
 ## Local (opcional)
 
-Em `apps/web/.env.local`:
+`apps/web/.env.local`:
 
 ```bash
-NEXT_PUBLIC_SENTRY_DSN=https://...
-SENTRY_DSN=https://...
+NEXT_PUBLIC_SENTRY_DSN=https://1450b74cfefdd0f2187679abff9a4e80@o4511474932514816.ingest.us.sentry.io/4511474938478592
+SENTRY_DSN=https://1450b74cfefdd0f2187679abff9a4e80@o4511474932514816.ingest.us.sentry.io/4511474938478592
+SENTRY_ORG=imobi-hl
+SENTRY_PROJECT=javascript
 ```
 
-Source maps no build local:
+Source maps no build:
 
 ```bash
 cp apps/web/.env.sentry-build-plugin.example apps/web/.env.sentry-build-plugin
@@ -71,21 +78,21 @@ cp apps/web/.env.sentry-build-plugin.example apps/web/.env.sentry-build-plugin
 ## Verificar
 
 ```bash
-pnpm sentry:verify   # checa DSN nas env vars
+pnpm sentry:verify   # checa env vars locais
 ```
 
-1. Deploy concluído  
-2. Console do browser em https://f5-industria-digital.vercel.app:
+1. Redeploy Vercel com DSN  
+2. Console em https://f5-industria-digital.vercel.app:
 
 ```javascript
 throw new Error('F5 Sentry test');
 ```
 
-3. Issue deve aparecer em: https://imobi-hl.sentry.io/issues/?project=f5-web  
-   (não no projeto `javascript`)
+3. Issue em https://imobi-hl.sentry.io/issues/ — filtrar `service:f5-web`
 
 ---
 
 ## Futuro
 
-Quando a API Nest subir no Render: criar **`f5-api`** (mesma org, DSN separado).
+- Owner cria projeto **`f5-web`** → novo DSN → atualizar Vercel  
+- NestJS Render: **`f5-api`** (mesma org, DSN separado)

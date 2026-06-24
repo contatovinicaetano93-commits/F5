@@ -29,5 +29,11 @@ export function getBaseSentryOptions(dsn: string) {
     environment: getSentryEnvironment(),
     tracesSampleRate: process.env.NODE_ENV === 'development' ? 1.0 : 0.1,
     enableLogs: true,
+    initialScope: {
+      tags: {
+        service: 'f5-web',
+        app: 'f5-industria-digital',
+      },
+    },
   };
 }

@@ -64,19 +64,20 @@ Dev local (apaga e recria dados): `ALLOW_DESTRUCTIVE_SEED=true pnpm db:seed`
 
 ---
 
-## 4. Sentry — monitoramento F5 (projeto separado do imobi)
+## 4. Sentry — monitoramento F5
 
 **Guia completo:** [`docs/SENTRY_F5.md`](./SENTRY_F5.md)
 
-**Org:** `imobi-hl` · **Projeto:** `f5-web` · [Dashboard](https://imobi-hl.sentry.io)
+**Org:** `imobi-hl` · **DSN key:** `f5-web` · [Dashboard](https://imobi-hl.sentry.io/projects/javascript/)
 
-| # | Ação | Quem |
-|---|------|------|
-| 4.1 | Criar projeto **`f5-web`** (Next.js) | **Owner/Manager** da org (Members recebem 403) |
-| 4.2 | Copiar DSN | Project Settings → Client Keys |
-| 4.3 | Vercel: `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` | Você |
-| 4.4 | (Opcional) `SENTRY_AUTH_TOKEN` para source maps | Você |
-| 4.5 | Redeploy | Vercel |
+| # | Ação | Status |
+|---|------|--------|
+| 4.1 | DSN `f5-web` criado via MCP | ✅ (interim no projeto `javascript`) |
+| 4.2 | Vercel: `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` | ⬜ **você** — ver `SENTRY_F5.md` |
+| 4.3 | Vercel: `SENTRY_ORG=imobi-hl` · `SENTRY_PROJECT=javascript` | ⬜ |
+| 4.4 | (Opcional) `SENTRY_AUTH_TOKEN` source maps | ⬜ |
+| 4.5 | Redeploy | ⬜ |
+| 4.6 | (Ideal) Owner cria projeto **`f5-web`** separado | ⬜ |
 
 ⚠️ **Não** reutilizar DSN do projeto `javascript` / imobi.
 

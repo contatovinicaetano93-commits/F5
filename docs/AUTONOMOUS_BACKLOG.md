@@ -22,7 +22,7 @@
 
 | # | Passo | Status |
 |---|--------|--------|
-| 1 | Sentry `f5-web` + DSN Vercel | ⚠️ MCP 403 — Owner cria projeto |
+| 1 | Sentry DSN `f5-web` via MCP | 🟡 DSN ✅ · projeto dedicado ⚠️ Owner |
 | 2 | `SENTRY_AUTH_TOKEN` + source maps | 🟡 `withSentryConfig` ✅ |
 | 3 | GitHub Action type-check + build | ✅ `.github/workflows/ci.yml` |
 | 4 | GitHub Action `gate2:validate` | ✅ job `gate2` (secret `DATABASE_URL`) |
