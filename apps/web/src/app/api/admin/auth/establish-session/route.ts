@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerContext } from '@/lib/supabase/context';
+import { createSupabaseContextFromRequest } from '@/lib/supabase/context';
 import { isSupabaseConfigured } from '@/lib/supabase-client';
 import { hasDatabase, prisma } from '@/lib/prisma';
 import {
@@ -29,12 +29,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { data: ctx, error } = await createSupabaseServerContext({
+  const { data: ctx, error } = await createSupabaseContextFromRequest(request, {
     auth: 'user',
   });
 
   if (error || !ctx?.userClaims?.email) {
-    return NextResponse.json({ error: 'Sessão Supabase inválida' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Sessão Supabase inválida. Tente entrar novamente.' },
+      { status: 401 },
+    );
   }
 
   const email = ctx.userClaims.email.trim().toLowerCase();

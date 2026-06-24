@@ -24,12 +24,21 @@ interface Overview {
 
 export default function AdminHomePage() {
   const [data, setData] = useState<Overview | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/overview', { credentials: 'include' })
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error);
+      .then(async (r) => {
+        const body = await r.json();
+        if (!r.ok) {
+          setLoadError(body.error ?? 'Não foi possível carregar o painel.');
+          return;
+        }
+        setData(body as Overview);
+      })
+      .catch(() => {
+        setLoadError('Erro de rede ao carregar o painel.');
+      });
   }, []);
 
   return (
@@ -40,6 +49,19 @@ export default function AdminHomePage() {
           Segunda-feira: revisar KPIs, identificar giro baixo, atualizar lançamentos.
         </p>
       </div>
+
+      {loadError && (
+        <Card variant="outlined">
+          <p style={{ margin: 0, color: '#DC2626' }}>{loadError}</p>
+          <p style={{ margin: '8px 0 0', fontSize: 14, color: '#8B9CB6' }}>
+            Tente{' '}
+            <Link href="/admin/login" style={adminStyles.link}>
+              entrar novamente
+            </Link>
+            .
+          </p>
+        </Card>
+      )}
 
       <div style={adminStyles.grid4}>
         <Card>
@@ -75,7 +97,7 @@ export default function AdminHomePage() {
               </tr>
             </thead>
             <tbody>
-              {data?.segments.map((s) => (
+              {data?.segments?.map((s) => (
                 <tr key={s.segment}>
                   <td style={adminStyles.td}>{SEGMENT_LABELS[s.segment]}</td>
                   <td style={adminStyles.td}>{s.count}</td>

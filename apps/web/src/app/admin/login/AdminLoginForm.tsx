@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 
@@ -18,7 +18,6 @@ export function AdminLoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') ?? '/admin';
   const supabaseConfigured = isSupabaseConfigured();
@@ -31,19 +30,24 @@ export function AdminLoginForm() {
     try {
       if (supabaseConfigured) {
         const supabase = createClient();
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+        const { data: signInData, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password,
+          });
 
         if (signInError) {
           setError(mapLoginError(signInError.message));
           return;
         }
 
+        const accessToken = signInData.session?.access_token;
         const sessionRes = await fetch('/api/admin/auth/establish-session', {
           method: 'POST',
           credentials: 'include',
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : undefined,
         });
 
         if (!sessionRes.ok) {
@@ -76,8 +80,9 @@ export function AdminLoginForm() {
         }
       }
 
-      router.push(redirectTo);
-      router.refresh();
+      window.location.assign(
+        redirectTo.startsWith('/') ? redirectTo : '/admin',
+      );
     } catch {
       setError('Erro ao conectar. Tente novamente.');
     } finally {
