@@ -13,6 +13,7 @@ const menuItems = [
   { label: 'Insights', href: '/admin/insights', icon: '💡' },
   { label: 'Catálogo', href: '/admin/catalogo', icon: '📦' },
   { label: 'Auditoria', href: '/admin/auditoria', icon: '📋' },
+  { label: 'Sentry', href: '/admin/sentry-test', icon: '🐛' },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

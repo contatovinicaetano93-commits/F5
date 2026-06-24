@@ -75,7 +75,14 @@ cp apps/web/.env.sentry-build-plugin.example apps/web/.env.sentry-build-plugin
 
 ---
 
-## Verificar
+## Verificar (sem console / F12)
+
+1. Login admin: https://f5-industria-digital.vercel.app/admin/login  
+2. Abra **Admin → Sentry** (`/admin/sentry-test`)  
+3. Clique **Testar Sentry (servidor)** ou **Testar Sentry (browser)**  
+4. Em ~30s, veja issues com tag `service:f5-web`
+
+## Verificar (CLI)
 
 ```bash
 pnpm sentry:verify   # checa env vars locais
