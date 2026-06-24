@@ -113,13 +113,7 @@ export const adminStyles = {
   },
 };
 
-export function formatBRL(value: number) {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-export function formatPct(value: number) {
-  return `${(value * 100).toFixed(1)}%`;
-}
+export { formatBRL, formatPct } from '@f5/core';
 
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR');

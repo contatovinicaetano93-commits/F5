@@ -3,6 +3,10 @@ import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
 import { internalData } from '@/lib/internal/data';
 import { parseMetricsCsv } from '@/lib/metrics/csv-import';
+import {
+  assertUploadSize,
+  MAX_CSV_UPLOAD_BYTES,
+} from '@/lib/resilience/upload-limits';
 
 export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
@@ -18,6 +22,11 @@ export async function POST(request: NextRequest) {
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: 'Arquivo CSV obrigatório' }, { status: 400 });
+  }
+
+  const sizeError = assertUploadSize(file, MAX_CSV_UPLOAD_BYTES, 'CSV');
+  if (sizeError) {
+    return NextResponse.json({ error: sizeError }, { status: 413 });
   }
 
   const text = await file.text();

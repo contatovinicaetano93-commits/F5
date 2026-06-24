@@ -1,76 +1,47 @@
 # F5 — Independent Platform
 
-🚀 **F5** is a complete platform with:
-- **Web**: Next.js 14 + Shadcn/UI (TypeScript)
-- **Mobile**: Expo 51 + React Native (iOS/Android)
-- **API**: NestJS + Fastify (REST/WebSockets)
-- **Database**: PostgreSQL + Prisma ORM
-- **Cache**: Redis
+**INDÚSTRIA NO DIGITAL** — consultoria + operação marketplace + software.
 
-## ⚠️ INDEPENDENCE PRINCIPLE
-
-✅ **F5 is completely independent from imobi and amet**
-- No shared packages with other projects
-- Own monorepo structure
-- Separate Git repository
-- Separate deployments
-
-## 🚀 Quick Start
+## Quick start
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Development
-pnpm dev
-
-# Build
-pnpm build
-
-# Type checking
-pnpm type-check
-
-# Testing
-pnpm test
+pnpm dev                 # web + api
+pnpm ci:check            # type-check + unit tests
+pnpm gate2:validate      # NF-e + KPIs (requer DATABASE_URL)
 ```
 
-## 📦 Project Structure
+## Documentação
 
-```
-f5/
-├── apps/
-│   ├── web/          # Next.js frontend
-│   └── mobile/       # Expo + React Native
-├── services/
-│   └── api/          # NestJS API
-├── packages/
-│   ├── schemas/      # Zod validation (F5 only)
-│   ├── core/         # Utils & hooks (F5 only)
-│   ├── ui/           # UI components (F5 only)
-│   └── config/       # Shared configs
-└── turbo.json        # Monorepo configuration
-```
+| Doc | Uso |
+|-----|-----|
+| [EXECUTION_PLAN.md](docs/EXECUTION_PLAN.md) | Fases e gates |
+| [AUTONOMOUS_BACKLOG.md](docs/AUTONOMOUS_BACKLOG.md) | **100 passos — memória do agente** |
+| [MANUAL_SETUP.md](docs/MANUAL_SETUP.md) | Vercel, Neon, Supabase, Sentry |
+| [OPERATING_MODEL.md](docs/OPERATING_MODEL.md) | Operação 360 |
+| [SECURITY.md](docs/SECURITY.md) | Threat model |
+| [RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | Deploy |
 
-## 🔧 Development
+## Comandos úteis
 
-Each workspace is independent but shares base configs through turborepo.
-
-### Web Development
 ```bash
-cd apps/web && pnpm dev
+pnpm gate1:validate          # admin operacional
+pnpm gate3:validate          # portal cliente
+pnpm smoke:prod              # smoke produção
+pnpm db:seed:pilot           # SKUs piloto
+pnpm onboard:tenant -- --name "..." --segment PET
+pnpm demo:reset              # reset demo dev
+pnpm db:recalc-all-tenants   # recalc KPIs
 ```
 
-### API Development
-```bash
-cd services/api && pnpm dev
-```
+## Stack
 
-### Mobile Development
-```bash
-cd apps/mobile && pnpm dev
-```
+Next.js 14 · Neon Postgres · Prisma · Supabase Auth · Vercel
+
+## Produção
+
+https://f5-industria-digital.vercel.app
 
 ---
 
-**Status**: 🚀 Ready for development
-**Created**: 2026-06-22
+Repo independente — zero dependência de imobi/amet.

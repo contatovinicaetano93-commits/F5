@@ -38,6 +38,9 @@ jobs:
       - name: Type-check
         run: pnpm type-check
 
+      - name: Unit tests
+        run: pnpm test:unit
+
       - name: Build web (production env validation)
         run: pnpm -F @f5/web build
         env:

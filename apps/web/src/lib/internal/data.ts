@@ -138,6 +138,50 @@ async function createPaymentSchedulesFromNf(
   );
 }
 
+const PILOT_READINESS_NAME = 'PET Piloto Nutri';
+
+async function computePilotReadiness() {
+  if (!hasDatabase()) {
+    return { ready: false, checks: [] as { label: string; ok: boolean }[] };
+  }
+
+  const tenant = await prisma.tenant.findFirst({
+    where: { name: PILOT_READINESS_NAME },
+  });
+  if (!tenant) {
+    return {
+      ready: false,
+      tenantName: PILOT_READINESS_NAME,
+      checks: [{ label: 'Tenant piloto', ok: false }],
+    };
+  }
+
+  const [skus, nfs, insights, viewers] = await Promise.all([
+    prisma.product.count({ where: { tenantId: tenant.id } }),
+    prisma.notaFiscal.count({ where: { tenantId: tenant.id } }),
+    prisma.insightNote.count({
+      where: { tenantId: tenant.id, visibleToClient: true },
+    }),
+    prisma.user.count({
+      where: { tenantId: tenant.id, role: 'client_viewer' },
+    }),
+  ]);
+
+  const checks = [
+    { label: 'SKUs ≥ 4', ok: skus >= 4 },
+    { label: 'NF-e ≥ 1', ok: nfs >= 1 },
+    { label: 'Insight publicado', ok: insights >= 1 },
+    { label: 'Viewer portal', ok: viewers >= 1 },
+  ];
+
+  return {
+    ready: checks.every((c) => c.ok),
+    tenantName: tenant.name,
+    tenantId: tenant.id,
+    checks,
+  };
+}
+
 export const internalData = {
   tenants: {
     async list(segment?: TenantSegment): Promise<InternalTenant[]> {
@@ -676,6 +720,7 @@ export const internalData = {
         segment,
         count: tenants.filter((t) => t.segment === segment).length,
       })),
+      pilotReadiness: await computePilotReadiness(),
     };
   },
 

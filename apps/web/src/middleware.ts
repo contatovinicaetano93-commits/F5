@@ -10,7 +10,12 @@ import {
 import { isSupabaseConfigured } from '@/lib/supabase-client';
 import { getSupabasePublishableKey, getSupabaseUrl } from '@/lib/supabase/env';
 import { isClientAuthRequired } from '@/lib/client/auth';
+import { applySecurityHeaders } from '@/lib/resilience/security-headers';
 import { createServerClient } from '@supabase/ssr';
+
+function withSecurity(response: NextResponse) {
+  return applySecurityHeaders(response);
+}
 
 function isPublicPath(pathname: string): boolean {
   if (pathname === '/') return true;
@@ -83,31 +88,39 @@ async function requireClientPortalSession(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === '/api/health' || pathname.startsWith('/api/cron/')) {
+    return withSecurity(NextResponse.next());
+  }
+
   if (pathname === '/admin/login' || pathname.startsWith('/api/admin/auth')) {
-    return NextResponse.next();
+    return withSecurity(NextResponse.next());
   }
 
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     if (!isAdminAuthConfigured()) {
       if (pathname.startsWith('/api/')) {
-        return NextResponse.json(
-          { error: 'Admin auth not configured' },
-          { status: 503 },
+        return withSecurity(
+          NextResponse.json(
+            { error: 'Admin auth not configured' },
+            { status: 503 },
+          ),
         );
       }
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+      return withSecurity(NextResponse.redirect(new URL('/admin/login', request.url)));
     }
 
     if (!hasAdminSession(request)) {
       if (pathname.startsWith('/api/')) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return withSecurity(
+          NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
+        );
       }
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      return withSecurity(NextResponse.redirect(loginUrl));
     }
 
-    return NextResponse.next();
+    return withSecurity(NextResponse.next());
   }
 
   const clientProtected =
@@ -118,36 +131,38 @@ export async function middleware(request: NextRequest) {
       pathname === '/api/client/auth/logout' ||
       pathname === '/api/client/auth/login'
     ) {
-      return NextResponse.next();
+      return withSecurity(NextResponse.next());
     }
 
     if (isSupabaseConfigured()) {
-      return requireSupabaseUser(request);
+      return withSecurity(await requireSupabaseUser(request));
     }
 
     if (isClientPortalAuthConfigured()) {
-      return requireClientPortalSession(request);
+      return withSecurity(await requireClientPortalSession(request));
     }
 
     if (pathname.startsWith('/api/')) {
-      return NextResponse.json(
-        { error: 'Client auth not configured' },
-        { status: 503 },
+      return withSecurity(
+        NextResponse.json(
+          { error: 'Client auth not configured' },
+          { status: 503 },
+        ),
       );
     }
-    return NextResponse.redirect(new URL('/login', request.url));
+    return withSecurity(NextResponse.redirect(new URL('/login', request.url)));
   }
 
   if (isPublicPath(pathname)) {
-    return NextResponse.next();
+    return withSecurity(NextResponse.next());
   }
 
   if (isSupabaseConfigured()) {
     const { response } = await refreshSupabaseSession(request);
-    return response;
+    return withSecurity(response);
   }
 
-  return NextResponse.next();
+  return withSecurity(NextResponse.next());
 }
 
 export const config = {

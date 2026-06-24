@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
+import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 
 interface Insight {
   id: string;
@@ -22,7 +23,7 @@ export default function ClienteInsightsPage() {
   }, []);
 
   if (insights === null) {
-    return <p className={styles.loading}>Carregando insights...</p>;
+    return <ClientSkeleton rows={2} />;
   }
 
   return (

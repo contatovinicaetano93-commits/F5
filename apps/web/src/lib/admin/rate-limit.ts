@@ -3,28 +3,36 @@ import { hasDatabase, prisma } from '@/lib/prisma';
 const MAX_LOGIN_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000;
 
+export type LoginRateLimitScope = 'admin' | 'client';
+
 const memoryAttempts = new Map<string, number[]>();
 
-function pruneMemory(ip: string, now: number) {
-  const attempts = memoryAttempts.get(ip) ?? [];
-  const recent = attempts.filter((t) => now - t < WINDOW_MS);
-  if (recent.length === 0) memoryAttempts.delete(ip);
-  else memoryAttempts.set(ip, recent);
+function memoryKey(ip: string, scope: LoginRateLimitScope): string {
+  return `${scope}:${ip}`;
 }
 
-function isMemoryRateLimited(ip: string): boolean {
+function pruneMemory(key: string, now: number) {
+  const attempts = memoryAttempts.get(key) ?? [];
+  const recent = attempts.filter((t) => now - t < WINDOW_MS);
+  if (recent.length === 0) memoryAttempts.delete(key);
+  else memoryAttempts.set(key, recent);
+}
+
+function isMemoryRateLimited(ip: string, scope: LoginRateLimitScope): boolean {
   const now = Date.now();
-  pruneMemory(ip, now);
-  const attempts = memoryAttempts.get(ip) ?? [];
+  const key = memoryKey(ip, scope);
+  pruneMemory(key, now);
+  const attempts = memoryAttempts.get(key) ?? [];
   return attempts.length >= MAX_LOGIN_ATTEMPTS;
 }
 
-function recordMemoryFailure(ip: string) {
+function recordMemoryFailure(ip: string, scope: LoginRateLimitScope) {
   const now = Date.now();
-  pruneMemory(ip, now);
-  const attempts = memoryAttempts.get(ip) ?? [];
+  const key = memoryKey(ip, scope);
+  pruneMemory(key, now);
+  const attempts = memoryAttempts.get(key) ?? [];
   attempts.push(now);
-  memoryAttempts.set(ip, attempts);
+  memoryAttempts.set(key, attempts);
 }
 
 export async function isAdminLoginRateLimited(ip: string): Promise<boolean> {
@@ -42,11 +50,20 @@ export async function isAdminLoginRateLimited(ip: string): Promise<boolean> {
     return count >= MAX_LOGIN_ATTEMPTS;
   }
 
-  return isMemoryRateLimited(ip);
+  return isMemoryRateLimited(ip, 'admin');
 }
 
 export async function recordAdminLoginFailure(ip: string): Promise<void> {
   if (!hasDatabase()) {
-    recordMemoryFailure(ip);
+    recordMemoryFailure(ip, 'admin');
   }
+}
+
+export function isClientLoginRateLimited(ip: string): boolean {
+  if (ip === 'unknown') return false;
+  return isMemoryRateLimited(ip, 'client');
+}
+
+export function recordClientLoginFailure(ip: string): void {
+  recordMemoryFailure(ip, 'client');
 }

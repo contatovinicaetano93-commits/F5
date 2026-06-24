@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
 import { internalData } from '@/lib/internal/data';
+import {
+  assertUploadSize,
+  MAX_XML_UPLOAD_BYTES,
+} from '@/lib/resilience/upload-limits';
 
 export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
@@ -17,6 +21,11 @@ export async function POST(request: NextRequest) {
       { error: 'Arquivo XML e cliente são obrigatórios' },
       { status: 400 },
     );
+  }
+
+  const sizeError = assertUploadSize(file, MAX_XML_UPLOAD_BYTES, 'XML');
+  if (sizeError) {
+    return NextResponse.json({ error: sizeError }, { status: 413 });
   }
 
   if (!file.name.toLowerCase().endsWith('.xml')) {

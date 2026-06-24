@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
+import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { formatBRL, formatPct } from '@/lib/admin/styles';
 
 interface Overview {
@@ -49,7 +50,7 @@ export default function ClienteInicioPage() {
   }, []);
 
   if (!data) {
-    return <p className={styles.loading}>Carregando indicadores...</p>;
+    return <ClientSkeleton />;
   }
 
   const variationPositive = data.variationPct >= 0;

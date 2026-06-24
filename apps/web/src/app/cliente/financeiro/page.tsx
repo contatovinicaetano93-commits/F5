@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import styles from '@/styles/client.module.css';
+import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { formatBRL } from '@/lib/admin/styles';
 
 interface NfItem {
@@ -81,7 +82,7 @@ export default function ClienteFinanceiroPage() {
   }, [data]);
 
   if (!data) {
-    return <p className={styles.loading}>Carregando financeiro...</p>;
+    return <ClientSkeleton rows={2} />;
   }
 
   const monthLabel = new Date(

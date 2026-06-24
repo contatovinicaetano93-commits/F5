@@ -14,6 +14,12 @@ interface Overview {
   pendingNfs: number;
   clientInsights: number;
   segments: { segment: TenantSegment; count: number }[];
+  pilotReadiness?: {
+    ready: boolean;
+    tenantName?: string;
+    tenantId?: string;
+    checks: { label: string; ok: boolean }[];
+  };
 }
 
 export default function AdminHomePage() {
@@ -105,8 +111,29 @@ export default function AdminHomePage() {
       </div>
 
       <Card variant="outlined">
+        <h2 style={{ margin: '0 0 12px', fontSize: '18px' }}>Readiness piloto comercial</h2>
+        {data?.pilotReadiness ? (
+          <>
+            <p style={{ margin: '0 0 12px', color: data.pilotReadiness.ready ? '#0D9F6E' : '#C98A0A' }}>
+              {data.pilotReadiness.ready ? '✅ Pronto para Gate 4' : '⏳ Pendências para Gate 4'} —{' '}
+              {data.pilotReadiness.tenantName}
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
+              {data.pilotReadiness.checks.map((c) => (
+                <li key={c.label} style={{ color: c.ok ? '#0D9F6E' : '#8B9CB6' }}>
+                  {c.ok ? '✓' : '○'} {c.label}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p style={{ margin: 0, color: '#8B9CB6' }}>Carregando…</p>
+        )}
+      </Card>
+
+      <Card variant="outlined">
         <p style={{ margin: 0, fontSize: 14, color: '#8B9CB6' }}>
-          Fase 2 — dados reais no Neon. Próximo gate: NF-e real do piloto + review semanal com cliente.
+          Gates: `pnpm gate1:validate` · `pnpm gate2:validate` · `pnpm gate3:validate`
         </p>
       </Card>
     </div>

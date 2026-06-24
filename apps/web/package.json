@@ -9,7 +9,11 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:recalc-dashboard": "tsx --tsconfig tsconfig.json scripts/recalc-dashboard.ts",
-    "gate2:validate": "tsx --tsconfig tsconfig.json scripts/gate2-validate.ts"
+    "gate2:validate": "tsx --tsconfig tsconfig.json scripts/gate2-validate.ts",
+    "gate1:validate": "tsx --tsconfig tsconfig.json scripts/gate1-validate.ts",
+    "gate3:validate": "tsx --tsconfig tsconfig.json scripts/gate3-validate.ts",
+    "test:unit": "tsx --tsconfig tsconfig.json scripts/test-unit.ts",
+    "db:recalc-all-tenants": "tsx --tsconfig tsconfig.json scripts/recalc-all-tenants.ts"
   },
   "dependencies": {
     "@f5/core": "workspace:*",

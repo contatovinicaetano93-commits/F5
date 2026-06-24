@@ -708,6 +708,48 @@
   padding: 40px 0;
 }
 
+.skeletonWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0 24px;
+}
+
+.skeletonHero,
+.skeletonCard,
+.skeletonBlock {
+  background: linear-gradient(
+    90deg,
+    rgba(13, 27, 42, 0.06) 0%,
+    rgba(13, 27, 42, 0.1) 50%,
+    rgba(13, 27, 42, 0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+.skeletonHero {
+  height: 72px;
+}
+
+.skeletonCard {
+  height: 96px;
+}
+
+.skeletonBlock {
+  height: 140px;
+}
+
+@keyframes skeletonPulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 .emptyState {
   padding: 40px 28px;
   text-align: center;
@@ -811,4 +853,23 @@
     white-space: nowrap;
     max-width: 100%;
   }
+}
+
+.logoutBtn {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.logoutBtn:hover {
+  background: var(--negative-soft);
+  border-color: var(--negative);
+  color: var(--negative);
 }

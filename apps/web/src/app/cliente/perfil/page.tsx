@@ -1,7 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
+import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 
 interface ProfileData {
   company: {
@@ -25,6 +27,7 @@ interface ProfileData {
 }
 
 export default function ClientePerfilPage() {
+  const router = useRouter();
   const [data, setData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
@@ -34,8 +37,14 @@ export default function ClientePerfilPage() {
       .catch(console.error);
   }, []);
 
+  const handleLogout = async () => {
+    await fetch('/api/client/auth/logout', { method: 'POST', credentials: 'include' });
+    router.push('/login');
+    router.refresh();
+  };
+
   if (!data) {
-    return <p className={styles.loading}>Carregando perfil...</p>;
+    return <ClientSkeleton rows={2} />;
   }
 
   const { company, contact } = data;
@@ -135,6 +144,12 @@ export default function ClientePerfilPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className={styles.card}>
+        <button type="button" onClick={handleLogout} className={styles.logoutBtn}>
+          Sair do portal
+        </button>
       </div>
     </div>
   );

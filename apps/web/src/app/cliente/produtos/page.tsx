@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
+import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { formatBRL, formatPct } from '@/lib/admin/styles';
 
 interface ProductItem {
@@ -45,7 +46,7 @@ export default function ClienteProdutosPage() {
   }, []);
 
   if (!data) {
-    return <p className={styles.loading}>Carregando produtos...</p>;
+    return <ClientSkeleton rows={2} />;
   }
 
   return (
