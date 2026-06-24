@@ -75,6 +75,8 @@ cp apps/web/.env.sentry-build-plugin.example apps/web/.env.sentry-build-plugin
 
 ---
 
+**Causa comum (corrigida Jun/2026):** `tunnelRoute: /monitoring` retornava 404 na Vercel — eventos não chegavam. Removido; envio direto ao ingest (permitido no CSP).
+
 ## Verificar (sem console / F12)
 
 1. Login admin: https://f5-industria-digital.vercel.app/admin/login  

@@ -12,7 +12,8 @@ module.exports = withSentryConfig(nextConfig, {
   project: process.env.SENTRY_PROJECT ?? 'javascript',
   authToken: process.env.SENTRY_AUTH_TOKEN,
   widenClientFileUpload: true,
-  tunnelRoute: '/monitoring',
+  // Sem tunnelRoute: /monitoring retornava 404 na Vercel e bloqueava envio.
+  // CSP já permite connect-src para *.sentry.io e *.ingest.us.sentry.io.
   silent: !process.env.CI,
   disableLogger: true,
 });
