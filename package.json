@@ -16,7 +16,10 @@
     "db:seed": "pnpm -F @f5/api exec prisma db seed",
     "db:seed:pilot": "pnpm -F @f5/api exec tsx prisma/seed-pilot.ts",
     "gate2:validate": "pnpm -F @f5/web gate2:validate",
-    "db:recalc-dashboard": "pnpm -F @f5/web db:recalc-dashboard"
+    "ci:check": "pnpm db:generate && pnpm type-check",
+    "db:recalc-dashboard": "pnpm -F @f5/web db:recalc-dashboard",
+    "supabase:link": "npx supabase link --project-ref jaokeypptatywvarwlao",
+    "supabase:login": "npx supabase login"
   },
   "devDependencies": {
     "turbo": "^2.0.0"

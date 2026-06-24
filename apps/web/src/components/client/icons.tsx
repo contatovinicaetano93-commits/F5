@@ -32,3 +32,13 @@ export function IconProfile({ className }: { className?: string }) {
     </svg>
   );
 }
+
+export function IconInsights({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M12 3v3M12 18v3M3 12h3M18 12h3" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="4" />
+      <path d="M7 7l2 2M15 15l2 2M17 7l-2 2M9 15l-2 2" strokeLinecap="round" />
+    </svg>
+  );
+}

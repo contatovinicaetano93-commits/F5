@@ -21,7 +21,7 @@
 ## Tom da conversa
 
 - **Postura**: parceiro de operação digital, não vendedor de software
-- **Promessa**: você fabrica; nós cuidamos do online e prestamos contas
+- **Promessa**: você fabrica; nós cuidamos do online e consultamos com dados claros
 - **Prova**: mostrar a interface (mock ou app) — números claros, sem jargão de marketplace
 
 ---

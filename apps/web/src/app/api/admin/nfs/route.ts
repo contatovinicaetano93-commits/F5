@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       nfSeries: body.nfSeries ?? '1',
       nfDate: body.nfDate ?? new Date().toISOString(),
       valorTotal: body.valorTotal ?? 0,
-      itemsCount: body.itemsCount ?? 0,
+      itemsCount: body.itemsCount ?? 1,
       status: 'processed',
       marketplace: body.marketplace,
     });

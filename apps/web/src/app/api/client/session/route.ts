@@ -1,15 +1,29 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { getClientAuthContext } from '@/lib/client/auth';
+import { withSupabaseRoute } from '@/lib/supabase/with-route-handler';
+import { requireClientAuth } from '@/lib/client/auth';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  const ctx = await getClientAuthContext(request);
-  if (!ctx) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+/** Example: JWT-verified session via @supabase/server (cookie or Bearer). */
+export const GET = withSupabaseRoute({ auth: 'user' }, async (request, ctx) => {
+  const portalAuth = await requireClientAuth(request);
+
+  if (portalAuth instanceof NextResponse) {
+    if (!ctx.userClaims?.email) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
+
+    return NextResponse.json({
+      authenticated: true,
+      demo: false,
+      email: ctx.userClaims.email,
+      authMode: ctx.authMode,
+    });
   }
+
   return NextResponse.json({
-    authenticated: !ctx.demo,
-    demo: ctx.demo,
-    tenantId: ctx.tenantId,
-    email: ctx.email,
+    authenticated: !portalAuth.demo,
+    demo: portalAuth.demo,
+    tenantId: portalAuth.tenantId,
+    email: portalAuth.email,
+    authMode: ctx.authMode,
   });
-}
+});

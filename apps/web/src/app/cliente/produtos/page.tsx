@@ -75,8 +75,17 @@ export default function ClienteProdutosPage() {
 
       <div className={styles.card}>
         <h3 className={styles.cardTitle}>Catálogo monitorado</h3>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
+        {data.items.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p className={styles.emptyStateTitle}>Nenhum produto monitorado</p>
+            <p className={styles.emptyStateBody}>
+              A equipe F5 cadastra os SKUs ativos nos marketplaces. Entre em contato se
+              esperava ver produtos aqui.
+            </p>
+          </div>
+        ) : (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
             <thead>
               <tr>
                 <th>SKU</th>
@@ -109,6 +118,7 @@ export default function ClienteProdutosPage() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </div>
   );

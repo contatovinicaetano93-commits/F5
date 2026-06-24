@@ -708,18 +708,45 @@
   padding: 40px 0;
 }
 
+.emptyState {
+  padding: 40px 28px;
+  text-align: center;
+  background: var(--surface-elevated);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+.emptyStateTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.emptyStateBody {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.bottomNav {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .shell {
     flex-direction: column;
+    padding-bottom: 72px;
   }
 
   .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
+    display: none;
   }
 
-  .sidebarCollapsed {
+  .main {
     width: 100%;
   }
 
@@ -731,5 +758,57 @@
 
   .kpiGrid {
     grid-template-columns: 1fr;
+  }
+
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+
+  .bottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--surface-elevated);
+    border-top: 1px solid var(--border);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+    gap: 2px;
+    box-shadow: 0 -4px 24px rgba(10, 22, 40, 0.06);
+  }
+
+  .bottomNavLink {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    min-width: 0;
+  }
+
+  .bottomNavLinkActive {
+    color: var(--blue);
+    background: var(--blue-soft);
+  }
+
+  .bottomNavIcon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .bottomNavLink span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
 }

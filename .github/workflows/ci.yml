@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PNPM_VERSION: '9.0.0'
+
+jobs:
+  quality:
+    name: Type-check & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Type-check
+        run: pnpm type-check
+
+      - name: Build web (production env validation)
+        run: pnpm -F @f5/web build
+        env:
+          NODE_ENV: production
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          ADMIN_PASSWORD: ci-admin-password
+          ADMIN_SECRET: ci-admin-secret
+          NEXT_PUBLIC_SUPABASE_URL: https://ci.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+          SUPABASE_URL: https://ci.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+          SUPABASE_SECRET_KEY: sb_secret_ci_placeholder
+          SUPABASE_JWKS_URL: https://ci.supabase.co/auth/v1/.well-known/jwks.json
+
+  gate2:
+    name: Gate 2 validate (Neon)
+    runs-on: ubuntu-latest
+    needs: quality
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Gate 2 — NF-e, métricas, portal
+        run: pnpm gate2:validate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CLIENT_DEMO_TENANT_ID: ${{ secrets.CLIENT_DEMO_TENANT_ID }}

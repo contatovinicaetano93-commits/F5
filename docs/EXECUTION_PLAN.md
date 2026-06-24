@@ -5,14 +5,14 @@
 **Data**: Junho 2026  
 **Status**: Fonte única de verdade para implementação
 
-> **Substitui** `MVP_PLAN_V2.md` (visão antiga com sync de marketplace).  
+> **Substitui** `docs/legacy/MVP_PLAN_V2.md` (visão antiga com sync de marketplace).  
 > **Complementa** (não repete): `docs/OPERATING_MODEL.md` (negócio) · `docs/ARCHITECTURE_STRATEGY.md` (decisões técnicas)
 
 ---
 
 ## Norte
 
-**F5 = contador digital da indústria no marketplace.**
+**F5 = consultoria digital de marketplace para a indústria.**
 
 | Camada | Pergunta que responde |
 |--------|------------------------|
@@ -240,7 +240,7 @@ Cada fase tem **critério de saída (gate)**. Não avançar sem gate verde.
 14. ✅ `/cliente` exige sessão em produção
 
 ### Sprint D — Hardening 🟡 em progresso
-14. Sentry `f5-web` (**VOCÊ**: criar projeto + DSN)
+14. Sentry `f5-web` — código ✅ · **VOCÊ**: criar projeto + DSN na Vercel (§ MANUAL_SETUP 4)
 15. ✅ Rate limit admin login (5 tentativas / 15 min)
 16. ✅ Audit log operador (`/admin/auditoria`)
 17. ✅ Landing meta tags client-safe + admin noindex

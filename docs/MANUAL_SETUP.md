@@ -64,16 +64,21 @@ Dev local (apaga e recria dados): `ALLOW_DESTRUCTIVE_SEED=true pnpm db:seed`
 
 ---
 
-## 4. Sentry — **quando quiser monitoramento**
+## 4. Sentry — monitoramento F5 (projeto separado do imobi)
 
-| # | Ação | Onde |
+**Guia completo:** [`docs/SENTRY_F5.md`](./SENTRY_F5.md)
+
+**Org:** `imobi-hl` · **Projeto:** `f5-web` · [Dashboard](https://imobi-hl.sentry.io)
+
+| # | Ação | Quem |
 |---|------|------|
-| 4.1 | Criar projeto **`f5-web`** | sentry.io (mesma org imobi) |
-| 4.2 | Copiar DSN | Project Settings |
-| 4.3 | Colar na Vercel | `NEXT_PUBLIC_SENTRY_DSN` |
-| 4.4 | (Futuro) Projeto **`f5-api`** | Quando API Nest subir no Render |
+| 4.1 | Criar projeto **`f5-web`** (Next.js) | **Owner/Manager** da org (Members recebem 403) |
+| 4.2 | Copiar DSN | Project Settings → Client Keys |
+| 4.3 | Vercel: `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` | Você |
+| 4.4 | (Opcional) `SENTRY_AUTH_TOKEN` para source maps | Você |
+| 4.5 | Redeploy | Vercel |
 
-⚠️ **Não** reutilizar DSN do imobi.
+⚠️ **Não** reutilizar DSN do projeto `javascript` / imobi.
 
 ---
 

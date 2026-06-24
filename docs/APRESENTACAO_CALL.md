@@ -32,7 +32,7 @@
 
 **Tom**: parceiro de operação digital, não vendedor de software.
 
-> "Obrigado pelo tempo. A F5 conecta indústrias brasileiras ao mercado digital — operamos os canais e prestamos contas com clareza. Você fabrica; nós cuidamos do online."
+> "Obrigado pelo tempo. A F5 conecta indústrias brasileiras ao mercado digital — operamos os canais e consultamos com clareza. Você fabrica; nós cuidamos do online."
 
 **Pergunta de abertura**:
 > "Hoje, como vocês acompanham vendas nos marketplaces — ou ainda estão concentrados no offline?"
@@ -57,14 +57,14 @@ Validar se o prospect se identifica. Não precisa ler slide a slide — use como
 ## 3. Solução F5 (2 min)
 
 **Frase-chave**:
-> "A F5 é o contador digital da sua indústria no marketplace. Você vê vendas, performance e recebimentos. Nós fazemos o resto."
+> "A F5 é a consultoria digital de marketplace da sua indústria. Você vê vendas, performance e recebimentos. Nós fazemos o resto."
 
 **Divisão de papéis**:
 
 | Indústria | F5 |
 |-----------|-----|
-| Fabrifica | Opera o digital |
-| Mantém qualidade e marca | Presta contas com dados claros |
+| Fabrica | Opera o digital |
+| Mantém qualidade e marca | Consultoria com dados claros |
 | Foca na produção | Cuida de marketplace e giro |
 
 **O que fazemos** (alto nível — sem detalhar o como):
@@ -72,7 +72,7 @@ Validar se o prospect se identifica. Não precisa ler slide a slide — use como
 - Acompanhamos preço e posicionamento
 - Identificamos oportunidades de giro
 - Organizamos a operação digital ponta a ponta
-- Prestamos contas com clareza e regularidade
+- Consultoria com clareza e regularidade
 
 ---
 
@@ -162,7 +162,7 @@ Validar se o prospect se identifica. Não precisa ler slide a slide — use como
 
 ### "Já tentamos marketplace e não deu certo."
 
-> Muitas indústrias publicam e param. Nosso foco é **giro** — produto que vende, não só anúncio no ar. A operação é contínua, com prestação de contas semanal.
+> Muitas indústrias publicam e param. Nosso foco é **giro** — produto que vende, não só anúncio no ar. A operação é contínua, com acompanhamento semanal de KPIs.
 
 ### "Preciso contratar alguém interno?"
 
@@ -170,7 +170,7 @@ Validar se o prospect se identifica. Não precisa ler slide a slide — use como
 
 ### "É software ou consultoria?"
 
-> Os dois, mas o diferencial é a **operação real**. Não entregamos só relatório — operamos o canal e prestamos contas.
+> Os dois, mas o diferencial é a **operação real**. Não entregamos só relatório — operamos o canal e consultamos com clareza.
 
 ---
 

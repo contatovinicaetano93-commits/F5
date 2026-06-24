@@ -11,7 +11,7 @@
 
 > **A indústria quer ver números e confiar. Não quer aprender software de marketplace.**
 
-A interface do **cliente** é um **extrato digital** — como o app do banco ou o relatório do contador. Simples, objetivo, um número grande por tela.
+A interface do **cliente** é um **painel executivo** — como o app do banco ou um dashboard de consultoria. Simples, objetivo, um número grande por tela.
 
 A interface do **admin F5** é onde o operador lança métricas, sobe NF-e e registra insights de giro.
 

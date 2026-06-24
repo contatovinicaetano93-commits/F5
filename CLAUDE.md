@@ -107,7 +107,7 @@ pnpm test             # rodar testes
 - `PITCH_V3.md` — Pitch atualizado com portfólio e AI-first
 - `PITCH_V2.md` — Pitch executivo com modelo de negócio
 - `BUSINESS_MODEL.md` — Detalhes de modelos e finanças
-- `docs/OPERATING_MODEL.md` — **Modelo operacional (contador + KPIs + manual)**
+- `docs/OPERATING_MODEL.md` — **Modelo operacional (consultoria + KPIs + manual)**
 - `docs/ARCHITECTURE_STRATEGY.md` — Arquitetura alinhada ao modelo (mínimas integrações)
 - `docs/UI_UX_PRINCIPLES.md` — Simplicidade e objetividade na interface
 - `docs/APRESENTACAO_CLIENTE.md` — Roteiro call com indústria (sem sigilos)

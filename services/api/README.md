@@ -152,10 +152,14 @@ openssl rand -base64 48
 # Copiar para .env
 ```
 
-## 📝 TODOs
+## ⚠️ Código legado
 
-- [ ] Integração com Mercado Livre API
-- [ ] Integração com Amazon SP-API
-- [ ] Job queue para processamento assíncrono (BullMQ)
-- [ ] Webhooks para eventos de marketplace
-- [ ] Testes E2E completos
+Módulos da visão antiga (sync automático de marketplaces) estão em `src/legacy/` — **não** importados em `app.module.ts`. Ver `src/legacy/README.md`.
+
+Fixtures de teste (NF-e XML, CSV métricas): **`apps/web/public/fixtures/`** — não duplicar em `prisma/fixtures/`.
+
+## 📝 Fora do MVP atual
+
+- [ ] Integração marketplace API — só se volume justificar (ver `docs/OPERATING_MODEL.md`)
+- [ ] Job queue / webhooks — legado em `src/legacy/sync/`
+- [ ] Testes E2E API — dashboard legado excluído do tsconfig

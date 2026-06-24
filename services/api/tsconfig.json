@@ -25,6 +25,6 @@
     "src/dashboard/**",
     "src/nf/**",
     "src/marketplace/**",
-    "src/sync/**"
+    "src/legacy/**"
   ]
 }

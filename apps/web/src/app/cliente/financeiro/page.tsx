@@ -162,24 +162,41 @@ export default function ClienteFinanceiroPage() {
           </div>
 
           <div className={styles.eventList}>
-            {data.calendarEvents.map((e) => (
-              <div key={e.id} className={styles.eventItem}>
-                <span className={styles.eventDate}>
-                  {new Date(e.date).toLocaleDateString('pt-BR')}
-                </span>
-                <span className={styles.eventLabel}>
-                  {e.label} — D+{e.settlementDays}
-                </span>
-                <span className={styles.eventAmount}>{formatBRL(e.amount)}</span>
+            {data.calendarEvents.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyStateTitle}>Sem recebimentos neste mês</p>
+                <p className={styles.emptyStateBody}>
+                  Datas de repasse aparecem após o processamento das NF-e pela operação F5.
+                </p>
               </div>
-            ))}
+            ) : (
+              data.calendarEvents.map((e) => (
+                <div key={e.id} className={styles.eventItem}>
+                  <span className={styles.eventDate}>
+                    {new Date(e.date).toLocaleDateString('pt-BR')}
+                  </span>
+                  <span className={styles.eventLabel}>
+                    {e.label} — D+{e.settlementDays}
+                  </span>
+                  <span className={styles.eventAmount}>{formatBRL(e.amount)}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Notas fiscais (NF-e)</h3>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
+          {data.nfs.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p className={styles.emptyStateTitle}>Nenhuma NF-e registrada</p>
+              <p className={styles.emptyStateBody}>
+                As notas fiscais das vendas nos marketplaces são importadas pela equipe F5.
+              </p>
+            </div>
+          ) : (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Número</th>
@@ -216,6 +233,7 @@ export default function ClienteFinanceiroPage() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
       </div>
     </div>

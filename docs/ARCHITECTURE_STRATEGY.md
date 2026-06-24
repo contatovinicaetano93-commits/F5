@@ -5,7 +5,7 @@
 **Data**: Junho 2026  
 **Fundadores**: Vinicius Caetano + Raul
 
-> Alinhado a `docs/OPERATING_MODEL.md`: o sistema é **contador digital + KPIs** para a indústria. Marketplace é operado **manualmente** pela equipe F5.
+> Alinhado a `docs/OPERATING_MODEL.md`: o sistema é **consultoria digital + KPIs** para a indústria. Marketplace é operado **manualmente** pela equipe F5.
 
 ---
 
@@ -125,7 +125,7 @@ Sentry em API e workers de NF/email.
 - Publicação automática de anúncios
 - Circuit breaker por marketplace (não há integração)
 
-*Referência histórica: `docs/SYNC_FLOWS.md` descreve visão antiga — não é o MVP atual.*
+*Referência histórica: `docs/legacy/SYNC_FLOWS.md` descreve visão antiga — não é o MVP atual.*
 
 ---
 
@@ -133,7 +133,7 @@ Sentry em API e workers de NF/email.
 
 | Prioridade | Item | Motivo |
 |------------|------|--------|
-| P0 | Dashboard KPIs cliente (NF + métricas) | Contador digital |
+| P0 | Dashboard KPIs cliente (NF + métricas) | Consultoria digital |
 | P0 | Admin: lançamento manual de performance | Operador alimenta giro |
 | P0 | Multi-tenant | Vários clientes (Nutripássaros, Medway…) |
 | P1 | Import CSV relatório marketplace | Reduz digitação manual |

@@ -16,7 +16,9 @@ if (!process.env.ADMIN_PASSWORD?.trim()) missing.push('ADMIN_PASSWORD');
 if (!process.env.ADMIN_SECRET?.trim()) missing.push('ADMIN_SECRET');
 const hasSupabase =
   process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+    process.env.SUPABASE_PUBLISHABLE_KEY?.trim());
 
 if (!hasSupabase && !process.env.CLIENT_DEMO_TENANT_ID?.trim()) {
   missing.push('CLIENT_DEMO_TENANT_ID');

@@ -4,12 +4,13 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from '@/styles/client.module.css';
-import { IconFinance, IconHome, IconProducts, IconProfile } from '@/components/client/icons';
+import { IconFinance, IconHome, IconInsights, IconProducts, IconProfile } from '@/components/client/icons';
 
 const menuItems = [
   { label: 'Início', href: '/cliente', icon: IconHome, exact: true },
   { label: 'Produtos', href: '/cliente/produtos', icon: IconProducts, exact: false },
   { label: 'Financeiro', href: '/cliente/financeiro', icon: IconFinance, exact: false },
+  { label: 'Insights', href: '/cliente/insights', icon: IconInsights, exact: false },
   { label: 'Perfil', href: '/cliente/perfil', icon: IconProfile, exact: false },
 ];
 
@@ -17,6 +18,7 @@ const pageTitles: Record<string, { title: string; eyebrow: string }> = {
   '/cliente': { title: 'Visão geral', eyebrow: 'Início' },
   '/cliente/produtos': { title: 'Performance por produto', eyebrow: 'Produtos' },
   '/cliente/financeiro': { title: 'Controle financeiro', eyebrow: 'Financeiro' },
+  '/cliente/insights': { title: 'Insights da operação', eyebrow: 'Insights' },
   '/cliente/perfil': { title: 'Sua empresa', eyebrow: 'Perfil' },
 };
 
@@ -145,6 +147,25 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         </header>
         <main className={styles.content}>{children}</main>
       </div>
+
+      <nav className={styles.bottomNav} aria-label="Navegação principal">
+        {menuItems.map((item) => {
+          const active = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`${styles.bottomNavLink} ${active ? styles.bottomNavLinkActive : ''}`}
+            >
+              <Icon className={styles.bottomNavIcon} />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

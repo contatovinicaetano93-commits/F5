@@ -10,11 +10,11 @@
 
 ## Essência do F5
 
-**F5 é o contador digital da indústria no marketplace.**
+**F5 é a consultoria digital de marketplace da indústria.**
 
-Assim como o contador da fábrica organiza números, presta contas e dá visibilidade financeira — **sem operar a fábrica** — a F5:
+Assim como um consultor estratégico ajuda a fábrica a enxergar oportunidades e tomar decisões — **sem substituir a produção** — a F5:
 
-1. **Presta contas** à indústria sobre o que acontece no digital
+1. **Consulta e acompanha** a indústria sobre o que acontece no digital
 2. **Entrega controle** via plataforma (KPIs, vendas, recebimentos, performance por produto)
 3. **Opera manualmente** tudo que acontece nos marketplaces (anúncios, preço, estoque, insights)
 4. **Observa e recomenda** ações para melhorar o **giro** do produto
@@ -88,7 +88,7 @@ IA é **ferramenta interna do operador F5**, não automação exposta ao cliente
 
 ## KPIs que a indústria vê (plataforma cliente)
 
-### Financeiro (contador digital)
+### Financeiro (consultoria digital)
 
 | KPI | Fonte |
 |-----|-------|
@@ -157,7 +157,7 @@ Sexta     → Insight semanal registrado (nota interna → resumo para cliente)
 
 ### O que NÃO é cenário separado
 
-- **Plataforma / KPIs / contador digital** — existe em **todos** os cenários; é o que a indústria vê.
+- **Plataforma / KPIs / consultoria digital** — existe em **todos** os cenários; é o que a indústria vê.
 - **Operação manual** (anúncio, preço, insight de giro) — trabalho F5 em **todos** os cenários.
 
 ---
@@ -224,7 +224,7 @@ Sexta     → Insight semanal registrado (nota interna → resumo para cliente)
 
 | Integração | Obrigatória? | Motivo |
 |------------|--------------|--------|
-| NF-e parser (SEFAZ XML) | ✅ Sim | Contador digital — já implementado |
+| NF-e parser (SEFAZ XML) | ✅ Sim | Consultoria digital — já implementado |
 | Email / Slack notificação | Opcional | Alertas internos F5 |
 | API Mercado Livre | ❌ Não no MVP | Operação manual |
 | API Amazon | ❌ Não no MVP | Operação manual |
@@ -235,7 +235,7 @@ Sexta     → Insight semanal registrado (nota interna → resumo para cliente)
 
 ## Frase para o pitch
 
-> **A indústria fabrica. A F5 opera o digital e presta contas.**  
+> **A indústria fabrica. A F5 consulta e opera o digital no marketplace.**  
 > Você vê vendas, performance e recebimentos na palma da mão.  
 > Nós fazemos o resto — com pessoas, experiência e inteligência — sem te obrigar a aprender marketplace.
 

@@ -29,8 +29,8 @@ const FEATURES = [
   },
   {
     icon: <IconWallet />,
-    title: 'Contador digital',
-    desc: 'Recebimentos D+15 e D+60, pagamentos pendentes e visão financeira clara.',
+    title: 'Consultoria digital',
+    desc: 'Estratégia de canal, operação 360 e recebimentos D+15/D+60 — visão clara do seu marketplace.',
     large: false,
   },
   {
@@ -94,7 +94,7 @@ const PROCESS = [
   { step: '1', title: 'Diagnóstico', desc: 'Mapeamos catálogo, margem e fit por canal' },
   { step: '2', title: 'Piloto', desc: 'Operação manual com KPIs na plataforma' },
   { step: '3', title: 'Escala', desc: 'Expansão de SKUs e canais com dados' },
-  { step: '4', title: 'Prestação de contas', desc: 'Indústria acompanha; F5 executa' },
+  { step: '4', title: 'Escala contínua', desc: 'Indústria acompanha KPIs; F5 consulta e executa' },
 ];
 
 const BAR_HEIGHTS = [35, 55, 42, 70, 58, 82, 65, 90, 75, 88];
@@ -120,9 +120,9 @@ export default function LandingPage() {
             <h1 className={styles.heroTitle}>
               A indústria fabrica.
               <br />
-              A F5 <span className={styles.heroTitleAccent}>opera o digital</span>
+              A F5 <span className={styles.heroTitleAccent}>consulta e opera</span>
               <br />
-              e presta contas.
+              o digital no marketplace.
             </h1>
 
             <p className={styles.heroSubtitle}>
@@ -211,7 +211,7 @@ export default function LandingPage() {
           <div className={`${styles.sectionHeader} ${styles.sectionHeaderCenter}`}>
             <div className={styles.sectionLabel}>Plataforma</div>
             <h2 className={styles.sectionTitle}>
-              O contador digital da sua indústria no marketplace
+              Consultoria digital de marketplace para sua indústria
             </h2>
             <p className={styles.sectionDesc}>
               Sem painel técnico, sem sync confuso. A indústria enxerga resultado.
@@ -319,7 +319,7 @@ export default function LandingPage() {
         <div className={styles.ctaOrb} />
         <div className={styles.ctaInner}>
           <h2 className={styles.ctaTitle}>
-            Pronto para ver seu digital com clareza de contador?
+            Pronto para escalar no marketplace com consultoria F5?
           </h2>
           <p className={styles.ctaDesc}>
             Diagnóstico sem compromisso. Piloto com KPIs reais.

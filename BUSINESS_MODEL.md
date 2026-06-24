@@ -2,7 +2,7 @@
 
 ## Visão: Indústrias no Mercado Digital
 
-**F5** conecta indústrias (manufatureiras, construtoras, etc.) ao mercado digital através de consultoria estratégica + operação completa em marketplaces.
+**F5** conecta indústrias manufatureiras ao mercado digital através de consultoria estratégica + operação completa em marketplaces.
 
 ---
 

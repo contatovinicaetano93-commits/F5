@@ -34,7 +34,7 @@ const OPERATION = [
   'Acompanhamos preço e posicionamento',
   'Identificamos oportunidades de giro',
   'Organizamos a operação digital ponta a ponta',
-  'Prestamos contas com clareza e regularidade',
+  'Consultoria com clareza e regularidade',
   'Escalamos catálogo e canais conforme resultado',
 ];
 
@@ -151,7 +151,7 @@ export default function PitchPage() {
             <div className={styles.pitchSplitCol}>
               <h3>Você — Indústria</h3>
               <ul className={styles.pitchList}>
-                <li>Fabrifica</li>
+                <li>Fabrica</li>
                 <li>Mantém qualidade e marca</li>
                 <li>Foca na produção</li>
               </ul>
@@ -161,7 +161,7 @@ export default function PitchPage() {
               <h3>F5</h3>
               <ul className={styles.pitchList}>
                 <li>Opera o digital</li>
-                <li>Presta contas com dados claros</li>
+                <li>Consultoria com dados claros</li>
                 <li>Cuida de marketplace e giro</li>
               </ul>
             </div>

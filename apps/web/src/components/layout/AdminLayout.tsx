@@ -117,7 +117,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         >
           <div>
             <div style={{ fontSize: typography.fontSize.sm, color: colors.gray }}>
-              F5 — Contador digital
+              F5 — Consultoria digital
             </div>
             <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: colors.navy }}>
               Painel do operador

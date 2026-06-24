@@ -1,11 +1,8 @@
 import * as Sentry from '@sentry/nextjs';
+import { getBaseSentryOptions, getServerSentryDsn } from '@/lib/sentry/init-options';
 
-const dsn = process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN;
+const dsn = getServerSentryDsn();
 
 if (dsn) {
-  Sentry.init({
-    dsn,
-    environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV,
-    tracesSampleRate: process.env.NODE_ENV === 'development' ? 1.0 : 0.1,
-  });
+  Sentry.init(getBaseSentryOptions(dsn));
 }

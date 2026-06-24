@@ -1,0 +1,34 @@
+# F5 — Supabase CLI
+# https://supabase.com/docs/guides/cli/config
+
+project_id = "jaokeypptatywvarwlao"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "https://f5-industria-digital.vercel.app"
+additional_redirect_urls = [
+  "https://f5-industria-digital.vercel.app/**",
+  "http://localhost:3000/**",
+  "http://localhost:3001/**",
+]
+
+[functions.health]
+verify_jwt = false
+
+# User-JWT functions can keep verify_jwt = true (default)

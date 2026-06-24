@@ -8,6 +8,7 @@ import {
   isClientPortalAuthConfigured,
 } from '@/lib/client-portal-auth';
 import { isSupabaseConfigured } from '@/lib/supabase-client';
+import { getSupabasePublishableKey, getSupabaseUrl } from '@/lib/supabase/env';
 import { isClientAuthRequired } from '@/lib/client/auth';
 import { createServerClient } from '@supabase/ssr';
 
@@ -25,8 +26,8 @@ async function refreshSupabaseSession(request: NextRequest) {
   });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabaseUrl()!,
+    getSupabasePublishableKey()!,
     {
       cookies: {
         getAll() {

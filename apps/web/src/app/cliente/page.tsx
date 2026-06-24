@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
 import { formatBRL, formatPct } from '@/lib/admin/styles';
@@ -102,44 +103,62 @@ export default function ClienteInicioPage() {
       <div className={styles.twoCol}>
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Distribuição por canal</h3>
-          <div className={styles.channelList}>
-            {data.channelDistribution.map((ch) => (
-              <div key={ch.label} className={styles.channelRow}>
-                <div className={styles.channelHeader}>
-                  <span className={styles.channelName}>{ch.label}</span>
-                  <span className={styles.channelAmount}>{formatBRL(ch.amount)}</span>
+          {data.channelDistribution.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p className={styles.emptyStateTitle}>Sem vendas por canal neste mês</p>
+              <p className={styles.emptyStateBody}>
+                Assim que houver faturamento nos marketplaces, a distribuição aparece aqui.
+              </p>
+            </div>
+          ) : (
+            <div className={styles.channelList}>
+              {data.channelDistribution.map((ch) => (
+                <div key={ch.label} className={styles.channelRow}>
+                  <div className={styles.channelHeader}>
+                    <span className={styles.channelName}>{ch.label}</span>
+                    <span className={styles.channelAmount}>{formatBRL(ch.amount)}</span>
+                  </div>
+                  <div className={styles.barTrack}>
+                    <div
+                      className={styles.barFill}
+                      style={{ width: `${Math.round(ch.share * 100)}%` }}
+                    />
+                  </div>
+                  <span className={styles.channelShare}>
+                    {formatPct(ch.share)} do faturamento
+                  </span>
                 </div>
-                <div className={styles.barTrack}>
-                  <div
-                    className={styles.barFill}
-                    style={{ width: `${Math.round(ch.share * 100)}%` }}
-                  />
-                </div>
-                <span className={styles.channelShare}>
-                  {formatPct(ch.share)} do faturamento
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Próximos recebimentos</h3>
-          <div className={styles.paymentList}>
-            {data.paymentsReceivable.map((p) => (
-              <div key={p.id} className={styles.paymentItem}>
-                <div className={styles.paymentInfo}>
-                  <span className={styles.paymentLabel}>{p.label}</span>
-                  <span className={styles.paymentDate}>
-                    Previsão:{' '}
-                    {new Date(p.expectedDate).toLocaleDateString('pt-BR')} — D+
-                    {p.settlementDays}
-                  </span>
+          {data.paymentsReceivable.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p className={styles.emptyStateTitle}>Nenhum repasse programado</p>
+              <p className={styles.emptyStateBody}>
+                Repasses D+15 (Mercado Livre) e D+60 (Amazon) aparecem após processamento das NF-e.
+              </p>
+            </div>
+          ) : (
+            <div className={styles.paymentList}>
+              {data.paymentsReceivable.map((p) => (
+                <div key={p.id} className={styles.paymentItem}>
+                  <div className={styles.paymentInfo}>
+                    <span className={styles.paymentLabel}>{p.label}</span>
+                    <span className={styles.paymentDate}>
+                      Previsão:{' '}
+                      {new Date(p.expectedDate).toLocaleDateString('pt-BR')} — D+
+                      {p.settlementDays}
+                    </span>
+                  </div>
+                  <span className={styles.paymentAmount}>{formatBRL(p.amount)}</span>
                 </div>
-                <span className={styles.paymentAmount}>{formatBRL(p.amount)}</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -147,7 +166,7 @@ export default function ClienteInicioPage() {
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Insights da operação F5</h3>
           <div className={styles.insightList}>
-            {insights.map((insight) => (
+            {insights.slice(0, 2).map((insight) => (
               <article key={insight.id} className={styles.insightItem}>
                 <h4 className={styles.insightTitle}>{insight.title}</h4>
                 <p className={styles.insightBody}>{insight.body}</p>
@@ -157,6 +176,13 @@ export default function ClienteInicioPage() {
               </article>
             ))}
           </div>
+          {insights.length > 2 && (
+            <p className={styles.cellMuted} style={{ marginTop: 12 }}>
+              <Link href="/cliente/insights" className={styles.headerLink}>
+                Ver todos os insights ({insights.length})
+              </Link>
+            </p>
+          )}
         </div>
       )}
     </div>

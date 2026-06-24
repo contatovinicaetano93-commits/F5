@@ -15,7 +15,7 @@ const outfit = Outfit({
 });
 
 const SITE_DESCRIPTION =
-  'Operação completa de marketplaces para indústrias brasileiras. KPIs, recebimentos e prestação de contas — sem expor painéis técnicos.';
+  'Consultoria digital e operação 360 em marketplaces para indústrias brasileiras. KPIs, recebimentos e estratégia de canal — sem expor painéis técnicos.';
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +30,8 @@ export const metadata: Metadata = {
     'Amazon',
     'Mercado Livre',
     'KPIs',
-    'contador digital',
+    'consultoria marketplace',
+    'consultoria digital',
     'recebimentos',
   ],
   openGraph: {

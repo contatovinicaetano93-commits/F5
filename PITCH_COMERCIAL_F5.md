@@ -43,7 +43,7 @@ Somos **operação + controle**:
 | Você (indústria) | F5 |
 |-------------------|-----|
 | Fabrica | Opera o digital |
-| Mantém qualidade e marca | Presta contas com dados claros |
+| Mantém qualidade e marca | Consultoria com dados claros |
 | Foca na produção | Cuida de marketplace, preço e giro |
 
 > **Você vê o resultado. Nós fazemos acontecer.**
@@ -70,7 +70,7 @@ Transparência total. Sem precisar abrir cinco painéis diferentes.
 - Acompanha preço, posicionamento e desempenho dos seus produtos  
 - Identifica oportunidades para **aumentar o giro** do catálogo  
 - Organiza a operação para você não depender de dezenas de ferramentas  
-- Presta contas com clareza — parceiro de confiança no digital  
+- Consultoria com clareza — parceiro de confiança no digital  
 
 *A metodologia e a experiência são nossas. O resultado é seu.*
 

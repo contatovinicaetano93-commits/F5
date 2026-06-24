@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
 import { isSupabaseConfigured } from '@/lib/supabase-client';
+import { createSupabaseServerContext } from '@/lib/supabase/context';
 import { hasDatabase, prisma } from '@/lib/prisma';
 import { resolveClientTenantId } from '@/lib/client/tenant';
 import {
@@ -31,17 +31,18 @@ export async function getClientAuthContext(
   request?: NextRequest,
 ): Promise<ClientAuthContext | null> {
   if (isSupabaseConfigured()) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: ctx, error } = await createSupabaseServerContext({
+      auth: 'user',
+    });
 
-    if (!user?.email) return null;
+    if (error || !ctx?.userClaims?.email) return null;
+
+    const email = ctx.userClaims.email;
     if (!hasDatabase()) return null;
 
     const dbUser = await prisma.user.findFirst({
       where: {
-        email: { equals: user.email.trim(), mode: 'insensitive' },
+        email: { equals: email.trim(), mode: 'insensitive' },
         role: 'client_viewer',
       },
     });
