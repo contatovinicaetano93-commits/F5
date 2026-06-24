@@ -59,7 +59,7 @@ async function main() {
 
     const auth = {
       tenantId: tenant.id,
-      email: viewer?.email ?? 'piloto-a@f5.internal',
+      email: viewer?.email ?? 'demo.nutri@f5digital.com.br',
       userId: viewer?.id ?? 'gate3',
       demo: false,
     };

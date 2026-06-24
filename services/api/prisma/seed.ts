@@ -1,4 +1,8 @@
 import { PrismaClient } from '@prisma/client';
+import {
+  PILOT_CLIENT_PASSWORD,
+  PILOT_PORTAL_USERS,
+} from './pilot-users.config';
 
 const prisma = new PrismaClient();
 
@@ -260,35 +264,19 @@ async function main() {
     },
   });
 
-  /** Senha placeholder — criar o mesmo email/senha no Supabase Auth (Authentication → Users). */
-  const PILOT_CLIENT_PASSWORD = 'F5-Piloto-Dev2026!';
-
-  const clientViewers = [
-    {
-      email: 'piloto-a@f5.internal',
-      name: 'Portal — PET Piloto Nutri',
-      tenantId: nutri.id,
-      tenantName: nutri.name,
-    },
-    {
-      email: 'piloto-b@f5.internal',
-      name: 'Portal — PET Piloto Extru',
-      tenantId: extru.id,
-      tenantName: extru.name,
-    },
-    {
-      email: 'piloto-saude@f5.internal',
-      name: 'Portal — Indústria Saúde',
-      tenantId: saude.id,
-      tenantName: saude.name,
-    },
-    {
-      email: 'piloto-papel@f5.internal',
-      name: 'Portal — Indústria Papel',
-      tenantId: papel.id,
-      tenantName: papel.name,
-    },
-  ] as const;
+  /** Senha — mesmo valor em Supabase Auth (pnpm db:seed:users). */
+  const clientViewers = PILOT_PORTAL_USERS.map((viewer) => {
+    const tenant = tenants.find((t) => t.name === viewer.tenantName);
+    if (!tenant) {
+      throw new Error(`Tenant ausente no seed: ${viewer.tenantName}`);
+    }
+    return {
+      email: viewer.email,
+      name: viewer.name,
+      tenantId: tenant.id,
+      tenantName: viewer.tenantName,
+    };
+  });
 
   await prisma.user.createMany({
     data: clientViewers.map((viewer) => ({

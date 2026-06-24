@@ -15,6 +15,7 @@
     "db:migrate": "pnpm -F @f5/api exec prisma migrate deploy",
     "db:seed": "pnpm -F @f5/api exec prisma db seed",
     "db:seed:pilot": "pnpm -F @f5/api exec tsx prisma/seed-pilot.ts",
+    "db:seed:users": "pnpm -F @f5/api exec tsx prisma/seed-users-pilot.ts",
     "gate2:validate": "pnpm -F @f5/web gate2:validate",
     "gate1:validate": "pnpm -F @f5/web gate1:validate",
     "gate3:validate": "pnpm -F @f5/web gate3:validate",

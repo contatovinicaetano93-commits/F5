@@ -29,6 +29,7 @@ pnpm gate1:validate          # admin operacional
 pnpm gate3:validate          # portal cliente
 pnpm smoke:prod              # smoke produção
 pnpm db:seed:pilot           # SKUs piloto
+pnpm db:seed:users           # Neon + Supabase (contas demo)
 pnpm onboard:tenant -- --name "..." --segment PET
 pnpm demo:reset              # reset demo dev
 pnpm db:recalc-all-tenants   # recalc KPIs

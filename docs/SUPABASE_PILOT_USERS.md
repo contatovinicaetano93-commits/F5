@@ -1,19 +1,37 @@
-# Supabase Auth — usuários piloto F5
+# Supabase Auth — usuários demo F5
 
 Projeto: `jaokeypptatywvarwlao` · Portal: https://f5-industria-digital.vercel.app/login
 
 ---
 
-## Usuários (Neon seed ↔ Supabase Auth)
+## Usuários atuais (Jun 2026)
 
-| Email | Senha (dev) | Tenant Prisma |
-|-------|-------------|---------------|
-| `piloto-a@f5.internal` | `F5-Piloto-Dev2026!` | PET Piloto Nutri |
-| `piloto-b@f5.internal` | `F5-Piloto-Dev2026!` | PET Piloto Extru |
+| Email | Senha | Tenant Prisma |
+|-------|-------|---------------|
+| `demo.nutri@f5digital.com.br` | `F5Demo2026!` | PET Piloto Nutri |
+| `demo.extru@f5digital.com.br` | `F5Demo2026!` | PET Piloto Extru |
+| `demo.saude@f5digital.com.br` | `F5Demo2026!` | Indústria Saúde — Piloto |
+| `demo.papel@f5digital.com.br` | `F5Demo2026!` | Indústria Papel — Piloto |
 
-**Status (Jun 2026):** ambos criados no Supabase Auth com email confirmado.
+**Registrar / atualizar tudo (Neon + Supabase):**
 
-O login só funciona se o **mesmo email** existir na tabela `User` (role `client_viewer`) no Neon — rode `pnpm db:seed:pilot` se necessário.
+```bash
+pnpm db:seed:pilot    # garante tenants + SKUs (idempotente)
+pnpm db:seed:users    # cria/atualiza User no Neon + Supabase Auth
+```
+
+Requer `DATABASE_URL` e `SUPABASE_URL` + `SUPABASE_SECRET_KEY` (ex.: `apps/web/.env.local`).
+
+---
+
+## Contas legadas (podem continuar no banco)
+
+| Email | Senha antiga |
+|-------|----------------|
+| `piloto-a@f5.internal` | `F5-Piloto-Dev2026!` |
+| `piloto-b@f5.internal` | `F5-Piloto-Dev2026!` |
+
+Prefira as contas `demo.*@f5digital.com.br` para novos testes.
 
 ---
 
@@ -21,8 +39,9 @@ O login só funciona se o **mesmo email** existir na tabela `User` (role `client
 
 1. https://supabase.com/dashboard/project/jaokeypptatywvarwlao/auth/users
 2. **Add user** → **Create new user**
-3. Email + senha acima
+3. Email + senha da tabela acima
 4. ✅ **Auto Confirm User**
+5. Mesmo email na tabela `User` (role `client_viewer`) no Neon — ou rode `pnpm db:seed:users`
 
 ---
 
@@ -41,10 +60,10 @@ O login só funciona se o **mesmo email** existir na tabela `User` (role `client
 ## Teste
 
 1. https://f5-industria-digital.vercel.app/login
-2. Email: `piloto-a@f5.internal` · Senha: `F5-Piloto-Dev2026!`
+2. `demo.nutri@f5digital.com.br` / `F5Demo2026!`
 3. Deve abrir `/cliente` com KPIs do tenant Nutri
 
-Se aparecer *“Conta não vinculada…”* → falta `User` no Neon com esse email (`pnpm db:seed:pilot`).
+Se aparecer *“Conta não vinculada…”* → rode `pnpm db:seed:users`.
 
 ---
 
