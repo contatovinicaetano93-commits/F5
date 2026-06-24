@@ -1,0 +1,34 @@
+---
+description: Identidade e escopo do projeto F5 neste repositório
+alwaysApply: true
+---
+
+# F5 — escopo deste repo
+
+## O que é
+
+Consultoria + operação 360 em marketplaces + plataforma tech (web, mobile, API).
+
+- **Operação marketplace**: manual F5; integrações API mínimas no MVP
+- **4 cenários por cliente**: braço online, sócio, comprar/revender, Amazon 1P
+- **Plataforma**: KPIs e controle financeiro para todos os cenários
+
+## Stack (só F5)
+
+- Web: `apps/web` (Next.js 14)
+- Mobile: `apps/mobile` (Expo)
+- API: `services/api` (NestJS + Fastify)
+- DB: PostgreSQL + Prisma
+
+## Docs de referência
+
+- `CLAUDE.md` — visão geral
+- `docs/OPERATING_MODEL.md` — modelo operacional
+- `docs/ARCHITECTURE_STRATEGY.md` — arquitetura
+- `PITCH_V3.md` — pitch atual
+
+## Não é
+
+- SaaS genérico puro (é operação + software)
+- Imobi (crédito imobiliário)
+- Qualquer produto fintech de construção civil

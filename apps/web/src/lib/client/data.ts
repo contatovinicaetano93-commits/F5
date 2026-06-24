@@ -1,11 +1,23 @@
+import { internalData } from '@/lib/internal/data';
 import { internalStore } from '@/lib/internal/store';
+import { hasDatabase, prisma } from '@/lib/prisma';
 import {
   MARKETPLACE_LABELS,
   SCENARIO_LABELS,
   SEGMENT_LABELS,
   type Marketplace,
 } from '@/types/internal';
-import { CLIENT_DEMO_TENANT_ID, F5_CONTACT } from './constants';
+import {
+  CLIENT_DEMO_TENANT_ID,
+  CLIENT_DEMO_TENANT_NAME,
+  F5_CONTACT,
+} from './constants';
+import {
+  addDays,
+  getSettlementDays,
+  settlementLabel,
+} from './settlement';
+import type { ClientAuthContext } from './auth';
 
 const DEMO_DISPLAY_NAME = 'Indústria Piloto';
 
@@ -15,18 +27,341 @@ function monthStart(date = new Date()) {
   return d;
 }
 
-function addDays(date: Date, days: number) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d;
-}
-
 function daysInMonth(date: Date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
 
-/** Vendas e canais — agrega métricas + NF-e do tenant demo. */
-export function getClientOverview() {
+function isInMonth(isoDate: string, ref: Date) {
+  const d = new Date(isoDate);
+  return d.getMonth() === ref.getMonth() && d.getFullYear() === ref.getFullYear();
+}
+
+function productTrend(conversionRate: number): 'up' | 'down' | 'stable' {
+  if (conversionRate >= 0.05) return 'up';
+  if (conversionRate > 0 && conversionRate < 0.04) return 'down';
+  return 'stable';
+}
+
+function formatCnpj(cnpj?: string | null) {
+  if (!cnpj) return '—';
+  const digits = cnpj.replace(/\D/g, '');
+  if (digits.length !== 14) return cnpj;
+  return digits.replace(
+    /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+    '$1.$2.$3/$4-$5',
+  );
+}
+
+/** Vendas e canais — agrega métricas + NF-e do tenant. */
+export async function getClientOverview(auth: ClientAuthContext) {
+  if (!hasDatabase()) return getClientOverviewDemo();
+
+  const tenantId = auth.tenantId;
+  const [tenant, nfs, schedules, dashboard] = await Promise.all([
+    internalData.tenants.get(tenantId),
+    internalData.nfs.list(tenantId),
+    prisma.paymentSchedule.findMany({
+      where: { tenantId, status: 'pending' },
+      orderBy: { dataRecebimento: 'asc' },
+    }),
+    prisma.dashboardMetrics.findUnique({ where: { tenantId } }),
+  ]);
+
+  const now = new Date();
+  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  const monthRevenueFromNfs = nfs
+    .filter((n) => isInMonth(n.nfDate, now))
+    .reduce((s, n) => s + n.valorTotal, 0);
+
+  const monthSales =
+    dashboard !== null
+      ? Number(dashboard.totalVendasMes)
+      : monthRevenueFromNfs;
+
+  const previousMonthSales = nfs
+    .filter((n) => isInMonth(n.nfDate, prev))
+    .reduce((s, n) => s + n.valorTotal, 0);
+
+  const variationPct =
+    previousMonthSales > 0
+      ? (monthSales - previousMonthSales) / previousMonthSales
+      : 0;
+
+  const channelBase: Record<Marketplace, number> = {
+    mercado_livre: 0,
+    amazon: 0,
+    shopee: 0,
+    tiktok: 0,
+    outros: 0,
+  };
+
+  for (const nf of nfs.filter((n) => isInMonth(n.nfDate, now))) {
+    const mp = (nf.marketplace ?? 'outros') as Marketplace;
+    channelBase[mp] = (channelBase[mp] ?? 0) + nf.valorTotal;
+  }
+
+  const channelTotal = Object.values(channelBase).reduce((s, v) => s + v, 0);
+  const channelDistribution = (
+    Object.entries(channelBase) as [Marketplace, number][]
+  )
+    .filter(([, v]) => v > 0)
+    .map(([channel, amount]) => ({
+      channel,
+      label: MARKETPLACE_LABELS[channel],
+      amount,
+      share: channelTotal > 0 ? amount / channelTotal : 0,
+    }))
+    .sort((a, b) => b.amount - a.amount);
+
+  if (dashboard && channelDistribution.length === 0) {
+    const dashTotal = Number(dashboard.totalVendasMes);
+    if (dashTotal > 0) {
+      const entries: [Marketplace, number][] = [
+        ['mercado_livre', Number(dashboard.mercadoLivrePct)],
+        ['amazon', Number(dashboard.amazonPct)],
+        ['shopee', Number(dashboard.shopeePct)],
+      ];
+      for (const [channel, pct] of entries) {
+        if (pct > 0) {
+          channelDistribution.push({
+            channel,
+            label: MARKETPLACE_LABELS[channel],
+            amount: (dashTotal * pct) / 100,
+            share: pct / 100,
+          });
+        }
+      }
+      channelDistribution.sort((a, b) => b.amount - a.amount);
+    }
+  }
+
+  const paymentsReceivable = schedules.map((p) => ({
+    id: p.id,
+    marketplace: p.marketplace as Marketplace,
+    label: settlementLabel(p.marketplace),
+    amount: Number(p.valor),
+    expectedDate: p.dataRecebimento.toISOString(),
+    settlementDays: getSettlementDays(p.marketplace),
+  }));
+
+  const totalReceivable =
+    dashboard !== null
+      ? Number(dashboard.pagamentosReceber)
+      : paymentsReceivable.reduce((s, p) => s + p.amount, 0);
+
+  return {
+    tenant: {
+      id: tenantId,
+      displayName: tenant?.name ?? DEMO_DISPLAY_NAME,
+      legalName: tenant?.name ?? DEMO_DISPLAY_NAME,
+      segment: tenant?.segment ?? 'PET',
+      segmentLabel: SEGMENT_LABELS[tenant?.segment ?? 'PET'],
+      scenario: tenant?.scenario ?? 'AMAZON_1P',
+      scenarioLabel: SCENARIO_LABELS[tenant?.scenario ?? 'AMAZON_1P'],
+    },
+    period: {
+      month: monthStart().toLocaleDateString('pt-BR', {
+        month: 'long',
+        year: 'numeric',
+      }),
+      referenceDate: now.toISOString(),
+    },
+    monthSales,
+    previousMonthSales,
+    variationPct,
+    totalReceivable,
+    paymentsReceivable,
+    channelDistribution,
+    updatedAt: now.toISOString(),
+  };
+}
+
+/** Performance por SKU com giro calculado. */
+export async function getClientProducts(auth: ClientAuthContext) {
+  if (!hasDatabase()) return getClientProductsDemo();
+
+  const tenantId = auth.tenantId;
+  const [tenant, products, metrics] = await Promise.all([
+    internalData.tenants.get(tenantId),
+    internalData.products.list(tenantId),
+    internalData.metrics.list(tenantId),
+  ]);
+
+  const items = products.map((p) => {
+    const m = metrics.find((x) => x.productId === p.id);
+    const visits = m?.visits ?? 0;
+    const units = m?.unitsSold ?? 0;
+    const conversionRate =
+      m?.conversionRate ?? (visits > 0 ? units / visits : 0);
+
+    return {
+      id: p.id,
+      sku: p.sku,
+      name: p.name,
+      marketplace: p.marketplace,
+      marketplaceLabel: MARKETPLACE_LABELS[p.marketplace],
+      revenue: m?.revenue ?? 0,
+      unitsSold: units,
+      visits,
+      conversionRate,
+      turnover: units > 0 ? units / 30 : 0,
+      trend: productTrend(conversionRate),
+    };
+  });
+
+  const sorted = items.sort((a, b) => b.revenue - a.revenue);
+  const totals = {
+    revenue: sorted.reduce((s, i) => s + i.revenue, 0),
+    units: sorted.reduce((s, i) => s + i.unitsSold, 0),
+    avgConversion:
+      sorted.length > 0
+        ? sorted.reduce((s, i) => s + i.conversionRate, 0) / sorted.length
+        : 0,
+  };
+
+  return {
+    tenantName: tenant?.name ?? DEMO_DISPLAY_NAME,
+    items: sorted,
+    totals,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** NF-e e calendário de recebimentos D+15 / D+60. */
+export async function getClientFinance(auth: ClientAuthContext) {
+  if (!hasDatabase()) return getClientFinanceDemo();
+
+  const tenantId = auth.tenantId;
+  const today = new Date();
+  const [tenant, nfs, schedules] = await Promise.all([
+    internalData.tenants.get(tenantId),
+    internalData.nfs.list(tenantId),
+    prisma.paymentSchedule.findMany({
+      where: { tenantId },
+      orderBy: { dataRecebimento: 'asc' },
+    }),
+  ]);
+
+  const allNfs = nfs
+    .map((n) => ({
+      ...n,
+      marketplace: (n.marketplace ?? 'outros') as Marketplace,
+    }))
+    .sort((a, b) => new Date(b.nfDate).getTime() - new Date(a.nfDate).getTime());
+
+  const calendarEvents = schedules
+    .filter((s) => s.status === 'pending')
+    .map((s) => ({
+      id: s.id,
+      date: s.dataRecebimento.toISOString(),
+      amount: Number(s.valor),
+      label: `Recebimento ${MARKETPLACE_LABELS[s.marketplace as Marketplace] ?? s.marketplace}`,
+      settlementDays: getSettlementDays(s.marketplace),
+      marketplace: s.marketplace as Marketplace,
+    }));
+
+  const monthTotal = allNfs
+    .filter((n) => isInMonth(n.nfDate, today))
+    .reduce((s, n) => s + n.valorTotal, 0);
+
+  return {
+    tenantName: tenant?.name ?? DEMO_DISPLAY_NAME,
+    nfs: allNfs.map((n) => ({
+      ...n,
+      marketplaceLabel:
+        MARKETPLACE_LABELS[n.marketplace] ?? MARKETPLACE_LABELS.outros,
+    })),
+    calendarEvents: calendarEvents.map((e) => ({
+      ...e,
+      marketplaceLabel:
+        MARKETPLACE_LABELS[e.marketplace] ?? MARKETPLACE_LABELS.outros,
+    })),
+    summary: {
+      monthNfTotal: monthTotal,
+      pendingCount: allNfs.filter((n) => n.status === 'pending').length,
+      nextReceivable: calendarEvents[0] ?? null,
+      totalScheduled: calendarEvents.reduce((s, e) => s + e.amount, 0),
+    },
+    calendarMeta: {
+      year: today.getFullYear(),
+      month: today.getMonth(),
+      daysInMonth: daysInMonth(today),
+    },
+    updatedAt: today.toISOString(),
+  };
+}
+
+/** Insights publicados pelo operador F5 para o cliente. */
+export async function getClientInsights(auth: ClientAuthContext) {
+  if (!hasDatabase()) return getClientInsightsDemo();
+
+  const tenantId = auth.tenantId;
+  const rows = await prisma.insightNote.findMany({
+    where: { tenantId, visibleToClient: true },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  });
+
+  return {
+    items: rows.map((i) => ({
+      id: i.id,
+      title: i.title,
+      body: i.body,
+      weekOf: i.weekOf?.toISOString() ?? null,
+      createdAt: i.createdAt.toISOString(),
+    })),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** Dados da empresa e contato F5. */
+export async function getClientProfile(auth: ClientAuthContext) {
+  if (!hasDatabase()) return getClientProfileDemo();
+
+  const tenantId = auth.tenantId;
+  const [tenant, products] = await Promise.all([
+    internalData.tenants.get(tenantId),
+    internalData.products.list(tenantId),
+  ]);
+
+  const marketplaces = [
+    ...new Set(products.map((p) => p.marketplace)),
+  ] as Marketplace[];
+
+  return {
+    company: {
+      displayName: tenant?.name ?? DEMO_DISPLAY_NAME,
+      legalName: tenant?.name ?? CLIENT_DEMO_TENANT_NAME,
+      cnpj: formatCnpj(tenant?.cnpj),
+      segment: tenant?.segment ?? 'PET',
+      segmentLabel: SEGMENT_LABELS[tenant?.segment ?? 'PET'],
+      scenario: tenant?.scenario ?? 'AMAZON_1P',
+      scenarioLabel: SCENARIO_LABELS[tenant?.scenario ?? 'AMAZON_1P'],
+      status: tenant?.status ?? 'active',
+      statusLabel:
+        tenant?.status === 'active'
+          ? 'Operação ativa'
+          : tenant?.status === 'trial'
+            ? 'Período piloto'
+            : 'Inativo',
+      marketplaces,
+      marketplacesLabels: marketplaces.map((m) => MARKETPLACE_LABELS[m]),
+      since: tenant?.createdAt
+        ? new Date(tenant.createdAt).toLocaleDateString('pt-BR', {
+            month: 'short',
+            year: 'numeric',
+          })
+        : '—',
+    },
+    contact: F5_CONTACT,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/* ── Demo (sem DATABASE_URL) ───────────────────────────────────────── */
+
+function getClientOverviewDemo() {
   const tenant = internalStore.tenants.get(CLIENT_DEMO_TENANT_ID);
   const metrics = internalStore.metrics.list(CLIENT_DEMO_TENANT_ID);
   const nfs = internalStore.nfs.list(CLIENT_DEMO_TENANT_ID);
@@ -122,8 +457,7 @@ export function getClientOverview() {
   };
 }
 
-/** Performance por SKU com giro calculado. */
-export function getClientProducts() {
+function getClientProductsDemo() {
   const products = internalStore.products.list(CLIENT_DEMO_TENANT_ID);
   const metrics = internalStore.metrics.list(CLIENT_DEMO_TENANT_ID);
 
@@ -246,8 +580,7 @@ export function getClientProducts() {
   };
 }
 
-/** NF-e e calendário de recebimentos D+15 / D+60. */
-export function getClientFinance() {
+function getClientFinanceDemo() {
   const nfs = internalStore.nfs.list(CLIENT_DEMO_TENANT_ID);
   const today = new Date();
 
@@ -350,13 +683,7 @@ export function getClientFinance() {
   ];
 
   const monthTotal = allNfs
-    .filter((n) => {
-      const d = new Date(n.nfDate);
-      return (
-        d.getMonth() === today.getMonth() &&
-        d.getFullYear() === today.getFullYear()
-      );
-    })
+    .filter((n) => isInMonth(n.nfDate, today))
     .reduce((s, n) => s + n.valorTotal, 0);
 
   return {
@@ -380,18 +707,39 @@ export function getClientFinance() {
       month: today.getMonth(),
       daysInMonth: daysInMonth(today),
     },
+    updatedAt: today.toISOString(),
+  };
+}
+
+function getClientInsightsDemo() {
+  return {
+    items: [
+      {
+        id: 'ins_demo_1',
+        title: 'Posição estável na Amazon',
+        body: 'SKU PET-RA-001 mantém top 10 na busca principal. Manter estoque e monitorar sazonalidade.',
+        weekOf: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'ins_demo_2',
+        title: 'Recebimento Amazon programado',
+        body: 'Repasse D+60 previsto conforme NF-e 000142. Valor consolidado no calendário financeiro.',
+        weekOf: null,
+        createdAt: new Date().toISOString(),
+      },
+    ],
     updatedAt: new Date().toISOString(),
   };
 }
 
-/** Dados da empresa e contato F5. */
-export function getClientProfile() {
+function getClientProfileDemo() {
   const tenant = internalStore.tenants.get(CLIENT_DEMO_TENANT_ID);
 
   return {
     company: {
       displayName: DEMO_DISPLAY_NAME,
-      legalName: tenant?.name ?? 'Indústria Pet — Piloto A',
+      legalName: tenant?.name ?? CLIENT_DEMO_TENANT_NAME,
       cnpj: '12.345.678/0001-90',
       segment: tenant?.segment ?? 'PET',
       segmentLabel: SEGMENT_LABELS[tenant?.segment ?? 'PET'],

@@ -77,6 +77,7 @@ export interface NfRecord {
   itemsCount: number;
   status: 'processed' | 'pending';
   uploadedAt: string;
+  marketplace?: Marketplace;
 }
 
 export const SEGMENT_LABELS: Record<TenantSegment, string> = {

@@ -28,7 +28,7 @@ export default function ClientePerfilPage() {
   const [data, setData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    fetch('/api/client/profile')
+    fetch('/api/client/profile', { credentials: 'include' })
       .then((r) => r.json())
       .then(setData)
       .catch(console.error);

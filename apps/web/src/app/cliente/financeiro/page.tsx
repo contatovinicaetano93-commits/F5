@@ -41,7 +41,7 @@ export default function ClienteFinanceiroPage() {
   const [data, setData] = useState<FinanceData | null>(null);
 
   useEffect(() => {
-    fetch('/api/client/finance')
+    fetch('/api/client/finance', { credentials: 'include' })
       .then((r) => r.json())
       .then(setData)
       .catch(console.error);

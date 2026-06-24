@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">
+  <NFe>
+    <infNFe>
+      <ide>
+        <nNF>000143</nNF>
+        <serie>1</serie>
+        <dhEmi>2026-06-21T10:00:00-03:00</dhEmi>
+      </ide>
+      <emit>
+        <CNPJ>12345678000199</CNPJ>
+      </emit>
+      <dest>
+        <CNPJ>98765432000188</CNPJ>
+      </dest>
+      <det>
+        <prod>
+          <cProd>PET-NP-001</cProd>
+          <xProd>Ração extrusada aves premium 900g Amazon</xProd>
+          <qCom>5.0000</qCom>
+          <vUnCom>198.00</vUnCom>
+          <vProd>990.00</vProd>
+        </prod>
+      </det>
+      <det>
+        <prod>
+          <cProd>PET-NP-002</cProd>
+          <xProd>Snack natural aves 500g Mercado Livre</xProd>
+          <qCom>10.0000</qCom>
+          <vUnCom>52.80</vUnCom>
+          <vProd>528.00</vProd>
+        </prod>
+      </det>
+      <total>
+        <ICMSTot>
+          <vBC>1518.00</vBC>
+          <vICMS>273.24</vICMS>
+          <vNF>1518.00</vNF>
+        </ICMSTot>
+      </total>
+    </infNFe>
+  </NFe>
+</nfeProc>

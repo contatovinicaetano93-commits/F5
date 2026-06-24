@@ -10,12 +10,18 @@ import {
   type ProductMetric,
   type Marketplace,
 } from '@/types/internal';
+import { METRICS_CSV_TEMPLATE } from '@/lib/metrics/csv-import';
 
 export default function LancamentosPage() {
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [products, setProducts] = useState<InternalProduct[]>([]);
   const [metrics, setMetrics] = useState<ProductMetric[]>([]);
   const [saving, setSaving] = useState(false);
+  const [importTenantId, setImportTenantId] = useState('');
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState('');
+  const [importErrors, setImportErrors] = useState<string[]>([]);
   const [form, setForm] = useState({
     tenantId: '',
     productId: '',
@@ -29,8 +35,12 @@ export default function LancamentosPage() {
   });
 
   useEffect(() => {
-    fetch('/api/admin/tenants').then((r) => r.json()).then(setTenants);
-    fetch('/api/admin/metrics').then((r) => r.json()).then(setMetrics);
+    fetch('/api/admin/tenants', { credentials: 'include' })
+      .then((r) => r.json())
+      .then(setTenants);
+    fetch('/api/admin/metrics', { credentials: 'include' })
+      .then((r) => r.json())
+      .then(setMetrics);
   }, []);
 
   useEffect(() => {
@@ -38,10 +48,60 @@ export default function LancamentosPage() {
       setProducts([]);
       return;
     }
-    fetch(`/api/admin/products?tenantId=${form.tenantId}`)
+    fetch(`/api/admin/products?tenantId=${form.tenantId}`, { credentials: 'include' })
       .then((r) => r.json())
       .then(setProducts);
   }, [form.tenantId]);
+
+  const reloadMetrics = () =>
+    fetch('/api/admin/metrics', { credentials: 'include' })
+      .then((r) => r.json())
+      .then(setMetrics);
+
+  const handleCsvImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!importFile || !importTenantId) return;
+
+    setImporting(true);
+    setImportResult('');
+    setImportErrors([]);
+
+    const formData = new FormData();
+    formData.append('tenantId', importTenantId);
+    formData.append('file', importFile);
+
+    try {
+      const res = await fetch('/api/admin/metrics/import', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setImportResult(data.error ?? 'Erro na importação');
+        setImportErrors(data.details ?? []);
+        return;
+      }
+      setImportResult(`${data.created} lançamento(s) importado(s)`);
+      setImportErrors(data.errors ?? []);
+      setImportFile(null);
+      await reloadMetrics();
+    } catch {
+      setImportResult('Falha na conexão');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const downloadTemplate = () => {
+    const blob = new Blob([METRICS_CSV_TEMPLATE], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'f5-metricas-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const weekStart = () => {
     const d = new Date();
@@ -58,6 +118,7 @@ export default function LancamentosPage() {
     try {
       const res = await fetch('/api/admin/metrics', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
@@ -251,6 +312,67 @@ export default function LancamentosPage() {
           </table>
         </Card>
       </div>
+
+      <Card>
+        <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>Importar CSV (quinta-feira)</h2>
+        <p style={{ margin: '0 0 16px', fontSize: 14, color: '#64748B' }}>
+          Exporte o relatório do ML/Amazon, ajuste colunas ou use o template F5.
+          Colunas: sku, canal, impressoes, visitas, unidades, receita, posicao.
+        </p>
+        <form onSubmit={handleCsvImport} style={{ ...adminStyles.form, maxWidth: 560 }}>
+          <label style={adminStyles.label}>
+            Cliente
+            <select
+              required
+              value={importTenantId}
+              onChange={(e) => setImportTenantId(e.target.value)}
+              style={adminStyles.select}
+            >
+              <option value="">Selecione...</option>
+              {tenants.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label style={adminStyles.label}>
+            Arquivo CSV
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              required
+              onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
+              style={adminStyles.input}
+            />
+          </label>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Button type="submit" disabled={importing}>
+              {importing ? 'Importando...' : 'Importar CSV'}
+            </Button>
+            <Button type="button" variant="secondary" onClick={downloadTemplate}>
+              Baixar template
+            </Button>
+            <a
+              href="/fixtures/metrics-sample.csv"
+              download="f5-metricas-exemplo.csv"
+              style={{ ...adminStyles.link, fontSize: 14, alignSelf: 'center' }}
+            >
+              CSV exemplo (4 SKUs)
+            </a>
+          </div>
+        </form>
+        {importResult && (
+          <p style={{ marginTop: 12, fontSize: 14, color: '#059669' }}>{importResult}</p>
+        )}
+        {importErrors.length > 0 && (
+          <ul style={{ marginTop: 8, fontSize: 13, color: '#B45309' }}>
+            {importErrors.map((err) => (
+              <li key={err}>{err}</li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </div>
   );
 }

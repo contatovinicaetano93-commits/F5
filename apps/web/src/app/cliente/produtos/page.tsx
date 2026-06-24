@@ -38,7 +38,7 @@ export default function ClienteProdutosPage() {
   const [data, setData] = useState<ProductsData | null>(null);
 
   useEffect(() => {
-    fetch('/api/client/products')
+    fetch('/api/client/products', { credentials: 'include' })
       .then((r) => r.json())
       .then(setData)
       .catch(console.error);

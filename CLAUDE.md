@@ -101,6 +101,9 @@ pnpm test             # rodar testes
 
 ## 📚 Documentação
 
+- **`docs/MANUAL_SETUP.md`** — **Checklist manual (secrets, contas, deploy)** ← você faz
+- **`docs/EXECUTION_PLAN.md`** — Plano guiado (fases, gates, backlog)
+- `docs/SETUP_DATABASE.md` — PostgreSQL (Neon) + env vars
 - `PITCH_V3.md` — Pitch atualizado com portfólio e AI-first
 - `PITCH_V2.md` — Pitch executivo com modelo de negócio
 - `BUSINESS_MODEL.md` — Detalhes de modelos e finanças

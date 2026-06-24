@@ -1,15 +1,25 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { isProductionDeploy } from '@/lib/env';
 
 export const ADMIN_COOKIE_NAME = 'f5_admin_session';
 
 const DEFAULT_ADMIN_EMAIL = 'admin@f5digital.com.br';
 
-export function getAdminSecret(): string | undefined {
-  return process.env.ADMIN_SECRET ?? process.env.ADMIN_PASSWORD;
+/** Token de sessão — nunca reutilizar ADMIN_PASSWORD. */
+export function getAdminSessionToken(): string | undefined {
+  if (process.env.ADMIN_SECRET?.trim()) {
+    return process.env.ADMIN_SECRET.trim();
+  }
+  if (!isProductionDeploy()) {
+    return 'f5-dev-session';
+  }
+  return undefined;
 }
 
 export function isAdminAuthConfigured(): boolean {
-  return Boolean(process.env.ADMIN_PASSWORD);
+  if (!process.env.ADMIN_PASSWORD?.trim()) return false;
+  if (isProductionDeploy() && !getAdminSessionToken()) return false;
+  return true;
 }
 
 export function getAdminEmail(): string {
@@ -23,13 +33,16 @@ export function verifyAdminCredentials(email: string, password: string): boolean
   const normalizedEmail = email.trim().toLowerCase();
   const expectedEmail = getAdminEmail().trim().toLowerCase();
 
-  return normalizedEmail === expectedEmail && password === adminPassword;
+  return (
+    normalizedEmail === expectedEmail &&
+    password.trim() === adminPassword.trim()
+  );
 }
 
 export function isValidAdminSession(cookieValue: string | undefined): boolean {
-  const secret = getAdminSecret();
-  if (!secret || !cookieValue) return false;
-  return cookieValue === secret;
+  const token = getAdminSessionToken();
+  if (!token || !cookieValue) return false;
+  return cookieValue === token;
 }
 
 export function hasAdminSession(request: NextRequest): boolean {
@@ -48,9 +61,9 @@ export function getSessionCookieOptions() {
 }
 
 export function setAdminSessionCookie(response: NextResponse): NextResponse {
-  const secret = getAdminSecret();
-  if (secret) {
-    response.cookies.set(ADMIN_COOKIE_NAME, secret, getSessionCookieOptions());
+  const token = getAdminSessionToken();
+  if (token) {
+    response.cookies.set(ADMIN_COOKIE_NAME, token, getSessionCookieOptions());
   }
   return response;
 }

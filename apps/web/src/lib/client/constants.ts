@@ -1,5 +1,8 @@
-/** Tenant usado no demo do portal cliente (Indústria Piloto). */
+/** Tenant usado no demo do portal cliente (store em memória). */
 export const CLIENT_DEMO_TENANT_ID = 'tenant_pet_a';
+
+/** Nome do tenant piloto no Postgres (seed). */
+export const CLIENT_DEMO_TENANT_NAME = 'PET Piloto Nutri';
 
 export const F5_CONTACT = {
   name: 'Equipe F5',

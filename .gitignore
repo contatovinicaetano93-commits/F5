@@ -29,3 +29,5 @@ Thumbs.db
 # Runtime
 .turbo/
 .env.production.local
+.vercel
+*.tsbuildinfo

@@ -9,6 +9,19 @@ import type {
 } from '@/types/internal';
 import { hasDatabase, prisma } from '@/lib/prisma';
 import { internalStore } from '@/lib/internal/store';
+import { getSystemOperatorId } from '@/lib/nf/system-user';
+import {
+  parseNfXml,
+  type ParsedNF,
+} from '@/lib/nf/parser';
+import {
+  requireMarketplace,
+  resolveNfItemMarketplaces,
+} from '@/lib/nf/marketplace';
+import { detectMarketplaceFromXml } from '@/lib/nf/parser';
+import { addDays, getSettlementDays } from '@/lib/client/settlement';
+import { updateDashboardMetrics } from '@/lib/metrics/dashboard';
+import type { Prisma } from '@prisma/client';
 import type {
   InsightNote as PrismaInsight,
   Marketplace as PrismaMarketplace,
@@ -89,6 +102,40 @@ function mapInsight(i: PrismaInsight): InsightNote {
     createdAt: i.createdAt.toISOString(),
     updatedAt: i.updatedAt.toISOString(),
   };
+}
+
+type DbClient = Prisma.TransactionClient | typeof prisma;
+
+async function createPaymentSchedulesFromNf(
+  tenantId: string,
+  parsed: ParsedNF,
+  items: { marketplace: string | null; valorTotal: number }[],
+  db: DbClient = prisma,
+) {
+  const totals = new Map<string, number>();
+
+  for (const item of items) {
+    const marketplace = item.marketplace ?? 'outros';
+    totals.set(marketplace, (totals.get(marketplace) ?? 0) + item.valorTotal);
+  }
+
+  if (totals.size === 0) {
+    totals.set('outros', parsed.valorTotal);
+  }
+
+  await Promise.all(
+    [...totals.entries()].map(([marketplace, valor]) =>
+      db.paymentSchedule.create({
+        data: {
+          tenantId,
+          marketplace,
+          dataRecebimento: addDays(parsed.nfDate, getSettlementDays(marketplace)),
+          valor,
+          status: 'pending',
+        },
+      }),
+    ),
+  );
 }
 
 export const internalData = {
@@ -219,7 +266,97 @@ export const internalData = {
           notes: data.notes,
         },
       });
+      await updateDashboardMetrics(data.tenantId);
       return mapMetric(row);
+    },
+
+    async importFromCsv(
+      tenantId: string,
+      rows: {
+        sku: string;
+        marketplace: Marketplace;
+        impressions: number;
+        visits: number;
+        unitsSold: number;
+        revenue: number;
+        searchPosition?: number;
+        notes?: string;
+      }[],
+    ): Promise<{ created: number; errors: string[] }> {
+      const periodStart = new Date(weekStart());
+      const periodEnd = new Date();
+      const errors: string[] = [];
+      let created = 0;
+
+      if (!hasDatabase()) {
+        for (const row of rows) {
+          const product = internalStore.products
+            .list(tenantId)
+            .find((p) => p.sku.toUpperCase() === row.sku.toUpperCase());
+          if (!product) {
+            errors.push(`SKU não encontrado: ${row.sku}`);
+            continue;
+          }
+          internalStore.metrics.create({
+            tenantId,
+            productId: product.id,
+            marketplace: row.marketplace,
+            periodStart: periodStart.toISOString(),
+            periodEnd: periodEnd.toISOString(),
+            impressions: row.impressions,
+            visits: row.visits,
+            unitsSold: row.unitsSold,
+            revenue: row.revenue,
+            searchPosition: row.searchPosition,
+            notes: row.notes,
+          });
+          created++;
+        }
+        return { created, errors };
+      }
+
+      const products = await prisma.product.findMany({
+        where: { tenantId },
+        select: { id: true, sku: true, marketplace: true },
+      });
+      const skuMap = new Map(
+        products.map((p) => [p.sku.toUpperCase(), p]),
+      );
+
+      for (const row of rows) {
+        const product = skuMap.get(row.sku.toUpperCase());
+        if (!product) {
+          errors.push(`SKU não encontrado: ${row.sku}`);
+          continue;
+        }
+
+        const conversionRate =
+          row.visits > 0 ? row.unitsSold / row.visits : undefined;
+
+        await prisma.productMetric.create({
+          data: {
+            tenantId,
+            productId: product.id,
+            marketplace: (row.marketplace ?? product.marketplace) as PrismaMarketplace,
+            periodStart,
+            periodEnd,
+            impressions: row.impressions,
+            visits: row.visits,
+            unitsSold: row.unitsSold,
+            revenue: row.revenue,
+            searchPosition: row.searchPosition,
+            conversionRate,
+            notes: row.notes,
+          },
+        });
+        created++;
+      }
+
+      if (created > 0) {
+        await updateDashboardMetrics(tenantId);
+      }
+
+      return { created, errors };
     },
   },
 
@@ -278,7 +415,10 @@ export const internalData = {
       if (!hasDatabase()) return internalStore.nfs.list(tenantId);
       const rows = await prisma.notaFiscal.findMany({
         where: tenantId ? { tenantId } : undefined,
-        include: { _count: { select: { items: true } } },
+        include: {
+          _count: { select: { items: true } },
+          items: { take: 1, select: { marketplace: true } },
+        },
         orderBy: { nfDate: 'desc' },
       });
       return rows.map((nf) => ({
@@ -291,14 +431,215 @@ export const internalData = {
         itemsCount: nf._count.items,
         status: nf.processedAt ? 'processed' : 'pending',
         uploadedAt: nf.uploadedAt.toISOString(),
+        marketplace: (nf.items[0]?.marketplace as Marketplace | undefined) ?? undefined,
       }));
     },
 
-    async create(data: Omit<NfRecord, 'id' | 'uploadedAt'>): Promise<NfRecord> {
+    async create(
+      data: Omit<NfRecord, 'id' | 'uploadedAt'> & { marketplace?: Marketplace },
+    ): Promise<NfRecord> {
       if (!hasDatabase()) return internalStore.nfs.create(data);
-      throw new Error(
-        'Criação de NF via admin requer integração completa — use fallback em memória ou API Nest',
+
+      const marketplace = requireMarketplace(data.marketplace);
+      const userId = await getSystemOperatorId();
+      const nfDate = new Date(data.nfDate);
+      const quantidade = data.itemsCount || 1;
+      const valorUnitario = data.valorTotal / quantidade;
+      const parsedLike: ParsedNF = {
+        nfNumber: data.nfNumber,
+        nfSeries: data.nfSeries,
+        nfDate,
+        emitente: 'manual',
+        destinatario: 'manual',
+        valorTotal: data.valorTotal,
+        valorBaseIcms: 0,
+        valorIcms: 0,
+        items: [
+          {
+            sku: 'MANUAL',
+            descricao: 'Registro manual NF-e',
+            quantidade,
+            valorUnitario,
+            valorTotal: data.valorTotal,
+          },
+        ],
+      };
+
+      const itemRows = [
+        {
+          sku: 'MANUAL',
+          descricao: 'Registro manual NF-e',
+          quantidade,
+          valorUnitario,
+          valorTotal: data.valorTotal,
+          marketplace,
+        },
+      ];
+
+      try {
+        const row = await prisma.$transaction(async (tx) => {
+          const created = await tx.notaFiscal.create({
+            data: {
+              userId,
+              tenantId: data.tenantId,
+              nfNumber: data.nfNumber,
+              nfSeries: data.nfSeries,
+              nfDate,
+              emitente: 'manual',
+              destinatario: 'manual',
+              valorTotal: data.valorTotal,
+              valorBaseIcms: 0,
+              valorIcms: 0,
+              xmlContent: '<manual/>',
+              processedAt: new Date(),
+              items: { create: itemRows },
+            },
+            include: {
+              _count: { select: { items: true } },
+              items: { take: 1, select: { marketplace: true } },
+            },
+          });
+
+          await createPaymentSchedulesFromNf(
+            data.tenantId,
+            parsedLike,
+            itemRows,
+            tx,
+          );
+          await updateDashboardMetrics(data.tenantId, tx);
+
+          return created;
+        });
+
+        return {
+          id: row.id,
+          tenantId: row.tenantId ?? '',
+          nfNumber: row.nfNumber,
+          nfSeries: row.nfSeries,
+          nfDate: row.nfDate.toISOString(),
+          valorTotal: Number(row.valorTotal),
+          itemsCount: row._count.items,
+          status: 'processed',
+          uploadedAt: row.uploadedAt.toISOString(),
+          marketplace: (row.items[0]?.marketplace as Marketplace | undefined) ?? marketplace,
+        };
+      } catch (err: unknown) {
+        const code = (err as { code?: string })?.code;
+        if (code === 'P2002') {
+          throw new Error(
+            'NF-e já registrada (mesmo número, série e emitente manual)',
+          );
+        }
+        throw err;
+      }
+    },
+
+    async createFromXml(
+      tenantId: string,
+      xmlContent: string,
+      marketplaceOverride?: string | null,
+    ): Promise<NfRecord> {
+      if (!hasDatabase()) {
+        const parsed = await parseNfXml(xmlContent);
+        return internalStore.nfs.create({
+          tenantId,
+          nfNumber: parsed.nfNumber,
+          nfSeries: parsed.nfSeries,
+          nfDate: parsed.nfDate.toISOString(),
+          valorTotal: parsed.valorTotal,
+          itemsCount: parsed.items.length,
+          status: 'processed',
+        });
+      }
+
+      const parsed = await parseNfXml(xmlContent);
+      const resolved = await resolveNfItemMarketplaces(
+        tenantId,
+        parsed.items,
+        xmlContent,
+        marketplaceOverride,
       );
+      const userId = await getSystemOperatorId();
+
+      let itemRows =
+        resolved.length > 0
+          ? resolved.map(({ item, marketplace }) => ({
+              sku: item.sku,
+              descricao: item.descricao,
+              quantidade: item.quantidade,
+              valorUnitario: item.valorUnitario,
+              valorTotal: item.valorTotal,
+              marketplace,
+            }))
+          : [];
+
+      if (itemRows.length === 0) {
+        const mp = requireMarketplace(
+          marketplaceOverride ?? detectMarketplaceFromXml(xmlContent),
+        );
+        itemRows = [
+          {
+            sku: 'N/A',
+            descricao: 'NF-e consolidada',
+            quantidade: 1,
+            valorUnitario: parsed.valorTotal,
+            valorTotal: parsed.valorTotal,
+            marketplace: mp,
+          },
+        ];
+      }
+
+      try {
+        const row = await prisma.$transaction(async (tx) => {
+          const created = await tx.notaFiscal.create({
+            data: {
+              userId,
+              tenantId,
+              nfNumber: parsed.nfNumber,
+              nfSeries: parsed.nfSeries,
+              nfDate: parsed.nfDate,
+              emitente: parsed.emitente,
+              destinatario: parsed.destinatario,
+              valorTotal: parsed.valorTotal,
+              valorBaseIcms: parsed.valorBaseIcms,
+              valorIcms: parsed.valorIcms,
+              xmlContent,
+              processedAt: new Date(),
+              items: { create: itemRows },
+            },
+            include: {
+              _count: { select: { items: true } },
+              items: { take: 1, select: { marketplace: true } },
+            },
+          });
+
+          await createPaymentSchedulesFromNf(tenantId, parsed, itemRows, tx);
+          await updateDashboardMetrics(tenantId, tx);
+
+          return created;
+        });
+
+        return {
+          id: row.id,
+          tenantId: row.tenantId ?? '',
+          nfNumber: row.nfNumber,
+          nfSeries: row.nfSeries,
+          nfDate: row.nfDate.toISOString(),
+          valorTotal: Number(row.valorTotal),
+          itemsCount: row._count.items,
+          status: 'processed' as const,
+          uploadedAt: row.uploadedAt.toISOString(),
+          marketplace: (row.items[0]?.marketplace as Marketplace | undefined) ?? undefined,
+        };
+      } catch (err: unknown) {
+        const code = (err as { code?: string })?.code;
+        if (code === 'P2002') {
+          throw new Error(
+            'NF-e já processada (mesmo número, série e emitente)',
+          );
+        }
+        throw err;
+      }
     },
   },
 

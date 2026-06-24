@@ -112,7 +112,7 @@ export function AdminLoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              autoComplete="email"
+              autoComplete="off"
               style={{
                 width: '100%',
                 padding: spacing[3],
@@ -143,7 +143,7 @@ export function AdminLoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="current-password"
+              autoComplete="new-password"
               style={{
                 width: '100%',
                 padding: spacing[3],

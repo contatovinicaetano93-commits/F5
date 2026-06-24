@@ -1,0 +1,41 @@
+---
+description: Separação Imobi vs F5 vs Amet — projetos independentes, sócios diferentes
+alwaysApply: true
+---
+
+# Projetos separados (contexto do gestor)
+
+Thaise cuida de **vários projetos independentes** com **sócios e negócios diferentes**. Nunca tratar como um monorepo ou uma única empresa.
+
+## Este workspace = F5
+
+- **Produto**: operação + plataforma para indústria em marketplaces
+- **Tagline**: INDÚSTRIA NO DIGITAL
+- **Repo**: `contatovinicaetano93-commits/f5`
+- **Pacotes**: apenas `@f5/*` — nunca `@imobi/*` ou `@amet/*`
+
+## Outros projetos (NÃO misturar)
+
+| Projeto | Domínio | Repo | Relação com F5 |
+|---------|---------|------|----------------|
+| **Imobi** | Fintech — crédito imobiliário (obras, créditos) | `contatovinicaetano93-commits/imobi` | Zero dependência |
+| **Amet** | Projeto separado | `contatovinicaetano93-commits/amet` | Zero dependência |
+
+Sócios, prioridades, deploy e stakeholders são **distintos** em cada projeto.
+
+## Antes de código, commit ou deploy
+
+1. Confirmar que a tarefa é do **F5** (este workspace).
+2. Se a mensagem mencionar Imobi/Amet sem contexto claro, **perguntar** qual projeto está ativo.
+3. Não reutilizar código, `.env`, schemas, deploy ou decisões de outro repo sem pedido explícito.
+
+## Proibido
+
+- Importar ou copiar de `imobi` / `amet`
+- Commitar secrets ou configs de outro projeto
+- Assumir que padrão de um projeto vale para outro
+- Misturar timelines (ex.: sprint Imobi 3 dias ≠ roadmap F5)
+
+## Ao iniciar sessão
+
+Declarar em uma linha: **"Contexto: F5"** e seguir `CLAUDE.md` deste repo.

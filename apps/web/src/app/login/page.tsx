@@ -1,60 +1,66 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase-client';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
 
-const supabaseConfigured = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-);
-
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') ?? '/cliente';
+  const supabaseConfigured = isSupabaseConfigured();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    if (!supabaseConfigured) {
-      setError('Login de clientes em configuração. Use o portal demo ou fale com a F5.');
-      setLoading(false);
-      return;
-    }
-
-    const supabase = createClient();
-
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      if (supabaseConfigured) {
+        const supabase = createClient();
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
 
-      if (signInError) {
-        setError(signInError.message);
-        return;
-      }
-
-      if (data.user) {
-        const { data: userData, error: fetchError } = await supabase
-          .from('users')
-          .select('tenant_id')
-          .eq('id', data.user.id)
-          .single();
-
-        if (fetchError || !userData) {
-          setError('Usuário não configurado corretamente');
+        if (signInError) {
+          setError(signInError.message);
           return;
         }
 
-        router.push(`/dashboard/${userData.tenant_id}`);
+        const sessionRes = await fetch('/api/client/session', {
+          credentials: 'include',
+        });
+        if (!sessionRes.ok) {
+          await supabase.auth.signOut();
+          setError(
+            'Conta não vinculada a um cliente F5. Peça acesso à equipe de operação.',
+          );
+          return;
+        }
+      } else {
+        const res = await fetch('/api/client/auth/login', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? 'Senha inválida');
+          return;
+        }
       }
+
+      router.push(redirectTo.startsWith('/') ? redirectTo : '/cliente');
+      router.refresh();
     } catch (err) {
       setError('Erro ao fazer login. Tente novamente.');
       console.error(err);
@@ -93,48 +99,19 @@ export default function LoginPage() {
               marginBottom: spacing[2],
             }}
           >
-            🚀 F5
+            F5
           </h1>
           <p style={{ color: colors.gray, fontSize: 14 }}>
-            Entre na sua conta para acompanhar suas vendas
+            Portal do cliente — acompanhe vendas e recebimentos
           </p>
         </div>
-
-        {!supabaseConfigured && (
-          <div
-            style={{
-              padding: spacing[4],
-              backgroundColor: '#EFF6FF',
-              border: '1px solid #BFDBFE',
-              borderRadius: borderRadius.md,
-              marginBottom: spacing[4],
-            }}
-          >
-            <p style={{ color: colors.navy, fontSize: 14, margin: 0, marginBottom: spacing[3] }}>
-              O login de clientes ainda não está ativo neste ambiente. Enquanto isso, você pode
-              explorar o portal demo ou falar com a equipe F5.
-            </p>
-            <Link
-              href="/portal"
-              style={{
-                display: 'inline-block',
-                color: colors.blue,
-                fontWeight: 600,
-                textDecoration: 'none',
-                fontSize: 14,
-              }}
-            >
-              Ver portal demo do cliente →
-            </Link>
-          </div>
-        )}
 
         {error && (
           <div
             style={{
               padding: spacing[3],
               backgroundColor: '#FEE2E2',
-              border: `1px solid #FCA5A5`,
+              border: '1px solid #FCA5A5',
               borderRadius: borderRadius.md,
               marginBottom: spacing[4],
             }}
@@ -144,35 +121,36 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: spacing[6] }}>
-            <label
-              style={{
-                display: 'block',
-                marginBottom: spacing[2],
-                fontWeight: 600,
-                color: colors.navy,
-                fontSize: 14,
-              }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              placeholder="seu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={!supabaseConfigured}
-              style={{
-                width: '100%',
-                padding: spacing[3],
-                border: `1px solid ${colors.offWhite}`,
-                borderRadius: borderRadius.md,
-                fontSize: 14,
-                fontFamily: typography.fontFamily.primary,
-                opacity: supabaseConfigured ? 1 : 0.6,
-              }}
-            />
-          </div>
+          {supabaseConfigured && (
+            <div style={{ marginBottom: spacing[6] }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: spacing[2],
+                  fontWeight: 600,
+                  color: colors.navy,
+                  fontSize: 14,
+                }}
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: spacing[3],
+                  border: `1px solid ${colors.offWhite}`,
+                  borderRadius: borderRadius.md,
+                  fontSize: 14,
+                  fontFamily: typography.fontFamily.primary,
+                }}
+              />
+            </div>
+          )}
 
           <div style={{ marginBottom: spacing[6] }}>
             <label
@@ -184,14 +162,14 @@ export default function LoginPage() {
                 fontSize: 14,
               }}
             >
-              Senha
+              {supabaseConfigured ? 'Senha' : 'Senha do portal'}
             </label>
             <input
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={!supabaseConfigured}
+              required
               style={{
                 width: '100%',
                 padding: spacing[3],
@@ -199,14 +177,13 @@ export default function LoginPage() {
                 borderRadius: borderRadius.md,
                 fontSize: 14,
                 fontFamily: typography.fontFamily.primary,
-                opacity: supabaseConfigured ? 1 : 0.6,
               }}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading || !supabaseConfigured}
+            disabled={loading}
             style={{
               width: '100%',
               backgroundColor: colors.blue,
@@ -216,32 +193,17 @@ export default function LoginPage() {
               borderRadius: borderRadius.md,
               fontWeight: 700,
               fontSize: 16,
-              cursor: loading || !supabaseConfigured ? 'not-allowed' : 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               marginBottom: spacing[4],
               fontFamily: typography.fontFamily.primary,
-              opacity: loading || !supabaseConfigured ? 0.5 : 1,
+              opacity: loading ? 0.5 : 1,
             }}
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Entrando...' : 'Entrar no portal'}
           </button>
         </form>
 
         <div style={{ textAlign: 'center' }}>
-          {supabaseConfigured && (
-            <p style={{ color: colors.gray, fontSize: 14, marginBottom: spacing[4] }}>
-              Não tem conta?{' '}
-              <Link
-                href="/signup"
-                style={{
-                  color: colors.blue,
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                }}
-              >
-                Criar conta
-              </Link>
-            </p>
-          )}
           <Link
             href="/"
             style={{
@@ -256,5 +218,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p style={{ padding: 40, textAlign: 'center' }}>Carregando...</p>}>
+      <LoginForm />
+    </Suspense>
   );
 }

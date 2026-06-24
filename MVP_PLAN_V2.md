@@ -1,4 +1,9 @@
 # 🚀 F5 MVP — Plano Revisado
+
+> ⚠️ **SUPERSEDED** — Use `docs/EXECUTION_PLAN.md` como plano guiado atual.  
+> Este arquivo mantém histórico da visão antiga (sync marketplace).
+
+## 🚀 F5 MVP — Plano Revisado
 ## Dashboard Operacional + Landing Page MKT
 
 ---

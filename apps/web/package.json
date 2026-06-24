@@ -4,26 +4,31 @@
   "private": true,
   "scripts": {
     "dev": "prisma generate && next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/validate-env.mjs && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "db:recalc-dashboard": "tsx --tsconfig tsconfig.json scripts/recalc-dashboard.ts",
+    "gate2:validate": "tsx --tsconfig tsconfig.json scripts/gate2-validate.ts"
   },
   "dependencies": {
+    "@f5/core": "workspace:*",
+    "@f5/schemas": "workspace:*",
+    "@f5/ui": "workspace:*",
+    "@prisma/client": "^5.0.0",
+    "@sentry/nextjs": "^10.60.0",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
+    "lucide-react": "^0.469.0",
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@prisma/client": "^5.0.0",
-    "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.49.1",
-    "@f5/schemas": "workspace:*",
-    "@f5/core": "workspace:*",
-    "@f5/ui": "workspace:*",
-    "lucide-react": "^0.469.0"
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
     "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/xml2js": "^0.4.14",
     "prisma": "^5.0.0",
     "typescript": "^5.0.0"
   },

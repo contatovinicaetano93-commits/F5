@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import styles from '@/styles/client.module.css';
 import { IconFinance, IconHome, IconProducts, IconProfile } from '@/components/client/icons';
 
@@ -22,7 +22,38 @@ const pageTitles: Record<string, { title: string; eyebrow: string }> = {
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const [tenantName, setTenantName] = useState('Indústria Piloto');
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/client/profile', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.company?.displayName) {
+          setTenantName(data.company.displayName);
+        }
+      })
+      .catch(() => undefined);
+
+    fetch('/api/client/session', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.authenticated) {
+          setAuthenticated(true);
+          if (data.email) setUserEmail(data.email);
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/client/auth/logout', { method: 'POST', credentials: 'include' });
+    router.push('/login');
+    router.refresh();
+  };
 
   const header = pageTitles[pathname] ?? {
     title: 'Portal do cliente',
@@ -47,7 +78,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         {!collapsed && (
           <div className={styles.tenantBadge}>
             <p className={styles.tenantLabel}>Cliente</p>
-            <p className={styles.tenantName}>Indústria Piloto</p>
+            <p className={styles.tenantName}>{tenantName}</p>
           </div>
         )}
 
@@ -90,9 +121,26 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <p className={styles.headerMeta}>Dados consolidados pela F5</p>
-            <Link href="/" className={styles.headerLink}>
-              Voltar ao site
-            </Link>
+            {userEmail && (
+              <p className={styles.headerMeta} style={{ marginTop: 4 }}>
+                {userEmail}
+              </p>
+            )}
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end', marginTop: 8 }}>
+              {authenticated && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className={styles.headerLink}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  Sair
+                </button>
+              )}
+              <Link href="/" className={styles.headerLink}>
+                Voltar ao site
+              </Link>
+            </div>
           </div>
         </header>
         <main className={styles.content}>{children}</main>

@@ -23,13 +23,27 @@ interface Overview {
   }[];
 }
 
+interface Insight {
+  id: string;
+  title: string;
+  body: string;
+  weekOf: string | null;
+  createdAt: string;
+}
+
 export default function ClienteInicioPage() {
   const [data, setData] = useState<Overview | null>(null);
+  const [insights, setInsights] = useState<Insight[]>([]);
 
   useEffect(() => {
-    fetch('/api/client/overview')
-      .then((r) => r.json())
-      .then(setData)
+    Promise.all([
+      fetch('/api/client/overview', { credentials: 'include' }).then((r) => r.json()),
+      fetch('/api/client/insights', { credentials: 'include' }).then((r) => r.json()),
+    ])
+      .then(([overview, insightData]) => {
+        setData(overview);
+        setInsights(insightData.items ?? []);
+      })
       .catch(console.error);
   }, []);
 
@@ -128,6 +142,23 @@ export default function ClienteInicioPage() {
           </div>
         </div>
       </div>
+
+      {insights.length > 0 && (
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Insights da operação F5</h3>
+          <div className={styles.insightList}>
+            {insights.map((insight) => (
+              <article key={insight.id} className={styles.insightItem}>
+                <h4 className={styles.insightTitle}>{insight.title}</h4>
+                <p className={styles.insightBody}>{insight.body}</p>
+                <span className={styles.cellMuted}>
+                  {new Date(insight.createdAt).toLocaleDateString('pt-BR')}
+                </span>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

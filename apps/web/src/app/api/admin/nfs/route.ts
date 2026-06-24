@@ -23,11 +23,13 @@ export async function POST(request: NextRequest) {
       nfDate: body.nfDate ?? new Date().toISOString(),
       valorTotal: body.valorTotal ?? 0,
       itemsCount: body.itemsCount ?? 0,
-      status: 'pending',
+      status: 'processed',
+      marketplace: body.marketplace,
     });
     return NextResponse.json(nf, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erro ao criar NF';
-    return NextResponse.json({ error: message }, { status: 501 });
+    const status = err instanceof Error ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }

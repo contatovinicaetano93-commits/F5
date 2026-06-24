@@ -20,7 +20,7 @@ export default function AdminHomePage() {
   const [data, setData] = useState<Overview | null>(null);
 
   useEffect(() => {
-    fetch('/api/admin/overview')
+    fetch('/api/admin/overview', { credentials: 'include' })
       .then((r) => r.json())
       .then(setData)
       .catch(console.error);
@@ -80,16 +80,19 @@ export default function AdminHomePage() {
         </Card>
 
         <Card>
-          <h2 style={{ margin: 0, fontSize: '18px' }}>Fluxo semanal</h2>
+          <h2 style={{ margin: 0, fontSize: '18px' }}>Fluxo semanal (operador)</h2>
           <ol style={{ margin: '16px 0 0', paddingLeft: 20, lineHeight: 1.8, color: '#2D3748' }}>
-            <li>Revisar KPIs de todos os clientes</li>
-            <li>Trabalhar anúncios nos marketplaces (manual)</li>
-            <li>Atualizar métricas e processar NF-e</li>
-            <li>Registrar insight → cliente vê no dashboard</li>
+            <li><strong>Segunda</strong> — Revisar KPIs e giro baixo abaixo</li>
+            <li><strong>Ter–Qua</strong> — Otimizar anúncios nos marketplaces (manual)</li>
+            <li><strong>Quinta</strong> — Importar CSV + processar NF-e</li>
+            <li><strong>Sexta</strong> — Publicar insight → cliente vê no portal</li>
           </ol>
           <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link href="/admin/clientes" style={adminStyles.link}>
+              Clientes
+            </Link>
             <Link href="/admin/lancamentos" style={adminStyles.link}>
-              + Lançamento
+              + Lançamento / CSV
             </Link>
             <Link href="/admin/insights" style={adminStyles.link}>
               + Insight
@@ -103,8 +106,7 @@ export default function AdminHomePage() {
 
       <Card variant="outlined">
         <p style={{ margin: 0, fontSize: 14, color: '#8B9CB6' }}>
-          Fase 1 — organização interna. Dados em memória para validar fluxo.
-          Próximo passo: conectar PostgreSQL + dashboard cliente (indústria).
+          Fase 2 — dados reais no Neon. Próximo gate: NF-e real do piloto + review semanal com cliente.
         </p>
       </Card>
     </div>
