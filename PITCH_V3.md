@@ -95,17 +95,27 @@ CONSUMIDOR FINAL
 
 ## Slide 7 — Diferencial: AI-First
 
-### IA como motor operacional, não como feature
+### IA como motor operacional — no processo hoje, na plataforma amanhã
 
-| Agente IA | O que faz | Impacto |
-|-----------|-----------|---------|
-| Catalog Scraper | Extrai catálogo do site do cliente | Onboarding em horas, não semanas |
-| Listing Generator | Cria anúncios otimizados por marketplace | ML ≠ Amazon (regras diferentes) |
-| Competitor Monitor | Monitora preços e posição dos top 10 | Decisão de preço data-driven |
-| Price Optimizer | Sugere preço ideal por canal | Maximiza conversão + margem |
-| NF Parser | Processa XML NF-e automaticamente | Dashboard financeiro em tempo real |
+**Hoje (operação F5 com IA):**
 
-**Resultado**: 1 operador F5 gerencia o que antes precisava de 5 pessoas.
+| O que fazemos | Como IA ajuda | Resultado |
+|---------------|--------------|-----------|
+| Onboarding de catálogo | Cursor Agents extrai SKUs do site do cliente | Horas, não semanas |
+| Criação de anúncios | LLM gera título/descrição por marketplace | ML ≠ Amazon (regras diferentes) |
+| Monitoramento de concorrência | Pesquisa assistida + análise de dados | Decisão data-driven a cada semana |
+| Parser de NF-e | Processa XML automaticamente na plataforma | Dashboard financeiro sem planilha |
+| Insights semanais | Operador usa IA para redigir análise ao cliente | Relatório em minutos, não horas |
+
+**Roadmap (plataforma F5 — Fase 5):**
+
+| Agente | Quando |
+|--------|--------|
+| Price Optimizer autônomo | Pós Gate 4 (10+ clientes) |
+| Competitor Monitor em tempo real | Pós Gate 4 |
+| Listing Generator integrado ao admin | Pós Gate 4 |
+
+**Resultado hoje**: 1 operador F5 gerencia o que antes precisava de 5 pessoas — graças à IA no processo, não só no produto.
 
 ---
 
