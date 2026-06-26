@@ -15,7 +15,8 @@
     "gate-pilot:e2e": "tsx --tsconfig tsconfig.json scripts/gate-pilot-e2e.ts",
     "test:unit": "tsx --tsconfig tsconfig.json scripts/test-unit.ts",
     "db:recalc-all-tenants": "tsx --tsconfig tsconfig.json scripts/recalc-all-tenants.ts",
-    "test:isolation": "tsx --tsconfig tsconfig.json scripts/test-tenant-isolation.ts"
+    "test:isolation": "tsx --tsconfig tsconfig.json scripts/test-tenant-isolation.ts",
+    "seed:clients": "tsx scripts/seed-client-users.ts"
   },
   "dependencies": {
     "@f5/core": "workspace:*",

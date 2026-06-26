@@ -4,9 +4,30 @@ import Link from 'next/link';
 import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PasswordInput } from '@/components/ui/PasswordInput';
+import { createClient } from '@/lib/supabase-client';
 import { colors, spacing, typography, borderRadius } from '@f5/ui/src/tokens';
 
+const inputStyle = {
+  width: '100%',
+  padding: spacing[3],
+  border: `1px solid #D1D5DB`,
+  borderRadius: borderRadius.md,
+  fontSize: 14,
+  fontFamily: typography.fontFamily.primary,
+  outline: 'none',
+  boxSizing: 'border-box' as const,
+};
+
+const labelStyle = {
+  display: 'block',
+  marginBottom: spacing[2],
+  fontWeight: 600,
+  color: colors.navy,
+  fontSize: 14,
+};
+
 function LoginForm() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,12 +39,12 @@ function LoginForm() {
     setError('');
 
     try {
-      // Tenta admin primeiro
+      // 1. Tenta admin (sem Supabase — email fixo + senha env)
       const adminRes = await fetch('/api/admin/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'admin@f5digital.com.br', password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (adminRes.ok) {
@@ -32,21 +53,28 @@ function LoginForm() {
         return;
       }
 
-      // Tenta portal cliente
-      const clientRes = await fetch('/api/client/auth/login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+      // 2. Tenta cliente via Supabase (email + senha por tenant)
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       });
 
-      if (clientRes.ok) {
-        router.push('/cliente');
-        router.refresh();
+      if (signInError) {
+        setError('Email ou senha inválidos.');
         return;
       }
 
-      setError('Senha inválida. Verifique e tente novamente.');
+      // Supabase OK — verifica se tem tenant vinculado
+      const sessionRes = await fetch('/api/client/session', { credentials: 'include' });
+      if (!sessionRes.ok) {
+        await supabase.auth.signOut();
+        setError('Conta não vinculada a um cliente F5. Entre em contato com a equipe.');
+        return;
+      }
+
+      router.push('/cliente');
+      router.refresh();
     } catch {
       setError('Erro de conexão. Tente novamente.');
     } finally {
@@ -76,17 +104,10 @@ function LoginForm() {
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: spacing[8] }}>
-          <h1
-            style={{
-              fontSize: 32,
-              fontWeight: 700,
-              color: colors.navy,
-              marginBottom: spacing[2],
-            }}
-          >
+          <h1 style={{ fontSize: 32, fontWeight: 700, color: colors.navy, marginBottom: spacing[2] }}>
             F5
           </h1>
-          <p style={{ color: colors.gray, fontSize: 14 }}>
+          <p style={{ color: colors.gray, fontSize: 14, margin: 0 }}>
             Indústria no digital — acesso à plataforma
           </p>
         </div>
@@ -106,24 +127,27 @@ function LoginForm() {
         )}
 
         <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: spacing[4] }}>
+            <label style={labelStyle}>Email</label>
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoFocus
+              autoComplete="email"
+              style={inputStyle}
+            />
+          </div>
+
           <div style={{ marginBottom: spacing[6] }}>
-            <label
-              style={{
-                display: 'block',
-                marginBottom: spacing[2],
-                fontWeight: 600,
-                color: colors.navy,
-                fontSize: 14,
-              }}
-            >
-              Senha de acesso
-            </label>
+            <label style={labelStyle}>Senha</label>
             <PasswordInput
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoFocus
               autoComplete="current-password"
             />
           </div>
@@ -150,10 +174,7 @@ function LoginForm() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: spacing[6] }}>
-          <Link
-            href="/"
-            style={{ color: colors.gray, textDecoration: 'none', fontSize: 13 }}
-          >
+          <Link href="/" style={{ color: colors.gray, textDecoration: 'none', fontSize: 13 }}>
             Voltar ao site
           </Link>
         </div>
