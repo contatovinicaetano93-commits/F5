@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
 import { formatBRL, formatPct } from '@/lib/admin/styles';
+import { fetchClientJson } from '@/lib/client/fetch';
+import { useClientPoll } from '@/lib/client/use-client-poll';
 
 interface Overview {
   period: { month: string };
@@ -34,34 +36,40 @@ interface Insight {
   createdAt: string;
 }
 
-export default function ClienteInicioPage() {
-  const [data, setData] = useState<Overview | null>(null);
-  const [insights, setInsights] = useState<Insight[]>([]);
+type HomeData = {
+  overview: Overview;
+  insights: Insight[];
+};
 
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/client/overview', { credentials: 'include' }).then((r) => r.json()),
-      fetch('/api/client/insights', { credentials: 'include' }).then((r) => r.json()),
-    ])
-      .then(([overview, insightData]) => {
-        setData(overview);
-        setInsights(insightData.items ?? []);
-      })
-      .catch(console.error);
+export default function ClienteInicioPage() {
+  const loader = useCallback(async (): Promise<HomeData | null> => {
+    const [overview, insightData] = await Promise.all([
+      fetchClientJson<Overview>('/api/client/overview'),
+      fetchClientJson<{ items: Insight[] }>('/api/client/insights'),
+    ]);
+    if (!overview) return null;
+    return { overview, insights: insightData?.items ?? [] };
   }, []);
+
+  const { data, loading } = useClientPoll<HomeData>('client-home', loader);
+
+  if (loading && !data) {
+    return <ClientSkeleton />;
+  }
 
   if (!data) {
     return <ClientSkeleton />;
   }
 
-  const variationPositive = data.variationPct >= 0;
+  const { overview: dataOverview, insights } = data;
+  const variationPositive = dataOverview.variationPct >= 0;
 
   return (
     <div className={styles.page}>
       <div className={styles.pageIntro}>
         <h2 className={styles.pageTitle}>Resultado do digital</h2>
         <p className={styles.pageSubtitle}>
-          Visão consolidada de vendas e recebimentos para {data.period.month}. A F5
+          Visão consolidada de vendas e recebimentos para {dataOverview.period.month}. A F5
           opera os marketplaces — você acompanha os números aqui.
         </p>
       </div>
@@ -70,7 +78,7 @@ export default function ClienteInicioPage() {
         <div className={styles.kpiGrid}>
           <div className={styles.kpiTile}>
             <p className={styles.kpiLabel}>Vendas do mês</p>
-            <p className={styles.kpiValue}>{formatBRL(data.monthSales)}</p>
+            <p className={styles.kpiValue}>{formatBRL(dataOverview.monthSales)}</p>
             <p className={styles.kpiMeta}>
               <span
                 className={`${styles.badge} ${
@@ -78,7 +86,7 @@ export default function ClienteInicioPage() {
                 }`}
               >
                 {variationPositive ? '+' : ''}
-                {formatPct(data.variationPct)}
+                {formatPct(dataOverview.variationPct)}
               </span>
               <span className={styles.cellMuted}>vs mês anterior</span>
             </p>
@@ -86,17 +94,17 @@ export default function ClienteInicioPage() {
 
           <div className={styles.kpiTile}>
             <p className={styles.kpiLabel}>Pagamentos a receber</p>
-            <p className={styles.kpiValue}>{formatBRL(data.totalReceivable)}</p>
+            <p className={styles.kpiValue}>{formatBRL(dataOverview.totalReceivable)}</p>
             <p className={styles.kpiMeta}>
               <span className={styles.cellMuted}>
-                {data.paymentsReceivable.length} repasses programados
+                {dataOverview.paymentsReceivable.length} repasses programados
               </span>
             </p>
           </div>
 
           <div className={styles.kpiTile}>
             <p className={styles.kpiLabel}>Canais ativos</p>
-            <p className={styles.kpiValue}>{data.channelDistribution.length}</p>
+            <p className={styles.kpiValue}>{dataOverview.channelDistribution.length}</p>
             <p className={styles.kpiMeta}>
               <span className={styles.cellMuted}>ML, Amazon e Shopee</span>
             </p>
@@ -106,7 +114,7 @@ export default function ClienteInicioPage() {
 
       <div className={styles.twoCol}>
         <ClientPanelCard title="Distribuição por canal" defaultOpen={false}>
-          {data.channelDistribution.length === 0 ? (
+          {dataOverview.channelDistribution.length === 0 ? (
             <div className={styles.emptyState}>
               <p className={styles.emptyStateTitle}>Sem vendas por canal neste mês</p>
               <p className={styles.emptyStateBody}>
@@ -115,7 +123,7 @@ export default function ClienteInicioPage() {
             </div>
           ) : (
             <div className={styles.channelList}>
-              {data.channelDistribution.map((ch) => (
+              {dataOverview.channelDistribution.map((ch) => (
                 <div key={ch.label} className={styles.channelRow}>
                   <div className={styles.channelHeader}>
                     <span className={styles.channelName}>{ch.label}</span>
@@ -137,7 +145,7 @@ export default function ClienteInicioPage() {
         </ClientPanelCard>
 
         <ClientPanelCard title="Próximos recebimentos" defaultOpen={false}>
-          {data.paymentsReceivable.length === 0 ? (
+          {dataOverview.paymentsReceivable.length === 0 ? (
             <div className={styles.emptyState}>
               <p className={styles.emptyStateTitle}>Nenhum repasse programado</p>
               <p className={styles.emptyStateBody}>
@@ -146,7 +154,7 @@ export default function ClienteInicioPage() {
             </div>
           ) : (
             <div className={styles.paymentList}>
-              {data.paymentsReceivable.map((p) => (
+              {dataOverview.paymentsReceivable.map((p) => (
                 <div key={p.id} className={styles.paymentItem}>
                   <div className={styles.paymentInfo}>
                     <span className={styles.paymentLabel}>{p.label}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
@@ -33,6 +33,7 @@ export default function NfePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState('');
+  const [nfSearch, setNfSearch] = useState('');
   const [form, setForm] = useState({
     tenantId: '',
     nfNumber: '',
@@ -137,6 +138,12 @@ export default function NfePage() {
       await loadNfs();
     }
   };
+
+  const filteredNfs = useMemo(() => {
+    const q = nfSearch.trim().toLowerCase();
+    if (!q) return nfs;
+    return nfs.filter((nf) => nf.nfNumber.toLowerCase().includes(q));
+  }, [nfs, nfSearch]);
 
   return (
     <div style={adminStyles.page}>
@@ -272,6 +279,15 @@ export default function NfePage() {
       </div>
 
       <AdminPanelCard title="NF-e registradas">
+        <div style={{ marginBottom: 12 }}>
+          <input
+            type="search"
+            value={nfSearch}
+            onChange={(e) => setNfSearch(e.target.value)}
+            placeholder="Filtrar por número da NF…"
+            style={{ ...adminStyles.input, maxWidth: 280 }}
+          />
+        </div>
         <table style={adminStyles.table}>
           <thead>
             <tr>
@@ -283,7 +299,7 @@ export default function NfePage() {
             </tr>
           </thead>
           <tbody>
-            {nfs.map((nf) => (
+            {filteredNfs.map((nf) => (
               <tr key={nf.id}>
                 <td style={adminStyles.td}>
                   {nf.nfNumber}/{nf.nfSeries}

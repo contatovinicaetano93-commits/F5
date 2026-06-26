@@ -268,6 +268,109 @@ export const internalData = {
       });
       return mapProduct(row);
     },
+
+    async update(
+      id: string,
+      data: Partial<Pick<InternalProduct, 'name' | 'description' | 'category' | 'marketplace' | 'active'>>,
+    ): Promise<InternalProduct | null> {
+      if (!hasDatabase()) return internalStore.products.update(id, data);
+      try {
+        const row = await prisma.product.update({
+          where: { id },
+          data: {
+            name: data.name,
+            description: data.description,
+            category: data.category,
+            marketplace: data.marketplace as PrismaMarketplace | undefined,
+            active: data.active,
+          },
+        });
+        return mapProduct(row);
+      } catch {
+        return null;
+      }
+    },
+
+    async importFromCsv(
+      tenantId: string,
+      rows: {
+        sku: string;
+        name: string;
+        category?: string;
+        marketplace: Marketplace;
+      }[],
+    ): Promise<{ created: number; updated: number; errors: string[] }> {
+      const errors: string[] = [];
+      let created = 0;
+      let updated = 0;
+
+      if (!hasDatabase()) {
+        for (const row of rows) {
+          const existing = internalStore.products
+            .list(tenantId)
+            .find((p) => p.sku.toUpperCase() === row.sku.toUpperCase());
+          if (existing) {
+            internalStore.products.update(existing.id, {
+              name: row.name,
+              category: row.category,
+              marketplace: row.marketplace,
+              active: true,
+            });
+            updated++;
+          } else {
+            internalStore.products.create({
+              tenantId,
+              sku: row.sku,
+              name: row.name,
+              category: row.category,
+              marketplace: row.marketplace,
+              active: true,
+            });
+            created++;
+          }
+        }
+        return { created, updated, errors };
+      }
+
+      const existing = await prisma.product.findMany({
+        where: { tenantId },
+        select: { id: true, sku: true },
+      });
+      const skuMap = new Map(existing.map((p) => [p.sku.toUpperCase(), p.id]));
+
+      for (const row of rows) {
+        const existingId = skuMap.get(row.sku.toUpperCase());
+        try {
+          if (existingId) {
+            await prisma.product.update({
+              where: { id: existingId },
+              data: {
+                name: row.name,
+                category: row.category,
+                marketplace: row.marketplace as PrismaMarketplace,
+                active: true,
+              },
+            });
+            updated++;
+          } else {
+            await prisma.product.create({
+              data: {
+                tenantId,
+                sku: row.sku,
+                name: row.name,
+                category: row.category,
+                marketplace: row.marketplace as PrismaMarketplace,
+              },
+            });
+            created++;
+          }
+        } catch {
+          errors.push(`Falha ao importar SKU ${row.sku}`);
+        }
+      }
+
+      return { created, updated, errors };
+    },
   },
 
   metrics: {

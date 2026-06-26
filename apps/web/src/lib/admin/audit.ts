@@ -8,6 +8,14 @@ export type AdminAuditAction =
   | 'admin.login_failed'
   | 'admin.login_rate_limited'
   | 'admin.logout'
+  | 'admin.tenant_create'
+  | 'admin.tenant_update'
+  | 'admin.product_create'
+  | 'admin.product_update'
+  | 'admin.catalog_import'
+  | 'admin.metric_create'
+  | 'admin.insight_create'
+  | 'admin.insight_update'
   | 'admin.nf_upload'
   | 'admin.metrics_import'
   | 'admin.payment_mark_paid';
@@ -48,10 +56,14 @@ export async function logAdminAudit(params: {
   }
 }
 
-export async function listAdminAuditLogs(limit = 50): Promise<AdminAuditEntry[]> {
+export async function listAdminAuditLogs(
+  limit = 50,
+  action?: string,
+): Promise<AdminAuditEntry[]> {
   if (!hasDatabase()) return [];
 
   const rows = await prisma.adminAuditLog.findMany({
+    where: action ? { action } : undefined,
     orderBy: { createdAt: 'desc' },
     take: limit,
   });

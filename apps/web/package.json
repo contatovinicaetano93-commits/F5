@@ -12,8 +12,10 @@
     "gate2:validate": "tsx --tsconfig tsconfig.json scripts/gate2-validate.ts",
     "gate1:validate": "tsx --tsconfig tsconfig.json scripts/gate1-validate.ts",
     "gate3:validate": "tsx --tsconfig tsconfig.json scripts/gate3-validate.ts",
+    "gate-pilot:e2e": "tsx --tsconfig tsconfig.json scripts/gate-pilot-e2e.ts",
     "test:unit": "tsx --tsconfig tsconfig.json scripts/test-unit.ts",
-    "db:recalc-all-tenants": "tsx --tsconfig tsconfig.json scripts/recalc-all-tenants.ts"
+    "db:recalc-all-tenants": "tsx --tsconfig tsconfig.json scripts/recalc-all-tenants.ts",
+    "test:isolation": "tsx --tsconfig tsconfig.json scripts/test-tenant-isolation.ts"
   },
   "dependencies": {
     "@f5/core": "workspace:*",

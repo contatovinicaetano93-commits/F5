@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
+import { requireDatabaseForWrite } from '@/lib/admin/system-status';
 import { internalData } from '@/lib/internal/data';
 import {
   assertUploadSize,
@@ -10,6 +11,9 @@ import {
 export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const dbError = requireDatabaseForWrite();
+  if (dbError) return dbError;
 
   const formData = await request.formData();
   const file = formData.get('file') as File | null;

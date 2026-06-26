@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from '@/styles/client.module.css';
 import { IconFinance, IconHome, IconInsights, IconProducts, IconProfile } from '@/components/client/icons';
+import { ClientFreshnessBadge } from '@/components/client/ClientFreshnessBadge';
+import { ClientRefreshProvider } from '@/components/client/ClientRefreshProvider';
+import { CLIENT_POLL_INTERVAL_MS, fetchClientJson } from '@/lib/client/fetch';
 
 const menuItems = [
   { label: 'Início', href: '/cliente', icon: IconHome, exact: true },
@@ -22,7 +25,7 @@ const pageTitles: Record<string, { title: string; eyebrow: string }> = {
   '/cliente/perfil': { title: 'Sua empresa', eyebrow: 'Perfil' },
 };
 
-export function ClientLayout({ children }: { children: React.ReactNode }) {
+function ClientLayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
@@ -31,24 +34,28 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    fetch('/api/client/profile', { credentials: 'include' })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.company?.displayName) {
-          setTenantName(data.company.displayName);
-        }
-      })
-      .catch(() => undefined);
+    const loadProfile = () =>
+      fetchClientJson<{ company?: { displayName?: string } }>('/api/client/profile').then(
+        (data) => {
+          if (data?.company?.displayName) {
+            setTenantName(data.company.displayName);
+          }
+        },
+      );
 
-    fetch('/api/client/session', { credentials: 'include' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
+    loadProfile();
+    const profileTimer = setInterval(loadProfile, CLIENT_POLL_INTERVAL_MS);
+
+    fetchClientJson<{ authenticated?: boolean; email?: string }>('/api/client/session').then(
+      (data) => {
         if (data?.authenticated) {
           setAuthenticated(true);
           if (data.email) setUserEmail(data.email);
         }
-      })
-      .catch(() => undefined);
+      },
+    );
+
+    return () => clearInterval(profileTimer);
   }, []);
 
   const handleLogout = async () => {
@@ -123,6 +130,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <p className={styles.headerMeta}>Dados consolidados pela F5</p>
+            <ClientFreshnessBadge />
             {userEmail && (
               <p className={styles.headerMeta} style={{ marginTop: 4 }}>
                 {userEmail}
@@ -167,5 +175,13 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         })}
       </nav>
     </div>
+  );
+}
+
+export function ClientLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ClientRefreshProvider>
+      <ClientLayoutShell>{children}</ClientLayoutShell>
+    </ClientRefreshProvider>
   );
 }

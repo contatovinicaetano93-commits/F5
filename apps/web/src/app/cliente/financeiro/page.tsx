@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
 import { formatBRL } from '@/lib/admin/styles';
+import { useClientPollUrl } from '@/lib/client/use-client-poll';
 
 interface NfItem {
   id: string;
@@ -40,14 +41,7 @@ interface FinanceData {
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 export default function ClienteFinanceiroPage() {
-  const [data, setData] = useState<FinanceData | null>(null);
-
-  useEffect(() => {
-    fetch('/api/client/finance', { credentials: 'include' })
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error);
-  }, []);
+  const { data, loading } = useClientPollUrl<FinanceData>('/api/client/finance');
 
   const calendarCells = useMemo(() => {
     if (!data) return [];
@@ -81,6 +75,10 @@ export default function ClienteFinanceiroPage() {
 
     return cells;
   }, [data]);
+
+  if (loading && !data) {
+    return <ClientSkeleton rows={2} />;
+  }
 
   if (!data) {
     return <ClientSkeleton rows={2} />;

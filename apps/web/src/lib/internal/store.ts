@@ -245,6 +245,15 @@ export const internalStore = {
       products.push(product);
       return product;
     },
+    update: (
+      productId: string,
+      data: Partial<Pick<InternalProduct, 'name' | 'description' | 'category' | 'marketplace' | 'active'>>,
+    ) => {
+      const idx = products.findIndex((p) => p.id === productId);
+      if (idx === -1) return null;
+      products[idx] = { ...products[idx], ...data, updatedAt: now() };
+      return products[idx];
+    },
   },
 
   metrics: {

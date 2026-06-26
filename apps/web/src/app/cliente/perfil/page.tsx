@@ -1,10 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
+import { useClientPollUrl } from '@/lib/client/use-client-poll';
 
 interface ProfileData {
   company: {
@@ -29,20 +29,17 @@ interface ProfileData {
 
 export default function ClientePerfilPage() {
   const router = useRouter();
-  const [data, setData] = useState<ProfileData | null>(null);
-
-  useEffect(() => {
-    fetch('/api/client/profile', { credentials: 'include' })
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error);
-  }, []);
+  const { data, loading } = useClientPollUrl<ProfileData>('/api/client/profile');
 
   const handleLogout = async () => {
     await fetch('/api/client/auth/logout', { method: 'POST', credentials: 'include' });
     router.push('/login');
     router.refresh();
   };
+
+  if (loading && !data) {
+    return <ClientSkeleton rows={2} />;
+  }
 
   if (!data) {
     return <ClientSkeleton rows={2} />;

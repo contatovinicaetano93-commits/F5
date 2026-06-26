@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
+import { AdminDemoBanner } from '@/components/admin/AdminDemoBanner';
+import { AdminSearchBar } from '@/components/admin/AdminSearchBar';
 import { colors, spacing, typography, borderRadius } from '@f5/ui';
 
 const menuItems = [
@@ -122,6 +124,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <AdminDemoBanner />
         <header
           style={{
             backgroundColor: colors.white,
@@ -140,7 +143,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               Painel do operador
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[4] }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[4], flex: 1, justifyContent: 'flex-end' }}>
+            <AdminSearchBar />
             <button
               type="button"
               onClick={handleLogout}

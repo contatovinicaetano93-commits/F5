@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin-auth';
+import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
+import { logAdminAudit } from '@/lib/admin/audit';
+import { requireDatabaseForWrite } from '@/lib/admin/system-status';
 import { internalData } from '@/lib/internal/data';
 
 export async function GET(request: NextRequest) {
@@ -14,7 +16,23 @@ export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
 
+  const dbError = requireDatabaseForWrite();
+  if (dbError) return dbError;
+
   const body = await request.json();
   const product = await internalData.products.create(body);
+
+  await logAdminAudit({
+    action: 'admin.product_create',
+    actorEmail: getAdminEmail(),
+    request,
+    metadata: {
+      productId: product.id,
+      tenantId: product.tenantId,
+      sku: product.sku,
+      name: product.name,
+    },
+  });
+
   return NextResponse.json(product, { status: 201 });
 }

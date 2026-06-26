@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
 import { formatBRL, formatPct } from '@/lib/admin/styles';
+import { useClientPollUrl } from '@/lib/client/use-client-poll';
 
 interface ProductItem {
   id: string;
@@ -37,14 +37,11 @@ function trendClass(trend: ProductItem['trend']) {
 }
 
 export default function ClienteProdutosPage() {
-  const [data, setData] = useState<ProductsData | null>(null);
+  const { data, loading } = useClientPollUrl<ProductsData>('/api/client/products');
 
-  useEffect(() => {
-    fetch('/api/client/products', { credentials: 'include' })
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error);
-  }, []);
+  if (loading && !data) {
+    return <ClientSkeleton rows={2} />;
+  }
 
   if (!data) {
     return <ClientSkeleton rows={2} />;

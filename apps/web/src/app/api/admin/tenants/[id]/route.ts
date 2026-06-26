@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin-auth';
+import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
+import { logAdminAudit } from '@/lib/admin/audit';
 import { internalData } from '@/lib/internal/data';
 import { hasDatabase, prisma } from '@/lib/prisma';
 import type { OperatingScenario, TenantSegment } from '@prisma/client';
@@ -59,6 +60,18 @@ export async function PATCH(
       where: { id: params.id },
       data,
     });
+
+    await logAdminAudit({
+      action: 'admin.tenant_update',
+      actorEmail: getAdminEmail(),
+      request,
+      metadata: {
+        tenantId: tenant.id,
+        name: tenant.name,
+        status: tenant.status,
+      },
+    });
+
     return NextResponse.json({ ok: true, tenant });
   } catch {
     return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 });

@@ -217,6 +217,13 @@
   color: var(--text-muted);
 }
 
+.freshnessBadge {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+  font-weight: 500;
+}
+
 .headerLink {
   font-size: 13px;
   color: var(--blue);
