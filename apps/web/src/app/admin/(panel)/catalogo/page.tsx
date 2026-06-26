@@ -84,7 +84,7 @@ export default function CatalogoPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Adicionar SKU">
+        <AdminPanelCard title="Adicionar SKU" defaultOpen={false}>
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente

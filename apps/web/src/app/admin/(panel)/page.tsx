@@ -76,26 +76,26 @@ export default function AdminHomePage() {
       )}
 
       <div style={adminStyles.grid4}>
-        <AdminPanelCard title="Clientes ativos">
+        <AdminPanelCard title="Clientes ativos" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>
             {data?.activeTenants ?? '—'} / {data?.totalTenants ?? '—'}
           </p>
         </AdminPanelCard>
-        <AdminPanelCard title="Lançamentos esta semana">
+        <AdminPanelCard title="Lançamentos esta semana" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>{data?.metricsThisWeek ?? '—'}</p>
         </AdminPanelCard>
-        <AdminPanelCard title="Produtos com giro baixo">
+        <AdminPanelCard title="Produtos com giro baixo" collapsible={false} compact>
           <p style={{ ...adminStyles.kpiValue, color: '#F59E0B' }}>
             {data?.lowGiroCount ?? '—'}
           </p>
         </AdminPanelCard>
-        <AdminPanelCard title="Insights para cliente">
+        <AdminPanelCard title="Insights para cliente" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>{data?.clientInsights ?? '—'}</p>
         </AdminPanelCard>
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Por segmento">
+        <AdminPanelCard title="Por segmento" defaultOpen={false}>
           <table style={adminStyles.table}>
             <thead>
               <tr>
@@ -116,7 +116,7 @@ export default function AdminHomePage() {
           </table>
         </AdminPanelCard>
 
-        <AdminPanelCard title="Fluxo semanal (operador)">
+        <AdminPanelCard title="Fluxo semanal (operador)" defaultOpen={false}>
           <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8, color: '#2D3748' }}>
             <li><strong>Segunda</strong> — Revisar KPIs e giro baixo abaixo</li>
             <li><strong>Ter–Qua</strong> — Otimizar anúncios nos marketplaces (manual)</li>
@@ -140,7 +140,7 @@ export default function AdminHomePage() {
         </AdminPanelCard>
       </div>
 
-      <AdminPanelCard title="Readiness piloto comercial" variant="outlined">
+      <AdminPanelCard title="Readiness piloto comercial" variant="outlined" defaultOpen={false}>
         {data?.pilotReadiness ? (
           <>
             <p style={{ margin: '0 0 12px', color: data.pilotReadiness.ready ? '#0D9F6E' : '#C98A0A' }}>

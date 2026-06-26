@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
+import { ClientPanelCard } from '@/components/client/ClientPanelCard';
 import { formatBRL } from '@/lib/admin/styles';
 
 interface NfItem {
@@ -101,24 +102,25 @@ export default function ClienteFinanceiroPage() {
         </p>
       </div>
 
-      <div className={styles.kpiGrid}>
-        <div className={styles.card}>
-          <p className={styles.kpiLabel}>NF-e no mês</p>
-          <p className={styles.kpiValue}>{formatBRL(data.summary.monthNfTotal)}</p>
+      <ClientPanelCard title="Resumo financeiro" collapsible={false} compact>
+        <div className={styles.kpiGrid}>
+          <div className={styles.kpiTile}>
+            <p className={styles.kpiLabel}>NF-e no mês</p>
+            <p className={styles.kpiValue}>{formatBRL(data.summary.monthNfTotal)}</p>
+          </div>
+          <div className={styles.kpiTile}>
+            <p className={styles.kpiLabel}>A receber (agendado)</p>
+            <p className={styles.kpiValue}>{formatBRL(data.summary.totalScheduled)}</p>
+          </div>
+          <div className={styles.kpiTile}>
+            <p className={styles.kpiLabel}>NF-e pendentes</p>
+            <p className={styles.kpiValue}>{data.summary.pendingCount}</p>
+          </div>
         </div>
-        <div className={styles.card}>
-          <p className={styles.kpiLabel}>A receber (agendado)</p>
-          <p className={styles.kpiValue}>{formatBRL(data.summary.totalScheduled)}</p>
-        </div>
-        <div className={styles.card}>
-          <p className={styles.kpiLabel}>NF-e pendentes</p>
-          <p className={styles.kpiValue}>{data.summary.pendingCount}</p>
-        </div>
-      </div>
+      </ClientPanelCard>
 
       <div className={styles.twoCol}>
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Calendário — {monthLabel}</h3>
+        <ClientPanelCard title={`Calendário — ${monthLabel}`} defaultOpen={false}>
           <div className={styles.calendarGrid}>
             {WEEKDAYS.map((d) => (
               <div key={d} className={styles.calendarDayLabel}>
@@ -184,10 +186,9 @@ export default function ClienteFinanceiroPage() {
               ))
             )}
           </div>
-        </div>
+        </ClientPanelCard>
 
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Notas fiscais (NF-e)</h3>
+        <ClientPanelCard title="Notas fiscais (NF-e)" defaultOpen={false}>
           {data.nfs.length === 0 ? (
             <div className={styles.emptyState}>
               <p className={styles.emptyStateTitle}>Nenhuma NF-e registrada</p>
@@ -198,44 +199,44 @@ export default function ClienteFinanceiroPage() {
           ) : (
             <div className={styles.tableWrap}>
               <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Número</th>
-                  <th>Data</th>
-                  <th>Canal</th>
-                  <th>Itens</th>
-                  <th>Valor</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.nfs.map((nf) => (
-                  <tr key={nf.id}>
-                    <td className={styles.cellSku}>
-                      {nf.nfNumber}/{nf.nfSeries}
-                    </td>
-                    <td>{new Date(nf.nfDate).toLocaleDateString('pt-BR')}</td>
-                    <td className={styles.cellMuted}>{nf.marketplaceLabel}</td>
-                    <td>{nf.itemsCount}</td>
-                    <td>{formatBRL(nf.valorTotal)}</td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${
-                          nf.status === 'processed'
-                            ? styles.badgePositive
-                            : styles.badgeNeutral
-                        }`}
-                      >
-                        {nf.status === 'processed' ? 'Processada' : 'Pendente'}
-                      </span>
-                    </td>
+                <thead>
+                  <tr>
+                    <th>Número</th>
+                    <th>Data</th>
+                    <th>Canal</th>
+                    <th>Itens</th>
+                    <th>Valor</th>
+                    <th>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.nfs.map((nf) => (
+                    <tr key={nf.id}>
+                      <td className={styles.cellSku}>
+                        {nf.nfNumber}/{nf.nfSeries}
+                      </td>
+                      <td>{new Date(nf.nfDate).toLocaleDateString('pt-BR')}</td>
+                      <td className={styles.cellMuted}>{nf.marketplaceLabel}</td>
+                      <td>{nf.itemsCount}</td>
+                      <td>{formatBRL(nf.valorTotal)}</td>
+                      <td>
+                        <span
+                          className={`${styles.badge} ${
+                            nf.status === 'processed'
+                              ? styles.badgePositive
+                              : styles.badgeNeutral
+                          }`}
+                        >
+                          {nf.status === 'processed' ? 'Processada' : 'Pendente'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
+        </ClientPanelCard>
       </div>
     </div>
   );

@@ -73,7 +73,7 @@ export default function InsightsPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Novo insight">
+        <AdminPanelCard title="Novo insight" defaultOpen={false}>
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente

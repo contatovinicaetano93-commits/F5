@@ -1,13 +1,17 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import React from 'react';
 import { Card } from '@f5/ui';
-import { colors, spacing, typography } from '@f5/ui';
+import { colors, typography } from '@f5/ui';
+import { CollapsiblePanel } from '@/components/ui/CollapsiblePanel';
+import panelStyles from '@/components/ui/CollapsiblePanel.module.css';
 
 type AdminPanelCardProps = {
   title: string;
   variant?: 'default' | 'elevated' | 'outlined';
   defaultOpen?: boolean;
+  collapsible?: boolean;
+  compact?: boolean;
   children: React.ReactNode;
 };
 
@@ -15,59 +19,41 @@ export function AdminPanelCard({
   title,
   variant = 'default',
   defaultOpen = true,
+  collapsible = true,
+  compact = false,
   children,
 }: AdminPanelCardProps) {
-  const [open, setOpen] = useState(defaultOpen);
-  const panelId = useId();
-
   return (
-    <Card variant={variant} style={{ padding: spacing[4] }}>
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-expanded={open}
-        aria-controls={panelId}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: spacing[3],
-          margin: 0,
-          padding: 0,
-          border: 'none',
-          background: 'none',
-          cursor: 'pointer',
-          textAlign: 'left',
-          fontFamily: typography.fontFamily.primary,
-        }}
+    <Card
+      variant={variant}
+      style={{
+        padding: 0,
+        overflow: 'hidden',
+        ...(variant === 'outlined' ? { borderWidth: 2 } : {}),
+      }}
+    >
+      <CollapsiblePanel
+        title={title}
+        defaultOpen={defaultOpen}
+        collapsible={collapsible}
+        compact={compact}
+        className={panelStyles.panel}
+        style={
+          {
+            '--panel-bg': 'transparent',
+            '--panel-border': 'transparent',
+            '--panel-shadow': 'none',
+            '--panel-radius': '0',
+            '--panel-title-size': typography.fontSize.lg,
+            '--panel-title-color': colors.navy,
+            '--panel-chevron-color': colors.blue,
+            '--panel-chevron-bg': 'rgba(0, 102, 255, 0.08)',
+            '--panel-chevron-hover-bg': 'rgba(0, 102, 255, 0.14)',
+          } as React.CSSProperties
+        }
       >
-        <span
-          style={{
-            fontSize: typography.fontSize.lg,
-            fontWeight: typography.fontWeight.semibold,
-            color: colors.navy,
-          }}
-        >
-          {title}
-        </span>
-        <span
-          aria-hidden
-          style={{
-            fontSize: typography.fontSize.sm,
-            color: colors.blue,
-            fontWeight: typography.fontWeight.semibold,
-            flexShrink: 0,
-          }}
-        >
-          {open ? 'Recolher ▲' : 'Expandir ▼'}
-        </span>
-      </button>
-      {open && (
-        <div id={panelId} style={{ marginTop: spacing[4] }}>
-          {children}
-        </div>
-      )}
+        {children}
+      </CollapsiblePanel>
     </Card>
   );
 }

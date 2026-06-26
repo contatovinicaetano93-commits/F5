@@ -56,21 +56,21 @@ export default function ClienteDetailPage({ params }: { params: { id: string } }
       </div>
 
       <div style={adminStyles.grid4}>
-        <AdminPanelCard title="SKUs monitorados">
+        <AdminPanelCard title="SKUs monitorados" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>{products.length}</p>
         </AdminPanelCard>
-        <AdminPanelCard title="Receita (lançamentos)">
+        <AdminPanelCard title="Receita (lançamentos)" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>{formatBRL(revenue)}</p>
         </AdminPanelCard>
-        <AdminPanelCard title="Insights">
+        <AdminPanelCard title="Insights" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>{insights.length}</p>
         </AdminPanelCard>
-        <AdminPanelCard title="NF-e processadas">
+        <AdminPanelCard title="NF-e processadas" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>{nfs.length}</p>
         </AdminPanelCard>
       </div>
 
-      <AdminPanelCard title="Últimos lançamentos">
+      <AdminPanelCard title="Últimos lançamentos" defaultOpen={false}>
         {metrics.length === 0 ? (
           <p style={{ color: '#8B9CB6' }}>Nenhum lançamento ainda.</p>
         ) : (

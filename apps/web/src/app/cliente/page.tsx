@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
+import { ClientPanelCard } from '@/components/client/ClientPanelCard';
 import { formatBRL, formatPct } from '@/lib/admin/styles';
 
 interface Overview {
@@ -65,45 +66,46 @@ export default function ClienteInicioPage() {
         </p>
       </div>
 
-      <div className={styles.kpiGrid}>
-        <div className={styles.card}>
-          <p className={styles.kpiLabel}>Vendas do mês</p>
-          <p className={styles.kpiValue}>{formatBRL(data.monthSales)}</p>
-          <p className={styles.kpiMeta}>
-            <span
-              className={`${styles.badge} ${
-                variationPositive ? styles.badgePositive : styles.badgeNegative
-              }`}
-            >
-              {variationPositive ? '+' : ''}
-              {formatPct(data.variationPct)}
-            </span>
-            <span className={styles.cellMuted}>vs mês anterior</span>
-          </p>
-        </div>
+      <ClientPanelCard title="Resumo do mês" collapsible={false} compact>
+        <div className={styles.kpiGrid}>
+          <div className={styles.kpiTile}>
+            <p className={styles.kpiLabel}>Vendas do mês</p>
+            <p className={styles.kpiValue}>{formatBRL(data.monthSales)}</p>
+            <p className={styles.kpiMeta}>
+              <span
+                className={`${styles.badge} ${
+                  variationPositive ? styles.badgePositive : styles.badgeNegative
+                }`}
+              >
+                {variationPositive ? '+' : ''}
+                {formatPct(data.variationPct)}
+              </span>
+              <span className={styles.cellMuted}>vs mês anterior</span>
+            </p>
+          </div>
 
-        <div className={styles.card}>
-          <p className={styles.kpiLabel}>Pagamentos a receber</p>
-          <p className={styles.kpiValue}>{formatBRL(data.totalReceivable)}</p>
-          <p className={styles.kpiMeta}>
-            <span className={styles.cellMuted}>
-              {data.paymentsReceivable.length} repasses programados
-            </span>
-          </p>
-        </div>
+          <div className={styles.kpiTile}>
+            <p className={styles.kpiLabel}>Pagamentos a receber</p>
+            <p className={styles.kpiValue}>{formatBRL(data.totalReceivable)}</p>
+            <p className={styles.kpiMeta}>
+              <span className={styles.cellMuted}>
+                {data.paymentsReceivable.length} repasses programados
+              </span>
+            </p>
+          </div>
 
-        <div className={styles.card}>
-          <p className={styles.kpiLabel}>Canais ativos</p>
-          <p className={styles.kpiValue}>{data.channelDistribution.length}</p>
-          <p className={styles.kpiMeta}>
-            <span className={styles.cellMuted}>ML, Amazon e Shopee</span>
-          </p>
+          <div className={styles.kpiTile}>
+            <p className={styles.kpiLabel}>Canais ativos</p>
+            <p className={styles.kpiValue}>{data.channelDistribution.length}</p>
+            <p className={styles.kpiMeta}>
+              <span className={styles.cellMuted}>ML, Amazon e Shopee</span>
+            </p>
+          </div>
         </div>
-      </div>
+      </ClientPanelCard>
 
       <div className={styles.twoCol}>
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Distribuição por canal</h3>
+        <ClientPanelCard title="Distribuição por canal" defaultOpen={false}>
           {data.channelDistribution.length === 0 ? (
             <div className={styles.emptyState}>
               <p className={styles.emptyStateTitle}>Sem vendas por canal neste mês</p>
@@ -132,10 +134,9 @@ export default function ClienteInicioPage() {
               ))}
             </div>
           )}
-        </div>
+        </ClientPanelCard>
 
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Próximos recebimentos</h3>
+        <ClientPanelCard title="Próximos recebimentos" defaultOpen={false}>
           {data.paymentsReceivable.length === 0 ? (
             <div className={styles.emptyState}>
               <p className={styles.emptyStateTitle}>Nenhum repasse programado</p>
@@ -160,12 +161,11 @@ export default function ClienteInicioPage() {
               ))}
             </div>
           )}
-        </div>
+        </ClientPanelCard>
       </div>
 
       {insights.length > 0 && (
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Insights da operação F5</h3>
+        <ClientPanelCard title="Insights da operação F5" defaultOpen={false}>
           <div className={styles.insightList}>
             {insights.slice(0, 2).map((insight) => (
               <article key={insight.id} className={styles.insightItem}>
@@ -184,7 +184,7 @@ export default function ClienteInicioPage() {
               </Link>
             </p>
           )}
-        </div>
+        </ClientPanelCard>
       )}
     </div>
   );

@@ -148,7 +148,7 @@ export default function NfePage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Upload XML">
+        <AdminPanelCard title="Upload XML" defaultOpen={false}>
           <form onSubmit={handleUpload} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -211,7 +211,7 @@ export default function NfePage() {
           </form>
         </AdminPanelCard>
 
-        <AdminPanelCard title="Registro manual">
+        <AdminPanelCard title="Registro manual" defaultOpen={false}>
           <form onSubmit={handleRegister} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -307,7 +307,7 @@ export default function NfePage() {
         </table>
       </AdminPanelCard>
 
-      <AdminPanelCard title="Repasses pendentes (D+15 / D+60)">
+      <AdminPanelCard title="Repasses pendentes (D+15 / D+60)" defaultOpen={false}>
         {payments.length === 0 ? (
           <p style={{ margin: 0, color: '#8B9CB6', fontSize: 14 }}>
             Nenhum repasse pendente. Aparecem após processar NF-e.

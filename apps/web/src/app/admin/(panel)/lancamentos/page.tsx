@@ -155,7 +155,7 @@ export default function LancamentosPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Novo lançamento">
+        <AdminPanelCard title="Novo lançamento" defaultOpen={false}>
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -312,7 +312,7 @@ export default function LancamentosPage() {
         </AdminPanelCard>
       </div>
 
-      <AdminPanelCard title="Importar CSV (quinta-feira)">
+      <AdminPanelCard title="Importar CSV (quinta-feira)" defaultOpen={false}>
         <p style={{ margin: '0 0 16px', fontSize: 14, color: '#64748B' }}>
           Exporte o relatório do ML/Amazon, ajuste colunas ou use o template F5.
           Colunas: sku, canal, impressoes, visitas, unidades, receita, posicao.

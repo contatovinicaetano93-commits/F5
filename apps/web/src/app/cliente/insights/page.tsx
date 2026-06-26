@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
+import { ClientPanelCard } from '@/components/client/ClientPanelCard';
 
 interface Insight {
   id: string;
@@ -44,7 +45,7 @@ export default function ClienteInsightsPage() {
           </p>
         </div>
       ) : (
-        <div className={styles.card}>
+        <ClientPanelCard title={`${insights.length} insights publicados`} defaultOpen>
           <div className={styles.insightList}>
             {insights.map((insight) => (
               <article key={insight.id} className={styles.insightItem}>
@@ -58,7 +59,7 @@ export default function ClienteInsightsPage() {
               </article>
             ))}
           </div>
-        </div>
+        </ClientPanelCard>
       )}
     </div>
   );

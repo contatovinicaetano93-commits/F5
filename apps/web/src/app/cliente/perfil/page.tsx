@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
+import { ClientPanelCard } from '@/components/client/ClientPanelCard';
 
 interface ProfileData {
   company: {
@@ -60,8 +61,7 @@ export default function ClientePerfilPage() {
       </div>
 
       <div className={styles.profileGrid}>
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Empresa</h3>
+        <ClientPanelCard title="Empresa" defaultOpen={false}>
           <div className={styles.fieldList}>
             <div className={styles.field}>
               <span className={styles.fieldLabel}>Nome comercial</span>
@@ -106,10 +106,9 @@ export default function ClientePerfilPage() {
               </div>
             </div>
           </div>
-        </div>
+        </ClientPanelCard>
 
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Contato F5</h3>
+        <ClientPanelCard title="Contato F5" defaultOpen={false}>
           <div className={styles.contactCard}>
             <div className={styles.contactRow}>
               <span className={styles.fieldLabel}>Equipe</span>
@@ -143,14 +142,14 @@ export default function ClientePerfilPage() {
               </a>
             </div>
           </div>
-        </div>
+        </ClientPanelCard>
       </div>
 
-      <div className={styles.card}>
+      <ClientPanelCard title="Sessão" collapsible={false} compact>
         <button type="button" onClick={handleLogout} className={styles.logoutBtn}>
           Sair do portal
         </button>
-      </div>
+      </ClientPanelCard>
     </div>
   );
 }

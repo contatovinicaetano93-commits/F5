@@ -1,0 +1,71 @@
+.panel {
+  background: var(--panel-bg, #fff);
+  border: 1px solid var(--panel-border, #f4f6f9);
+  border-radius: var(--panel-radius, 12px);
+  box-shadow: var(--panel-shadow, 0 1px 2px rgba(13, 27, 42, 0.05));
+  overflow: hidden;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.headerStatic {
+  cursor: default;
+  padding-bottom: 0;
+}
+
+.title {
+  font-size: var(--panel-title-size, 16px);
+  font-weight: 600;
+  color: var(--panel-title-color, #0d1b2a);
+  line-height: 1.3;
+}
+
+.chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--panel-chevron-color, #0066ff);
+  background: var(--panel-chevron-bg, rgba(0, 102, 255, 0.08));
+  flex-shrink: 0;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.header:hover .chevron {
+  background: var(--panel-chevron-hover-bg, rgba(0, 102, 255, 0.14));
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.body {
+  padding: 0 16px 16px;
+}
+
+.bodyFlush {
+  padding-top: 12px;
+}
+
+.compact .header {
+  padding: 12px 14px;
+}
+
+.compact .body {
+  padding: 0 14px 14px;
+}
