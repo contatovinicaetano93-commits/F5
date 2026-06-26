@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
+import { RevenueChart } from '@/components/client/RevenueChart';
 import { formatBRL, formatPct } from '@/lib/admin/styles';
 import { fetchClientJson } from '@/lib/client/fetch';
 import { useClientPoll } from '@/lib/client/use-client-poll';
@@ -26,6 +27,7 @@ interface Overview {
     amount: number;
     share: number;
   }[];
+  revenueHistory?: { month: string; revenue: number }[];
 }
 
 interface Insight {
@@ -171,6 +173,12 @@ export default function ClienteInicioPage() {
           )}
         </ClientPanelCard>
       </div>
+
+      {dataOverview.revenueHistory && dataOverview.revenueHistory.length > 0 && (
+        <ClientPanelCard title="Receita — últimos 6 meses" defaultOpen={false}>
+          <RevenueChart data={dataOverview.revenueHistory} />
+        </ClientPanelCard>
+      )}
 
       {insights.length > 0 && (
         <ClientPanelCard title="Insights da operação F5" defaultOpen={false}>

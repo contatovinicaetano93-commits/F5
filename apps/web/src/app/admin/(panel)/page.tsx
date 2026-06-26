@@ -14,6 +14,7 @@ interface Overview {
   lowGiroCount: number;
   pendingNfs: number;
   clientInsights: number;
+  insightOnTimePct?: number;
   segments: { segment: TenantSegment; count: number }[];
   pilotReadiness?: {
     ready: boolean;
@@ -91,6 +92,11 @@ export default function AdminHomePage() {
         </AdminPanelCard>
         <AdminPanelCard title="Insights para cliente" collapsible={false} compact>
           <p style={adminStyles.kpiValue}>{data?.clientInsights ?? '—'}</p>
+        </AdminPanelCard>
+        <AdminPanelCard title="Insights no prazo" collapsible={false} compact>
+          <p style={{ ...adminStyles.kpiValue, color: (data?.insightOnTimePct ?? 0) >= 75 ? '#10B981' : '#F59E0B' }}>
+            {data?.insightOnTimePct != null ? `${data.insightOnTimePct}%` : '—'}
+          </p>
         </AdminPanelCard>
       </div>
 

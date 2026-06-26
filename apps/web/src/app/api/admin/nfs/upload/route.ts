@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
 import { requireDatabaseForWrite } from '@/lib/admin/system-status';
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (err) {
+    Sentry.captureException(err);
     const message = err instanceof Error ? err.message : 'Erro ao processar NF-e';
     return NextResponse.json({ error: message }, { status: 400 });
   }

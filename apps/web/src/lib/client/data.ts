@@ -150,6 +150,18 @@ export async function getClientOverview(auth: ClientAuthContext) {
       ? Number(dashboard.pagamentosReceber)
       : paymentsReceivable.reduce((s, p) => s + p.amount, 0);
 
+  // Revenue history — últimos 6 meses
+  const revenueHistory = Array.from({ length: 6 }, (_, i) => {
+    const ref = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const revenue = nfs
+      .filter((n) => isInMonth(n.nfDate, ref))
+      .reduce((s, n) => s + n.valorTotal, 0);
+    return {
+      month: ref.toLocaleDateString('pt-BR', { month: 'short' }),
+      revenue,
+    };
+  });
+
   return {
     tenant: {
       id: tenantId,
@@ -173,6 +185,7 @@ export async function getClientOverview(auth: ClientAuthContext) {
     totalReceivable,
     paymentsReceivable,
     channelDistribution,
+    revenueHistory,
     updatedAt: now.toISOString(),
   };
 }

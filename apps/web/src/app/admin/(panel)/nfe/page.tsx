@@ -1,11 +1,21 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Toast } from '@/components/admin/Toast';
 import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
 import { adminStyles, formatBRL, formatDate } from '@/lib/admin/styles';
 import { type InternalTenant, type Marketplace, type NfRecord, MARKETPLACE_LABELS } from '@/types/internal';
+
+const parseXmlPreview = (xmlText: string) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xmlText, 'text/xml');
+  const nNF = doc.querySelector('nNF')?.textContent ?? '?';
+  const xNome = doc.querySelector('emit xNome')?.textContent ?? doc.querySelector('emit > xNome')?.textContent ?? '?';
+  const vNF = doc.querySelector('vNF')?.textContent ?? '?';
+  return { nNF, xNome, vNF };
+};
 
 const MARKETPLACES: Marketplace[] = [
   'mercado_livre',
@@ -31,8 +41,9 @@ export default function NfePage() {
   const [uploadMarketplace, setUploadMarketplace] = useState<Marketplace>('mercado_livre');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
-  const [uploadSuccess, setUploadSuccess] = useState('');
+  const [xmlPreview, setXmlPreview] = useState<{ nNF: string; xNome: string; vNF: string } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const dismissToast = useCallback(() => setToast(null), []);
   const [nfSearch, setNfSearch] = useState('');
   const [form, setForm] = useState({
     tenantId: '',
@@ -73,13 +84,23 @@ export default function NfePage() {
     if (res.ok) loadPayments();
   };
 
+  const handleFileSelect = async (file: File) => {
+    setUploadFile(file);
+    setXmlPreview(null);
+    try {
+      const text = await file.text();
+      setXmlPreview(parseXmlPreview(text));
+    } catch {
+      // preview falhou — segue sem preview
+    }
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadFile || !uploadTenantId) return;
 
     setUploading(true);
-    setUploadError('');
-    setUploadSuccess('');
+    setToast(null);
 
     const formData = new FormData();
     formData.append('file', uploadFile);
@@ -94,18 +115,20 @@ export default function NfePage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setUploadError(data.error ?? 'Erro no upload');
+        setToast({ message: data.error ?? 'Erro no upload', type: 'error' });
         return;
       }
-      setUploadSuccess(
-        `NF-e ${data.data.nfNumber}/${data.data.nfSeries} processada (${data.data.itemsCount} itens)`,
-      );
+      setToast({
+        message: `NF-e ${data.data.nfNumber}/${data.data.nfSeries} processada (${data.data.itemsCount} itens)`,
+        type: 'success',
+      });
       setUploadFile(null);
+      setXmlPreview(null);
       setUploadTenantId('');
       await loadNfs();
       await loadPayments();
     } catch {
-      setUploadError('Falha na conexão');
+      setToast({ message: 'Falha na conexão', type: 'error' });
     } finally {
       setUploading(false);
     }
@@ -146,6 +169,7 @@ export default function NfePage() {
   }, [nfs, nfSearch]);
 
   return (
+    <>
     <div style={adminStyles.page}>
       <div>
         <h1 style={adminStyles.pageTitle}>NF-e</h1>
@@ -195,15 +219,17 @@ export default function NfePage() {
                 required
                 type="file"
                 accept=".xml"
-                onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void handleFileSelect(f);
+                }}
                 style={adminStyles.input}
               />
             </label>
-            {uploadError && (
-              <p style={{ color: '#EF4444', fontSize: 14, margin: 0 }}>{uploadError}</p>
-            )}
-            {uploadSuccess && (
-              <p style={{ color: '#10B981', fontSize: 14, margin: 0 }}>{uploadSuccess}</p>
+            {xmlPreview && (
+              <div style={{ background: '#1E2D3F', borderRadius: 8, padding: '12px 16px', fontSize: 13, color: '#E2E8F0', lineHeight: 1.6 }}>
+                <strong>Preview:</strong> NF-e nº {xmlPreview.nNF} — Emitente: {xmlPreview.xNome} — Valor: R$ {xmlPreview.vNF}
+              </div>
             )}
             <Button type="submit" disabled={uploading}>
               {uploading ? 'Processando...' : 'Processar NF-e'}
@@ -358,5 +384,7 @@ export default function NfePage() {
         )}
       </AdminPanelCard>
     </div>
+    {toast && <Toast message={toast.message} type={toast.type} onDismiss={dismissToast} />}
+    </>
   );
 }

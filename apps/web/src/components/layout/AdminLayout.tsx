@@ -15,6 +15,7 @@ const menuItems = [
   { label: 'NF-e', href: '/admin/nfe', icon: '📄' },
   { label: 'Insights', href: '/admin/insights', icon: '💡' },
   { label: 'Catálogo', href: '/admin/catalogo', icon: '📦' },
+  { label: 'Checklist', href: '/admin/checklist', icon: '✅' },
   { label: 'Auditoria', href: '/admin/auditoria', icon: '📋' },
   { label: 'Sentry', href: '/admin/sentry-test', icon: '🐛' },
 ];

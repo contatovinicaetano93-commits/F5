@@ -24,6 +24,7 @@ export default function LancamentosPage() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState('');
   const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [csvPreview, setCsvPreview] = useState<{ headers: string[]; rows: string[][]; validCount: number } | null>(null);
   const [form, setForm] = useState({
     tenantId: '',
     productId: '',
@@ -58,6 +59,22 @@ export default function LancamentosPage() {
     fetchAdminList<ProductMetric>('/api/admin/metrics', { credentials: 'include' }).then(
       setMetrics,
     );
+
+  const handleCsvFileSelect = async (file: File) => {
+    setImportFile(file);
+    setCsvPreview(null);
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter((l) => l.trim());
+      if (lines.length < 2) return;
+      const headers = lines[0].split(',').map((h) => h.trim());
+      const preview = lines.slice(1, 6).map((l) => l.split(',').map((c) => c.trim()));
+      const validCount = lines.slice(1).filter((l) => l.trim()).length;
+      setCsvPreview({ headers, rows: preview, validCount });
+    } catch {
+      // preview falhou
+    }
+  };
 
   const handleCsvImport = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -340,13 +357,37 @@ export default function LancamentosPage() {
               type="file"
               accept=".csv,text/csv"
               required
-              onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void handleCsvFileSelect(f);
+              }}
               style={adminStyles.input}
             />
           </label>
+          {csvPreview && (
+            <div style={{ overflowX: 'auto', marginBottom: 8 }}>
+              <table style={{ ...adminStyles.table, fontSize: 12 }}>
+                <thead>
+                  <tr>{csvPreview.headers.map((h, i) => <th key={i} style={adminStyles.th}>{h}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {csvPreview.rows.map((row, ri) => (
+                    <tr key={ri}>
+                      {row.map((cell, ci) => (
+                        <td key={ci} style={adminStyles.td}>{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p style={{ fontSize: 13, color: '#8B9CB6', margin: '6px 0 0' }}>
+                {csvPreview.validCount} linha(s) para importar
+              </p>
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Button type="submit" disabled={importing}>
-              {importing ? 'Importando...' : 'Importar CSV'}
+              {importing ? 'Importando...' : csvPreview ? `Importar ${csvPreview.validCount} linha(s)` : 'Importar CSV'}
             </Button>
             <Button type="button" variant="secondary" onClick={downloadTemplate}>
               Baixar template

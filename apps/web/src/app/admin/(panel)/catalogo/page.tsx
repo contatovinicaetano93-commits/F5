@@ -11,11 +11,13 @@ import {
   type InternalTenant,
   type InternalProduct,
   type Marketplace,
+  type ProductMetric,
 } from '@/types/internal';
 
 export default function CatalogoPage() {
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [products, setProducts] = useState<InternalProduct[]>([]);
+  const [metrics, setMetrics] = useState<ProductMetric[]>([]);
   const [filter, setFilter] = useState('');
   const [textSearch, setTextSearch] = useState('');
   const [editing, setEditing] = useState<InternalProduct | null>(null);
@@ -39,6 +41,7 @@ export default function CatalogoPage() {
 
   useEffect(() => {
     fetchAdminList<InternalTenant>('/api/admin/tenants').then(setTenants);
+    fetchAdminList<ProductMetric>('/api/admin/metrics', { credentials: 'include' }).then(setMetrics);
     loadProducts();
   }, []);
 
@@ -341,6 +344,7 @@ export default function CatalogoPage() {
               <th style={adminStyles.th}>Cliente</th>
               <th style={adminStyles.th}>Canal</th>
               <th style={adminStyles.th}>Status</th>
+              <th style={adminStyles.th}>Giro</th>
               <th style={adminStyles.th}></th>
             </tr>
           </thead>
@@ -364,20 +368,43 @@ export default function CatalogoPage() {
                   </span>
                 </td>
                 <td style={adminStyles.td}>
-                  <button
-                    type="button"
-                    onClick={() => setEditing(p)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#0066FF',
-                      cursor: 'pointer',
-                      fontWeight: 600,
-                      fontSize: 14,
-                    }}
-                  >
-                    Editar
-                  </button>
+                  {(() => {
+                    const m = metrics.find((x) => x.productId === p.id);
+                    const units = m?.unitsSold ?? 0;
+                    const isLowGiro = units === 0;
+                    return isLowGiro ? (
+                      <span style={adminStyles.badge('#D97706', '#FEF3C7')}>Giro baixo</span>
+                    ) : null;
+                  })()}
+                </td>
+                <td style={adminStyles.td}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(p)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#0066FF',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: 14,
+                      }}
+                    >
+                      Editar
+                    </button>
+                    <a
+                      href={`/admin/insights?sku=${encodeURIComponent(p.sku)}`}
+                      style={{
+                        fontSize: 13,
+                        color: '#8B9CB6',
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      + Insight
+                    </a>
+                  </div>
                 </td>
               </tr>
             ))}

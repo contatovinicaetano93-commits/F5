@@ -794,7 +794,10 @@ export const internalData = {
     if (!hasDatabase()) return internalStore.overview();
 
     const start = new Date(weekStart());
-    const [tenants, metricsThisWeek, lowGiroCount, pendingNfs, clientInsights] =
+    const fourWeeksAgo = new Date(start);
+    fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+
+    const [tenants, metricsThisWeek, lowGiroCount, pendingNfs, clientInsights, recentInsights] =
       await Promise.all([
         prisma.tenant.findMany({ select: { segment: true, status: true } }),
         prisma.productMetric.count({
@@ -808,17 +811,23 @@ export const internalData = {
         }),
         prisma.notaFiscal.count({ where: { processedAt: null } }),
         prisma.insightNote.count({ where: { visibleToClient: true } }),
+        prisma.insightNote.count({ where: { visibleToClient: true, createdAt: { gte: fourWeeksAgo } } }),
       ]);
+
+    const activeTenantCount = tenants.filter((t) => t.status === 'active').length;
+    const expectedInsights = 4 * Math.max(activeTenantCount, 1);
+    const insightOnTimePct = Math.round((recentInsights / expectedInsights) * 100);
 
     const segments: TenantSegment[] = ['PET', 'SAUDE', 'PAPEL', 'PARAFUSO'];
 
     return {
-      activeTenants: tenants.filter((t) => t.status === 'active').length,
+      activeTenants: activeTenantCount,
       totalTenants: tenants.length,
       metricsThisWeek,
       lowGiroCount,
       pendingNfs,
       clientInsights,
+      insightOnTimePct,
       segments: segments.map((segment) => ({
         segment,
         count: tenants.filter((t) => t.segment === segment).length,
