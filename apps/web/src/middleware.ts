@@ -51,22 +51,6 @@ async function refreshSupabaseSession(request: NextRequest) {
   return { response, supabase };
 }
 
-async function requireSupabaseUser(request: NextRequest) {
-  const { response, supabase } = await refreshSupabaseSession(request);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) return response;
-
-  if (request.nextUrl.pathname.startsWith('/api/client')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const loginUrl = new URL('/login', request.url);
-  loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
-  return NextResponse.redirect(loginUrl);
-}
 
 async function requireClientPortalSession(request: NextRequest) {
   if (hasClientPortalSession(request)) {
@@ -135,7 +119,10 @@ export async function middleware(request: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
-      return withSecurity(await requireSupabaseUser(request));
+      const { response, supabase } = await refreshSupabaseSession(request);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) return withSecurity(response);
+      // Supabase configurado mas sem sessão — cai para senha portal
     }
 
     if (isClientPortalAuthConfigured()) {
