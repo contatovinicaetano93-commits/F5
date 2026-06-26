@@ -60,7 +60,25 @@ export default function ClienteInicioPage() {
   }
 
   if (!data) {
-    return <ClientSkeleton />;
+    return (
+      <div style={{ textAlign: 'center', paddingTop: 80, color: '#8B9CB6' }}>
+        <p style={{ fontSize: 16, marginBottom: 16 }}>Não foi possível carregar os dados.</p>
+        <a
+          href="/login"
+          style={{
+            display: 'inline-block',
+            padding: '10px 24px',
+            background: '#0066FF',
+            color: '#fff',
+            borderRadius: 8,
+            textDecoration: 'none',
+            fontSize: 14,
+          }}
+        >
+          Fazer login no portal
+        </a>
+      </div>
+    );
   }
 
   const { overview: dataOverview, insights } = data;

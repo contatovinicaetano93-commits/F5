@@ -118,11 +118,15 @@ export async function middleware(request: NextRequest) {
       return withSecurity(NextResponse.next());
     }
 
+    // Portal password tem prioridade no MVP — verifica antes do Supabase
+    if (isClientPortalAuthConfigured() && hasClientPortalSession(request)) {
+      return withSecurity(NextResponse.next());
+    }
+
     if (isSupabaseConfigured()) {
       const { response, supabase } = await refreshSupabaseSession(request);
       const { data: { user } } = await supabase.auth.getUser();
       if (user) return withSecurity(response);
-      // Supabase configurado mas sem sessão — cai para senha portal
     }
 
     if (isClientPortalAuthConfigured()) {
