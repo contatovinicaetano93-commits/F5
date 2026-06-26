@@ -103,6 +103,8 @@ pnpm test             # rodar testes
 
 - **`docs/MANUAL_SETUP.md`** — **Checklist manual (secrets, contas, deploy)** ← você faz
 - **`docs/EXECUTION_PLAN.md`** — Plano guiado (fases, gates, backlog)
+- **`docs/SIPOC.md`** — Mapa SIPOC (fornecedores → inputs → processo → outputs → clientes)
+- **`docs/PREMISES_BACKLOG.md`** — Backlog P0–P2 por premissa (escalável, guiado, AI-first, resiliente, SIPOC)
 - `docs/SETUP_DATABASE.md` — PostgreSQL (Neon) + env vars
 - `PITCH_V3.md` — Pitch atualizado com portfólio e AI-first
 - `PITCH_V2.md` — Pitch executivo com modelo de negócio

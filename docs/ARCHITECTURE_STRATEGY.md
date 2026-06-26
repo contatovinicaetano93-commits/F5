@@ -103,6 +103,8 @@ IA **não substitui** o operador nem integra com marketplace. IA **acelera** o t
 
 ## Pilares de Resiliência
 
+> Processo formal: `docs/SIPOC.md` · Gaps priorizados: `docs/PREMISES_BACKLOG.md`
+
 ### 1. Multi-tenant
 Cada indústria isolada por `tenant_id` + RLS.
 

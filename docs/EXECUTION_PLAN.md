@@ -6,7 +6,7 @@
 **Status**: Fonte única de verdade para implementação
 
 > **Substitui** `docs/legacy/MVP_PLAN_V2.md` (visão antiga com sync de marketplace).  
-> **Complementa** (não repete): `docs/OPERATING_MODEL.md` (negócio) · `docs/ARCHITECTURE_STRATEGY.md` (decisões técnicas)
+> **Complementa** (não repete): `docs/OPERATING_MODEL.md` (negócio) · `docs/ARCHITECTURE_STRATEGY.md` (decisões técnicas) · `docs/SIPOC.md` (processo) · `docs/PREMISES_BACKLOG.md` (gaps P0–P2)
 
 ---
 

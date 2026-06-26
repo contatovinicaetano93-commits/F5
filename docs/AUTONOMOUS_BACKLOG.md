@@ -1,183 +1,212 @@
-# F5 — Backlog autônomo (100 passos)
+# F5 — Próximos 100 passos (Onda 2)
 
-**Memória persistente** do plano de execução. Atualizado automaticamente pelo agente.  
-**Fonte de verdade de negócio:** `docs/EXECUTION_PLAN.md`
-
-**Última execução:** Jun 2026 · Branch `claude/project-f5-n2x24y`
+**Atualizado:** 25 Jun 2026 · Branch `claude/project-f5-n2x24y`  
+**Onda 1 (1–100):** ~85% concluída — ver histórico em git / EXECUTION_PLAN  
+**Fonte de negócio:** `docs/EXECUTION_PLAN.md` · **Checklist deploy:** `docs/RELEASE_CHECKLIST.md`  
+**Premissas & SIPOC:** `docs/SIPOC.md` · `docs/PREMISES_BACKLOG.md` (P0–P2)
 
 ---
 
 ## Legenda
 
-| Símbolo | Significado |
-|---------|-------------|
-| ✅ | Concluído |
-| 🟡 | Parcial / código pronto, depende config manual |
-| ⬜ | Pendente |
-| ⚠️ | Bloqueado — ação humana (credencial, comercial) |
+| Tag | Quem faz |
+|-----|----------|
+| 🤖 | **Autônomo** — agente/código (sem credencial comercial) |
+| 👤 | **Manual** — você (Vercel, Supabase, comercial, decisão) |
+| 🤖→👤 | Código pronto; **validar** em prod após deploy |
 
 ---
 
-## Bloco 1 — Observabilidade & deploy (1–10)
+## Resumo executivo (5h de sono / amanhã cedo)
 
-| # | Passo | Status |
-|---|--------|--------|
-| 1 | Sentry DSN `f5-web` via MCP | 🟡 DSN ✅ · projeto dedicado ⚠️ Owner |
-| 2 | `SENTRY_AUTH_TOKEN` + source maps | 🟡 `withSentryConfig` ✅ |
-| 3 | GitHub Action type-check + build | ✅ `.github/workflows/ci.yml` |
-| 4 | GitHub Action `gate2:validate` | ✅ job `gate2` (secret `DATABASE_URL`) |
-| 5 | CI `prisma migrate deploy` | ⬜ |
-| 6 | `pnpm smoke:prod` | ✅ `scripts/smoke-prod.mjs` |
-| 7 | Alertas Sentry 5xx | ⚠️ depende DSN |
-| 8 | `/api/health` | ✅ |
-| 9 | Preview env docs | 🟡 `docs/MANUAL_SETUP.md` |
-| 10 | Cron recalc dashboard | ✅ `vercel.json` + `/api/cron/recalc-dashboard` |
-
-## Bloco 2 — Admin Gate 1 (11–25)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 11 | `/admin/clientes/[id]` 360° | ✅ |
-| 12 | CRUD tenant edit | ✅ PATCH API |
-| 13 | CRUD produto edit | ⬜ |
-| 14 | Bulk import catálogo CSV | ⬜ |
-| 15 | Filtro + busca listas | ⬜ |
-| 16 | Paginação admin | ⬜ |
-| 17 | Export CSV lançamentos | ⬜ |
-| 18 | Export CSV NF-e | ⬜ |
-| 19 | Toast sucesso/erro | ⬜ |
-| 20 | Progress bar upload XML | ⬜ |
-| 21 | Preview NF-e antes confirmar | ⬜ |
-| 22 | Badge giro baixo → SKU | ⬜ |
-| 23 | Widget fluxo semanal | ✅ admin central |
-| 24 | Atalho insight de giro baixo | ⬜ |
-| 25 | `pnpm gate1:validate` | ✅ |
-
-## Bloco 3 — Portal Gate 3 (26–45)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 26 | `/cliente/insights` | ✅ |
-| 27 | Tab Insights bottom nav | ✅ |
-| 28 | API insights UI | ✅ |
-| 29 | Empty states | ✅ |
-| 30 | Variação % mês anterior | 🟡 API tem campo |
-| 31 | Gráfico 6 meses | ⬜ |
-| 32 | Barras canal | ✅ |
-| 33 | Mobile bottom nav | ✅ |
-| 34 | Desktop sidebar | ✅ |
-| 35 | Skeleton loading | ✅ |
-| 36 | `formatBRL` em `@f5/core` | ✅ |
-| 37 | Linguagem cliente | 🟡 |
-| 38 | Top 3 repasses | 🟡 lista completa |
-| 39 | Ordenar produtos | ⬜ |
-| 40 | Badges performance | ✅ tendência |
-| 41 | Timeline NF → recebimento | ⬜ |
-| 42 | Perfil contato F5 | ✅ |
-| 43 | Logout no perfil | ✅ |
-| 44 | `noindex` cliente/login | ✅ |
-| 45 | `pnpm gate3:validate` | ✅ |
-
-## Bloco 4 — Dados & KPIs (46–60)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 46 | Variação vs mês anterior | ⬜ |
-| 47 | Histórico mensal | ⬜ |
-| 48 | Regra giro baixo documentada | ⬜ |
-| 49 | Recalc pós NF/CSV | ✅ |
-| 50 | PaymentSchedule `paid` manual | ✅ |
-| 51 | Marcar repasse recebido | ✅ |
-| 52 | Conciliação A receber | ✅ |
-| 53 | Parser NF namespaces | 🟡 parcial |
-| 54 | Erros parser amigáveis | 🟡 |
-| 55 | Match SKU XML | 🟡 |
-| 56 | Template CSV download | ⬜ |
-| 57 | Preview CSV import | ⬜ |
-| 58 | Idempotência CSV | ⬜ |
-| 59 | `pnpm db:recalc-all-tenants` | ✅ |
-| 60 | Métricas admin Gate 4 | 🟡 pilotReadiness |
-
-## Bloco 5 — Auth & segurança (61–75)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 61 | Rate limit client login | ✅ |
-| 62 | Audit insight/tenant | 🟡 NF/metrics ✅ |
-| 63 | Security headers middleware | ✅ |
-| 64 | Rotação secrets doc | 🟡 SECURITY.md |
-| 65 | Supabase email → tenantId | ✅ Prisma User |
-| 66 | piloto-a → Nutri | ✅ |
-| 67 | Middleware Supabase first | ✅ |
-| 68 | RLS Supabase | ⬜ P2 |
-| 69 | Teste isolamento tenant | ✅ gate3 |
-| 70 | RBAC admin/operator | ⬜ |
-| 71 | Sessão admin expiração env | ⬜ |
-| 72 | CSRF admin | ⬜ |
-| 73 | Limite upload 5MB XML | ✅ |
-| 74 | Log JSON estruturado | ✅ `lib/logger.ts` |
-| 75 | `docs/SECURITY.md` | ✅ |
-
-## Bloco 6 — Testes (76–85)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 76 | Testes parser NF | ✅ `test:unit` |
-| 77 | Testes CSV + dashboard | 🟡 CSV ✅ |
-| 78 | Integração NF idempotente | ✅ gate2 |
-| 79 | Integração CSV | ✅ gate2 |
-| 80 | E2E Playwright | ⬜ |
-| 81 | Snapshot landing | ⬜ |
-| 82 | `pnpm test` turbo | ⬜ |
-| 83 | Pre-commit type-check | ⬜ |
-| 84 | Lighthouse CI | ⬜ |
-| 85 | `docs/RELEASE_CHECKLIST.md` | ✅ |
-
-## Bloco 7 — Docs & DX (86–92)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 86 | EXECUTION_PLAN status | 🟡 |
-| 87 | WEEKLY_OPERATOR.md | ⬜ |
-| 88 | CSV_FORMAT.md | ✅ |
-| 89 | NFE_UPLOAD.md | ✅ |
-| 90 | `pnpm onboard:tenant` | ✅ |
-| 91 | `pnpm demo:reset` | ✅ |
-| 92 | README links | ✅ |
-
-## Bloco 8 — Infra P2 (93–97)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 93 | `XmlStorage` interface | ✅ |
-| 94 | `.env.example` completo | 🟡 |
-| 95 | Deprecate Nest duplicado | ⬜ |
-| 96 | BullMQ stub NF | ✅ |
-| 97 | Neon branch por PR | ⬜ |
-
-## Bloco 9 — Gate 4 (98–100)
-
-| # | Passo | Status |
-|---|--------|--------|
-| 98 | Readiness piloto admin | ✅ |
-| 99 | Email insight stub | ⬜ |
-| 100 | PR main merge | ⚠️ comercial |
+| Prioridade | Ação | Tag |
+|------------|------|-----|
+| 1 | Redeploy Vercel + vars `ADMIN_*` + Supabase | 👤 |
+| 2 | Login admin `Adminf5@123` → painel sem crash | 🤖→👤 |
+| 3 | `pnpm smoke:prod` + gates verdes | 🤖→👤 |
+| 4 | 1º fluxo semanal operador (seg→sex) | 👤 |
+| 5 | Fechar piloto comercial (Gate 4) | 👤 |
 
 ---
 
-## Comandos de validação
+## Bloco A — Deploy & estabilidade (1–15)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 1 | Redeploy prod branch `claude/project-f5-n2x24y` | 👤 |
+| 2 | Vercel: `ADMIN_PASSWORD=Adminf5@123` | 👤 |
+| 3 | Vercel: `ADMIN_EMAIL=admin@f5digital.com.br` | 👤 |
+| 4 | Vercel: `ADMIN_SECRET` ≠ senha (openssl rand -hex 32) | 👤 |
+| 5 | Vercel: `NEXT_PUBLIC_SUPABASE_*` + `SUPABASE_SECRET_KEY` | 👤 |
+| 6 | Testar `/admin/login` aba anônima após deploy | 👤 |
+| 7 | Confirmar hint “senha padrão” na tela de login | 🤖→👤 |
+| 8 | Confirmar cards colapsáveis no painel | 🤖→👤 |
+| 9 | Confirmar error boundary (sem “Application error”) | 🤖→👤 |
+| 10 | `pnpm smoke:prod` contra URL prod | 🤖→👤 |
+| 11 | `/api/health` → `db: ok` | 🤖→👤 |
+| 12 | Merge PR → `main` quando gates + login OK | 👤 |
+| 13 | Promote deployment anterior (rollback doc) se falhar | 👤 |
+| 14 | CI: `prisma migrate deploy` no GitHub Action | 🤖 |
+| 15 | Documentar vars mínimas prod em `.env.example` | 🤖 |
+
+## Bloco B — Admin UX & operação (16–35)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 16 | Toast sucesso/erro (sonner ou inline) em forms admin | 🤖 |
+| 17 | Progress bar upload XML NF-e | 🤖 |
+| 18 | Preview NF-e antes de confirmar upload | 🤖 |
+| 19 | CRUD produto — editar SKU/nome/canal | 🤖 |
+| 20 | CRUD tenant — editar nome/status na UI | 🤖 |
+| 21 | Busca + filtro texto em clientes/catálogo | 🤖 |
+| 22 | Paginação listas (clientes, métricas, NF) | 🤖 |
+| 23 | Export CSV lançamentos | 🤖 |
+| 24 | Export CSV NF-e registradas | 🤖 |
+| 25 | Badge “giro baixo” linkando SKU | 🤖 |
+| 26 | Atalho “criar insight” a partir de giro baixo | 🤖 |
+| 27 | Bulk import catálogo CSV | 🤖 |
+| 28 | Template CSV catálogo download | 🤖 |
+| 29 | Confirmação antes de excluir/desativar SKU | 🤖 |
+| 30 | Empty states consistentes em todas páginas admin | 🤖 |
+| 31 | Loading skeletons admin (espelhar portal) | 🤖 |
+| 32 | Operador testa fluxo seg→sex (OPERATING_MODEL) | 👤 |
+| 33 | Registrar 1 lançamento real piloto | 👤 |
+| 34 | Upload 1 NF-e real piloto | 👤 |
+| 35 | Publicar 1 insight visível ao cliente | 👤 |
+
+## Bloco C — Portal cliente (36–50)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 36 | Gráfico receita 6 meses (Início) | 🤖 |
+| 37 | Variação % vs mês anterior nos KPIs | 🤖 |
+| 38 | Top 3 repasses (não lista completa) | 🤖 |
+| 39 | Timeline NF → data recebimento | 🤖 |
+| 40 | Ordenar produtos (receita, giro, SKU) | 🤖 |
+| 41 | Linguagem 100% cliente (revisão copy) | 🤖 |
+| 42 | Demo login `demo.nutri@` teste prod | 👤 |
+| 43 | Cliente piloto recebe credenciais | 👤 |
+| 44 | Walkthrough 15 min com cliente piloto | 👤 |
+| 45 | Coletar feedback escrito (Notion/Drive) | 👤 |
+| 46 | `pnpm gate3:validate` pós-mudanças | 🤖→👤 |
+| 47 | Mobile Safari test portal | 👤 |
+| 48 | PWA manifest opcional (ícone F5) | 🤖 |
+| 49 | Email “seu insight da semana” (stub Resend) | 🤖 |
+| 50 | Configurar domínio email / Resend API key | 👤 |
+
+## Bloco D — Dados & KPIs (51–65)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 51 | Histórico mensal agregado API | 🤖 |
+| 52 | Regra giro baixo documentada (`docs/KPI_RULES.md`) | 🤖 |
+| 53 | Idempotência CSV (mesmo arquivo 2x) | 🤖 |
+| 54 | Preview CSV antes import (linhas válidas/inválidas) | 🤖 |
+| 55 | Parser NF namespaces edge cases | 🤖 |
+| 56 | Erros parser NF mensagens PT-BR | 🤖 |
+| 57 | Match SKU XML ↔ catálogo sugestão | 🤖 |
+| 58 | `pnpm db:recalc-all-tenants` cron segunda | 🤖→👤 |
+| 59 | Validar cron `CRON_SECRET` na Vercel | 👤 |
+| 60 | Seed piloto Nutri + Extru atualizado | 🤖 |
+| 61 | `pnpm db:seed:users` idempotente prod | 🤖→👤 |
+| 62 | Conciliar KPI admin vs portal (planilha) | 👤 |
+| 63 | Gate 4 readiness verde (4 SKUs, NF, insight, viewer) | 🤖→👤 |
+| 64 | Métricas GMV rastreado no admin | 🤖 |
+| 65 | Export PDF resumo mensal cliente (P2) | 🤖 |
+
+## Bloco E — Auth & segurança (66–78)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 66 | Sessão admin TTL configurável (`ADMIN_SESSION_MAX_AGE`) | 🤖 |
+| 67 | RBAC `operator` vs `admin` na UI | 🤖 |
+| 68 | Audit log insights + tenant PATCH | 🤖 |
+| 69 | Teste isolamento: tenant A não vê B | 🤖 |
+| 70 | Rate limit feedback na UI (“aguarde 15 min”) | 🤖 |
+| 71 | Rotacionar `ADMIN_SECRET` (procedimento) | 👤 |
+| 72 | Rotacionar Supabase service key | 👤 |
+| 73 | Supabase URL config redirect prod + localhost | 👤 |
+| 74 | RLS Supabase (P2 — quando >2 clientes) | 🤖 |
+| 75 | CSRF double-submit admin forms (P2) | 🤖 |
+| 76 | Scan dependências (`pnpm audit`) fix críticos | 🤖 |
+| 77 | Security review PR antes merge main | 🤖→👤 |
+| 78 | Atualizar `docs/SECURITY.md` rotação | 🤖 |
+
+## Bloco F — Testes & CI (79–88)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 79 | Playwright: login admin → central | 🤖 |
+| 80 | Playwright: login portal → KPIs | 🤖 |
+| 81 | Playwright: upload NF fixture Gate 2 | 🤖 |
+| 82 | `pnpm gate-pilot:e2e` no CI (secret DB) | 🤖 |
+| 83 | Pre-commit hook type-check (husky) | 🤖 |
+| 84 | Lighthouse CI landing (score > 90) | 🤖 |
+| 85 | Snapshot test landing hero | 🤖 |
+| 86 | `pnpm test` unificado turbo | 🤖 |
+| 87 | Badge CI verde no README | 🤖 |
+| 88 | Rodar suite completa antes cada release | 👤 |
+
+## Bloco G — Observabilidade (89–94)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 89 | Projeto Sentry `f5-web` (Owner org) | 👤 |
+| 90 | `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` Vercel | 👤 |
+| 91 | `SENTRY_AUTH_TOKEN` source maps | 👤 |
+| 92 | Alerta Sentry erro 5xx / login spike | 👤 |
+| 93 | Dashboard Sentry filtro `service:f5-web` | 👤 |
+| 94 | Teste `/admin/sentry-test` pós-config | 🤖→👤 |
+
+## Bloco H — Comercial Gate 4 (95–100)
+
+| # | Passo | Tag |
+|---|--------|-----|
+| 95 | Tabela preço / proposta no Drive | 👤 |
+| 96 | Escolher 1 indústria piloto (codinome) | 👤 |
+| 97 | Onboarding call + acesso portal | 👤 |
+| 98 | Contrato / piloto pago assinado | 👤 |
+| 99 | Review semanal KPIs com cliente (recorrente) | 👤 |
+| 100 | Gate 4 ✅ — GMV na plataforma + cliente não abriu ML | 👤 |
+
+---
+
+## Contagem Onda 2
+
+| Tag | Passos | % |
+|-----|--------|---|
+| 🤖 Autônomo (código) | 52 | 52% |
+| 👤 Manual (você) | 38 | 38% |
+| 🤖→👤 Validar pós-deploy | 10 | 10% |
+
+---
+
+## Comandos (agente roda enquanto você dorme)
 
 ```bash
-pnpm gate1:validate   # admin operacional
-pnpm gate2:validate   # NF-e + CSV + KPIs
-pnpm gate3:validate   # portal alinhado
-pnpm smoke:prod       # produção
-pnpm ci:check         # type-check + unit
+pnpm ci:check
+pnpm gate1:validate
+pnpm gate2:validate
+pnpm gate3:validate
+pnpm smoke:prod          # após deploy
+pnpm db:seed:users       # Neon + Supabase
+pnpm db:recalc-all-tenants
 ```
 
-## Próximo lote autônomo (prioridade)
+---
 
-1. Bloco 2: CRUD tenant/produto + filtros + paginação  
-2. Bloco 4: PaymentSchedule paid + template CSV  
-3. Bloco 6: Playwright E2E admin→portal  
-4. ⚠️ Sentry DSN (manual)
+## Onda 1 — histórico (referência)
+
+Itens 1–100 originais (Jun 2026): observabilidade, admin Gate 1, portal Gate 3, dados, auth, testes unitários, docs, infra P2, readiness piloto — **maioria ✅**.  
+Pendências absorvidas na Onda 2 acima (E2E, Sentry Owner, Gate 4 comercial, CRUD/paginação admin).
+
+---
+
+## Próximo lote autônomo (esta noite)
+
+1. Bloco B: toasts + CRUD produto + busca/paginação  
+2. Bloco C: gráfico 6 meses + variação %  
+3. Bloco F: Playwright admin + portal  
+4. Bloco D: preview CSV + idempotência  
+
+**Você amanhã (15 min):** passos 1–6 Bloco A → login → smoke prod.
