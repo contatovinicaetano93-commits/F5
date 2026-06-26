@@ -31,28 +31,31 @@ export async function getClientAuthContext(
   request?: NextRequest,
 ): Promise<ClientAuthContext | null> {
   if (isSupabaseConfigured()) {
-    const { data: ctx, error } = await createSupabaseServerContext({
-      auth: 'user',
-    });
-
-    if (!error && ctx?.userClaims?.email && hasDatabase()) {
-      const dbUser = await prisma.user.findFirst({
-        where: {
-          email: { equals: ctx.userClaims.email.trim(), mode: 'insensitive' },
-          role: 'client_viewer',
-        },
+    try {
+      const { data: ctx, error } = await createSupabaseServerContext({
+        auth: 'user',
       });
 
-      if (dbUser?.tenantId) {
-        return {
-          tenantId: dbUser.tenantId,
-          email: dbUser.email,
-          userId: dbUser.id,
-          demo: false,
-        };
+      if (!error && ctx?.userClaims?.email && hasDatabase()) {
+        const dbUser = await prisma.user.findFirst({
+          where: {
+            email: { equals: ctx.userClaims.email.trim(), mode: 'insensitive' },
+            role: 'client_viewer',
+          },
+        });
+
+        if (dbUser?.tenantId) {
+          return {
+            tenantId: dbUser.tenantId,
+            email: dbUser.email,
+            userId: dbUser.id,
+            demo: false,
+          };
+        }
       }
+    } catch {
+      // Supabase indisponível — cai para senha portal
     }
-    // Supabase configurado mas sem sessão válida — cai para senha portal
   }
 
   if (isClientPortalAuthConfigured()) {
