@@ -35,26 +35,24 @@ export async function getClientAuthContext(
       auth: 'user',
     });
 
-    if (error || !ctx?.userClaims?.email) return null;
+    if (!error && ctx?.userClaims?.email && hasDatabase()) {
+      const dbUser = await prisma.user.findFirst({
+        where: {
+          email: { equals: ctx.userClaims.email.trim(), mode: 'insensitive' },
+          role: 'client_viewer',
+        },
+      });
 
-    const email = ctx.userClaims.email;
-    if (!hasDatabase()) return null;
-
-    const dbUser = await prisma.user.findFirst({
-      where: {
-        email: { equals: email.trim(), mode: 'insensitive' },
-        role: 'client_viewer',
-      },
-    });
-
-    if (!dbUser?.tenantId) return null;
-
-    return {
-      tenantId: dbUser.tenantId,
-      email: dbUser.email,
-      userId: dbUser.id,
-      demo: false,
-    };
+      if (dbUser?.tenantId) {
+        return {
+          tenantId: dbUser.tenantId,
+          email: dbUser.email,
+          userId: dbUser.id,
+          demo: false,
+        };
+      }
+    }
+    // Supabase configurado mas sem sessão válida — cai para senha portal
   }
 
   if (isClientPortalAuthConfigured()) {
