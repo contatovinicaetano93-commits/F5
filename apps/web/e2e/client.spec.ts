@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const portalPassword = process.env.CLIENT_PORTAL_PASSWORD;
+const portalPassword = process.env.CLIENT_PORTAL_PASSWORD ?? '';
 
 test.describe('Portal cliente', () => {
   test.beforeEach(() => {
