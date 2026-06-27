@@ -232,8 +232,6 @@ const ctrlBtn: React.CSSProperties = {
 
 type SectionId = 'relatorio' | 'passos' | 'lancamentos' | 'clientes' | 'segmentos' | 'piloto' | 'gates';
 const secondaryIds: SectionId[] = ['segmentos', 'piloto', 'gates'];
-const MONTH_NOW = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-const MONTH_CAP = MONTH_NOW.charAt(0).toUpperCase() + MONTH_NOW.slice(1);
 const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
 export default function AdminHomePage() {
@@ -265,8 +263,13 @@ export default function AdminHomePage() {
       .catch(() => setLoadError('Erro de rede.'));
   }, []);
 
-  const diaSemana = DIAS[new Date().getDay()];
-  const weekday = new Date().getDay();
+  const now = new Date();
+  const MONTH_CAP = (() => {
+    const s = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  })();
+  const diaSemana = DIAS[now.getDay()];
+  const weekday = now.getDay();
 
   return (
     <div style={{ ...adminStyles.page, maxWidth: 920 }}>
