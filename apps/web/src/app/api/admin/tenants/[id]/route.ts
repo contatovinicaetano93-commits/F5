@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
+import { requireDatabaseForWrite } from '@/lib/admin/system-status';
 import { internalData } from '@/lib/internal/data';
-import { hasDatabase, prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import type { OperatingScenario, TenantSegment } from '@prisma/client';
 
 export async function GET(
@@ -26,9 +27,8 @@ export async function PATCH(
   const authError = requireAdmin(request);
   if (authError) return authError;
 
-  if (!hasDatabase()) {
-    return NextResponse.json({ error: 'Banco não configurado' }, { status: 503 });
-  }
+  const dbError = requireDatabaseForWrite();
+  if (dbError) return dbError;
 
   const body = await request.json();
   const data: {

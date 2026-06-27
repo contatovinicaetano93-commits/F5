@@ -14,11 +14,11 @@
 
 | Premissa | Docs | Código | Meta Gate |
 |----------|------|--------|-----------|
-| Escalável | ✅ | 🟡 45% | Gate 4 → Fase 5 |
-| Guiado | ✅ | 🟡 40% | Gate 4 |
+| Resiliência | ✅ | 🟡 **~80%** | Gate 4 |
+| Escalável | ✅ | 🟡 **~50%** | Gate 4 → Fase 5 |
+| Guiado | ✅ | 🟡 **~75%** | Gate 4 |
 | AI-first | ✅ | 🔴 15% | P2 (pós-piloto) |
-| Resiliente | ✅ | 🟡 65% | Gate 4 |
-| SIPOC | ✅ (este ciclo) | 🟡 25% | Gate 4 |
+| SIPOC | ✅ | 🟡 **~45%** | Gate 4 |
 
 ---
 
@@ -41,10 +41,10 @@ Itens com **#Onda2** referenciam `docs/AUTONOMOUS_BACKLOG.md`.
 | P0-03 | Redeploy Vercel + vars `ADMIN_*`, Supabase | Resiliente | 👤 | ⬜ | Onda2 #1–5 |
 | P0-04 | Login admin + painel sem crash em prod | Resiliente | 🤖→👤 | 🟡 | Error boundary feito; validar deploy |
 | P0-05 | `pnpm smoke:prod` + `/api/health` ok | Resiliente | 🤖→👤 | ⬜ | Onda2 #10–11 |
-| P0-06 | **Zod em rotas `/api/admin/*` e `/api/client/*`** | Resiliente | 🤖 | ⬜ | Exportar `nf`/`dashboard` de `@f5/schemas` |
-| P0-07 | **Teste isolamento tenant A ≠ B** (gate automático) | Resiliente + SIPOC | 🤖 | ⬜ | Onda2 #69 |
-| P0-08 | Alinhar pitch AI-first vs produto (nota comercial ou 1 feature) | AI-first | 👤 | ⬜ | Ver `docs/SIPOC.md` gap #7 |
-| P0-09 | `gate1` + `gate3` no CI (main) | Guiado + Resiliente | 🤖 | ⬜ | Onda2 #82 parcial |
+| P0-06 | **Zod em rotas `/api/admin/*`** | Resiliente | 🤖 | 🟡 | tenants, metrics, insights, products, nfs |
+| P0-07 | **Teste isolamento tenant A ≠ B** | Resiliente + SIPOC | 🤖 | ✅ | `pnpm test:isolation` + CI |
+| P0-08 | Alinhar pitch AI-first vs produto | AI-first | 👤 | ⬜ | Ver `docs/SIPOC.md` gap #7 |
+| P0-09 | `gate1` + `gate3` + `gate-pilot:e2e` no CI | Guiado + Resiliente | 🤖 | ✅ | `.github/workflows/gates.yml` |
 | P0-10 | Documentar vars mínimas prod (`.env.example`) | Resiliente | 🤖 | ⬜ | Onda2 #15 |
 
 ### Critério de saída P0
@@ -60,21 +60,21 @@ Itens com **#Onda2** referenciam `docs/AUTONOMOUS_BACKLOG.md`.
 
 | ID | Item | Premissa(s) | Owner | Status | Onda 2 / Notas |
 |----|------|-------------|-------|--------|----------------|
-| P1-01 | **Checklist semanal in-app** (seg→sex, estado feito/pendente) | Guiado + SIPOC | 🤖 | ⬜ | Espelha `docs/SIPOC.md` tabela semanal |
-| P1-02 | Badge giro baixo + atalho “criar insight” | Guiado + SIPOC | 🤖 | ⬜ | Onda2 #25–26 |
-| P1-03 | Preview NF-e antes de confirmar upload | Guiado + Resiliente | 🤖 | ⬜ | Onda2 #18 |
-| P1-04 | Preview CSV (linhas válidas/inválidas) | Guiado + Resiliente | 🤖 | ⬜ | Onda2 #54 |
-| P1-05 | `docs/KPI_RULES.md` (regra giro baixo) | SIPOC + Guiado | 🤖 | ⬜ | Onda2 #52 |
-| P1-06 | Métrica admin “% insights no prazo” | SIPOC | 🤖 | ⬜ | Novo — ver SIPOC métricas |
-| P1-07 | Error boundary + Sentry no portal `/cliente` | Resiliente | 🤖 | ⬜ | Paridade com admin |
-| P1-08 | Sentry em admin boundary + rotas API | Resiliente | 🤖 | ⬜ | Onda2 #89–94 |
-| P1-09 | Toasts sucesso/erro forms admin | Guiado | 🤖 | ⬜ | Onda2 #16 |
-| P1-10 | Playwright: login admin → central | Guiado + Resiliente | 🤖 | ⬜ | Onda2 #79 |
-| P1-11 | Playwright: login portal → KPIs | Guiado + Resiliente | 🤖 | ⬜ | Onda2 #80 |
+| P1-01 | **Checklist semanal in-app** (seg→sex, estado feito/pendente) | Guiado + SIPOC | 🤖 | ✅ | `/admin/checklist` + links |
+| P1-02 | Badge giro baixo + atalho “criar insight” | Guiado + SIPOC | 🤖 | ✅ | Admin central |
+| P1-03 | Preview NF-e antes de confirmar upload | Guiado + Resiliente | 🤖 | ✅ | `/api/admin/nfs/preview` + confirmar |
+| P1-04 | Preview CSV (linhas válidas/inválidas) | Guiado + Resiliente | 🤖 | ✅ | Catálogo + lançamentos |
+| P1-05 | `docs/KPI_RULES.md` (regra giro baixo) | SIPOC + Guiado | 🤖 | ✅ | Este doc |
+| P1-06 | Métrica admin “% insights no prazo” | SIPOC | 🤖 | ✅ | Admin central overview |
+| P1-07 | Error boundary + Sentry no portal `/cliente` | Resiliente | 🤖 | ✅ | `cliente/error.tsx` |
+| P1-08 | Sentry em admin boundary + rotas API | Resiliente | 🤖 | 🟡 | Admin error boundary |
+| P1-09 | Toasts sucesso/erro forms admin | Guiado | 🤖 | ✅ | NF-e, catálogo, lançamentos, insights |
+| P1-10 | Playwright: login admin → central | Guiado + Resiliente | 🤖 | ✅ | `e2e/admin.spec.ts` + CI |
+| P1-11 | Playwright: login portal → KPIs | Guiado + Resiliente | 🤖 | ✅ | `e2e/client.spec.ts` + CI |
 | P1-12 | Walkthrough 15 min cliente piloto | Guiado | 👤 | ⬜ | Onda2 #44 |
 | P1-13 | Operador executa 1 ciclo seg→sex real | SIPOC | 👤 | ⬜ | Onda2 #32–35 |
-| P1-14 | Gráfico receita 6 meses (portal) | Guiado | 🤖 | ⬜ | Onda2 #36 |
-| P1-15 | Email stub “insight da semana” | Guiado + SIPOC | 🤖 | ⬜ | Onda2 #49 |
+| P1-14 | Gráfico receita 6 meses (portal) | Guiado | 🤖 | ✅ | `RevenueChart` no portal |
+| P1-15 | Email stub “insight da semana” | Guiado + SIPOC | 🤖 | ✅ | Resend quando `RESEND_API_KEY` |
 
 ### Critério de saída P1
 
@@ -143,8 +143,8 @@ Semana 2 (agente + operador)
 
 | Data | P0 fechados | P1 fechados | P2 fechados | Notas |
 |------|-------------|-------------|-------------|-------|
-| 25 Jun 2026 | 2/10 | 0/15 | 0/10 | SIPOC + backlog criados |
-| | | | | |
+| 26 Jun 2026 | 5/10 | 3/15 | 0/10 | P0 guards, Zod, CI gates, checklist, KPI_RULES |
+| 24 Jun 2026 | 5/10 | 11/15 | 0/10 | Preview NF/CSV, Playwright, Sentry, Resend, toasts |
 
 ---
 

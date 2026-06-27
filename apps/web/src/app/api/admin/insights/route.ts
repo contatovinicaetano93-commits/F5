@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
+import { requireDatabaseForWrite } from '@/lib/admin/system-status';
+import { PatchInsightSchema, zodErrorMessage } from '@/lib/admin/schemas';
 import { internalData } from '@/lib/internal/data';
+import type { InsightNote } from '@/types/internal';
 import { sendInsightNotification } from '@/lib/email/insight-notification';
 
 const CreateInsightSchema = z.object({
@@ -11,6 +14,7 @@ const CreateInsightSchema = z.object({
   body: z.string().min(1, 'Conteúdo é obrigatório').trim(),
   visibleToClient: z.boolean().default(false),
   weekOf: z.string().optional(),
+  productId: z.string().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -24,6 +28,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const dbError = requireDatabaseForWrite();
+  if (dbError) return dbError;
 
   const parseResult = CreateInsightSchema.safeParse(await request.json());
   if (!parseResult.success) {
@@ -66,8 +73,21 @@ export async function PATCH(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
 
+  const dbError = requireDatabaseForWrite();
+  if (dbError) return dbError;
+
   const body = await request.json();
-  const updated = await internalData.insights.update(body.id, body);
+  const parsed = PatchInsightSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 422 });
+  }
+
+  const { id, productId, ...rest } = parsed.data;
+  const patch: Partial<InsightNote> = { ...rest };
+  if (productId !== undefined) {
+    patch.productId = productId ?? undefined;
+  }
+  const updated = await internalData.insights.update(id, patch);
   if (!updated) {
     return NextResponse.json({ error: 'Insight não encontrado' }, { status: 404 });
   }

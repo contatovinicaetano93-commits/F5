@@ -17,6 +17,7 @@ export type AdminAuditAction =
   | 'admin.insight_create'
   | 'admin.insight_update'
   | 'admin.nf_upload'
+  | 'admin.nf_manual_create'
   | 'admin.metrics_import'
   | 'admin.payment_mark_paid';
 

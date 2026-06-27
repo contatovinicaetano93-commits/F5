@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
 import { requireDatabaseForWrite } from '@/lib/admin/system-status';
+import { CreateProductSchema, zodErrorMessage } from '@/lib/admin/schemas';
 import { internalData } from '@/lib/internal/data';
 
 export async function GET(request: NextRequest) {
@@ -19,8 +20,12 @@ export async function POST(request: NextRequest) {
   const dbError = requireDatabaseForWrite();
   if (dbError) return dbError;
 
-  const body = await request.json();
-  const product = await internalData.products.create(body);
+  const parsed = CreateProductSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 422 });
+  }
+
+  const product = await internalData.products.create(parsed.data);
 
   await logAdminAudit({
     action: 'admin.product_create',

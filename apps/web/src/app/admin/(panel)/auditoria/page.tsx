@@ -20,6 +20,7 @@ const ACTION_LABELS: Record<string, string> = {
   'admin.insight_create': 'Novo insight',
   'admin.insight_update': 'Insight atualizado',
   'admin.nf_upload': 'Upload NF-e',
+  'admin.nf_manual_create': 'NF manual',
   'admin.metrics_import': 'Import CSV métricas',
   'admin.payment_mark_paid': 'Repasse pago',
 };

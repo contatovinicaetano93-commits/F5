@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Toast } from '@/components/admin/Toast';
 import { fetchAdminJson, fetchAdminList } from '@/lib/admin/fetch';
-import { CATALOG_CSV_TEMPLATE } from '@/lib/admin/catalog-import';
+import { CATALOG_CSV_TEMPLATE, parseCatalogCsv } from '@/lib/admin/catalog-import';
 import { Button } from '@f5/ui';
 import { adminStyles } from '@/lib/admin/styles';
 import {
@@ -24,6 +25,15 @@ export default function CatalogoPage() {
   const [importTenantId, setImportTenantId] = useState('');
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importMessage, setImportMessage] = useState('');
+  const [importPreview, setImportPreview] = useState<{
+    valid: number;
+    errors: string[];
+    sample: string[];
+  } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(
+    null,
+  );
+  const dismissToast = useCallback(() => setToast(null), []);
   const [form, setForm] = useState({
     tenantId: '',
     sku: '',
@@ -69,6 +79,7 @@ export default function CatalogoPage() {
     });
     if (result.ok) {
       setProducts((prev) => [result.data, ...prev]);
+      setToast({ message: `SKU ${result.data.sku} cadastrado`, type: 'success' });
       setForm({
         tenantId: '',
         sku: '',
@@ -76,6 +87,8 @@ export default function CatalogoPage() {
         category: '',
         marketplace: 'mercado_livre',
       });
+    } else {
+      setToast({ message: result.error ?? 'Erro ao cadastrar', type: 'error' });
     }
   };
 
@@ -100,6 +113,26 @@ export default function CatalogoPage() {
     if (result.ok) {
       setProducts((prev) => prev.map((p) => (p.id === result.data.id ? result.data : p)));
       setEditing(null);
+      setToast({ message: 'Produto atualizado', type: 'success' });
+    } else {
+      setToast({ message: result.error ?? 'Erro ao salvar', type: 'error' });
+    }
+  };
+
+  const handleImportFile = async (file: File | null) => {
+    setImportFile(file);
+    setImportPreview(null);
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const { rows, errors } = parseCatalogCsv(text);
+      setImportPreview({
+        valid: rows.length,
+        errors: errors.slice(0, 5),
+        sample: rows.slice(0, 3).map((r) => `${r.sku} — ${r.name}`),
+      });
+    } catch {
+      setImportPreview({ valid: 0, errors: ['Arquivo ilegível'], sample: [] });
     }
   };
 
@@ -120,19 +153,23 @@ export default function CatalogoPage() {
     const body = await res.json();
     if (!res.ok) {
       setImportMessage(body.error ?? 'Falha no import');
+      setToast({ message: body.error ?? 'Falha no import', type: 'error' });
       return;
     }
-    setImportMessage(
+    const msg =
       `Importado: ${body.created} novos, ${body.updated} atualizados` +
-        (body.errors?.length ? ` · ${body.errors.length} avisos` : ''),
-    );
+      (body.errors?.length ? ` · ${body.errors.length} avisos` : '');
+    setImportMessage(msg);
+    setToast({ message: msg, type: 'success' });
     setImportFile(null);
+    setImportPreview(null);
     loadProducts(filter || undefined);
   };
 
   const tenantName = (id: string) => tenants.find((t) => t.id === id)?.name ?? id;
 
   return (
+    <>
     <div style={adminStyles.page}>
       <div style={adminStyles.cardHeader}>
         <div>
@@ -253,10 +290,35 @@ export default function CatalogoPage() {
                 required
                 type="file"
                 accept=".csv,text/csv"
-                onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => handleImportFile(e.target.files?.[0] ?? null)}
                 style={adminStyles.input}
               />
             </label>
+            {importPreview && (
+              <div
+                style={{
+                  fontSize: 13,
+                  padding: 12,
+                  background: '#F4F6F9',
+                  borderRadius: 8,
+                  color: '#475569',
+                }}
+              >
+                <strong>{importPreview.valid}</strong> linha(s) válida(s) detectada(s)
+                {importPreview.sample.length > 0 && (
+                  <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+                    {importPreview.sample.map((s) => (
+                      <li key={s}>{s}</li>
+                    ))}
+                  </ul>
+                )}
+                {importPreview.errors.length > 0 && (
+                  <p style={{ color: '#B45309', margin: '8px 0 0' }}>
+                    Avisos: {importPreview.errors.join('; ')}
+                  </p>
+                )}
+              </div>
+            )}
             <details>
               <summary style={{ fontSize: 14, color: '#64748B', cursor: 'pointer' }}>
                 Ver modelo CSV
@@ -273,7 +335,9 @@ export default function CatalogoPage() {
                 {CATALOG_CSV_TEMPLATE}
               </pre>
             </details>
-            <Button type="submit">Importar SKUs</Button>
+            <Button type="submit" disabled={!importPreview || importPreview.valid === 0}>
+              Confirmar importação
+            </Button>
             {importMessage && (
               <p style={{ fontSize: 14, color: '#065F46', margin: 0 }}>{importMessage}</p>
             )}
@@ -412,5 +476,7 @@ export default function CatalogoPage() {
         </table>
       </AdminPanelCard>
     </div>
+    {toast && <Toast message={toast.message} type={toast.type} onDismiss={dismissToast} />}
+    </>
   );
 }

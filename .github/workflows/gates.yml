@@ -17,6 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
       - run: pnpm type-check
 
   gate1:
@@ -30,6 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
       - run: pnpm --filter @f5/web gate1:validate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -48,8 +50,67 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
       - run: pnpm --filter @f5/web gate3:validate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           CLIENT_PORTAL_PASSWORD: ${{ secrets.CLIENT_PORTAL_PASSWORD }}
           CLIENT_PORTAL_SECRET: ${{ secrets.CLIENT_PORTAL_SECRET }}
+          CLIENT_DEMO_TENANT_ID: ${{ secrets.CLIENT_DEMO_TENANT_ID }}
+
+  gate-pilot:
+    name: Gate Pilot E2E — Admin → portal
+    runs-on: ubuntu-latest
+    needs: type-check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm gate-pilot:e2e
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CLIENT_DEMO_TENANT_ID: ${{ secrets.CLIENT_DEMO_TENANT_ID }}
+
+  tenant-isolation:
+    name: Tenant isolation
+    runs-on: ubuntu-latest
+    needs: type-check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm --filter @f5/web test:isolation
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  playwright:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    needs: type-check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm -F @f5/web test:e2e:install
+      - run: pnpm test:e2e
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          CLIENT_PORTAL_PASSWORD: ${{ secrets.CLIENT_PORTAL_PASSWORD }}
+          CLIENT_PORTAL_SECRET: ${{ secrets.CLIENT_PORTAL_SECRET }}
+          CLIENT_DEMO_TENANT_ID: ${{ secrets.CLIENT_DEMO_TENANT_ID }}
+          CI: true

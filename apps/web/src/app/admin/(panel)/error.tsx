@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 
 export default function AdminError({
   error,
@@ -11,6 +12,7 @@ export default function AdminError({
   reset: () => void;
 }) {
   useEffect(() => {
+    Sentry.captureException(error);
     console.error('Admin panel error:', error);
   }, [error]);
 

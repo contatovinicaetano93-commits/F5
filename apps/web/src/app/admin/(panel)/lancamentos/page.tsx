@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Toast } from '@/components/admin/Toast';
 import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
 import { adminStyles, formatBRL, formatPct } from '@/lib/admin/styles';
@@ -12,7 +13,7 @@ import {
   type ProductMetric,
   type Marketplace,
 } from '@/types/internal';
-import { METRICS_CSV_TEMPLATE } from '@/lib/metrics/csv-import';
+import { METRICS_CSV_TEMPLATE, parseMetricsCsv } from '@/lib/metrics/csv-import';
 
 export default function LancamentosPage() {
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
@@ -24,7 +25,16 @@ export default function LancamentosPage() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState('');
   const [importErrors, setImportErrors] = useState<string[]>([]);
-  const [csvPreview, setCsvPreview] = useState<{ headers: string[]; rows: string[][]; validCount: number } | null>(null);
+  const [csvPreview, setCsvPreview] = useState<{
+    headers: string[];
+    rows: string[][];
+    validCount: number;
+    errors: string[];
+  } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(
+    null,
+  );
+  const dismissToast = useCallback(() => setToast(null), []);
   const [form, setForm] = useState({
     tenantId: '',
     productId: '',
@@ -65,14 +75,27 @@ export default function LancamentosPage() {
     setCsvPreview(null);
     try {
       const text = await file.text();
-      const lines = text.split('\n').filter((l) => l.trim());
-      if (lines.length < 2) return;
-      const headers = lines[0].split(',').map((h) => h.trim());
-      const preview = lines.slice(1, 6).map((l) => l.split(',').map((c) => c.trim()));
-      const validCount = lines.slice(1).filter((l) => l.trim()).length;
-      setCsvPreview({ headers, rows: preview, validCount });
+      const { rows, errors } = parseMetricsCsv(text);
+      setCsvPreview({
+        headers: ['sku', 'canal', 'impressões', 'visitas', 'unidades', 'receita'],
+        rows: rows.slice(0, 5).map((row) => [
+          row.sku,
+          row.marketplace,
+          String(row.impressions),
+          String(row.visits),
+          String(row.unitsSold),
+          String(row.revenue),
+        ]),
+        validCount: rows.length,
+        errors: errors.slice(0, 5),
+      });
     } catch {
-      // preview falhou
+      setCsvPreview({
+        headers: [],
+        rows: [],
+        validCount: 0,
+        errors: ['Arquivo ilegível ou formato inválido'],
+      });
     }
   };
 
@@ -98,11 +121,14 @@ export default function LancamentosPage() {
       if (!res.ok) {
         setImportResult(data.error ?? 'Erro na importação');
         setImportErrors(data.details ?? []);
+        setToast({ message: data.error ?? 'Erro na importação', type: 'error' });
         return;
       }
       setImportResult(`${data.created} lançamento(s) importado(s)`);
       setImportErrors(data.errors ?? []);
+      setToast({ message: `${data.created} lançamento(s) importado(s)`, type: 'success' });
       setImportFile(null);
+      setCsvPreview(null);
       await reloadMetrics();
     } catch {
       setImportResult('Falha na conexão');
@@ -147,7 +173,12 @@ export default function LancamentosPage() {
         }),
       });
       const created = await res.json();
+      if (!res.ok) {
+        setToast({ message: created.error ?? 'Erro ao salvar', type: 'error' });
+        return;
+      }
       setMetrics((prev) => [created, ...prev]);
+      setToast({ message: 'Lançamento registrado', type: 'success' });
       setForm((f) => ({
         ...f,
         impressions: 0,
@@ -163,6 +194,7 @@ export default function LancamentosPage() {
   };
 
   return (
+    <>
     <div style={adminStyles.page}>
       <div>
         <h1 style={adminStyles.pageTitle}>Lançamentos</h1>
@@ -381,13 +413,18 @@ export default function LancamentosPage() {
                 </tbody>
               </table>
               <p style={{ fontSize: 13, color: '#8B9CB6', margin: '6px 0 0' }}>
-                {csvPreview.validCount} linha(s) para importar
+                {csvPreview.validCount} linha(s) válida(s) para importar
               </p>
+              {csvPreview.errors.length > 0 && (
+                <p style={{ fontSize: 13, color: '#B45309', margin: '8px 0 0' }}>
+                  Avisos: {csvPreview.errors.join('; ')}
+                </p>
+              )}
             </div>
           )}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Button type="submit" disabled={importing}>
-              {importing ? 'Importando...' : csvPreview ? `Importar ${csvPreview.validCount} linha(s)` : 'Importar CSV'}
+            <Button type="submit" disabled={importing || !csvPreview || csvPreview.validCount === 0}>
+              {importing ? 'Importando...' : csvPreview ? `Confirmar importação (${csvPreview.validCount})` : 'Importar CSV'}
             </Button>
             <Button type="button" variant="secondary" onClick={downloadTemplate}>
               Baixar template
@@ -413,5 +450,7 @@ export default function LancamentosPage() {
         )}
       </AdminPanelCard>
     </div>
+    {toast && <Toast message={toast.message} type={toast.type} onDismiss={dismissToast} />}
+    </>
   );
 }
