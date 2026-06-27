@@ -137,6 +137,12 @@
   font-size: 14px;
   font-weight: 500;
   transition: background 0.2s, color 0.2s;
+  width: 100%;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
 }
 
 .navLink:hover {
@@ -147,6 +153,29 @@
 .navLinkActive {
   background: var(--blue);
   color: #fff;
+}
+
+.navSubLink {
+  display: block;
+  padding: 6px 12px 6px 38px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  margin-left: 12px;
+  font-weight: 400;
+  transition: color 0.15s;
+  border-radius: 0 4px 4px 0;
+}
+
+.navSubLink:hover {
+  color: #fff;
+}
+
+.navSubLinkActive {
+  color: var(--cyan);
+  border-left-color: var(--cyan);
+  font-weight: 600;
 }
 
 .navIcon {

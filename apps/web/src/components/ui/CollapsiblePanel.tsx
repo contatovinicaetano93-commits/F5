@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import styles from './CollapsiblePanel.module.css';
 
 type CollapsiblePanelProps = {
@@ -44,6 +44,10 @@ export function CollapsiblePanel({
   const [open, setOpen] = useState(defaultOpen);
   const panelId = useId();
   const isOpen = collapsible ? open : true;
+
+  useEffect(() => {
+    setOpen(defaultOpen);
+  }, [defaultOpen]);
 
   const rootClass = [
     styles.panel,

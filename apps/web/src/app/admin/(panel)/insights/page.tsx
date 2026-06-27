@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
+import { Toast } from '@/components/admin/Toast';
 import { fetchAdminList } from '@/lib/admin/fetch';
 import { Button } from '@f5/ui';
 import { adminStyles, formatDate } from '@/lib/admin/styles';
@@ -12,6 +14,8 @@ import {
 } from '@/types/internal';
 
 export default function InsightsPage() {
+  const searchParams = useSearchParams();
+  const openNewInsight = searchParams.get('novo') === '1';
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [products, setProducts] = useState<InternalProduct[]>([]);
   const [insights, setInsights] = useState<InsightNote[]>([]);
@@ -22,6 +26,10 @@ export default function InsightsPage() {
     body: '',
     visibleToClient: true,
   });
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(
+    null,
+  );
+  const dismissToast = useCallback(() => setToast(null), []);
 
   useEffect(() => {
     fetchAdminList<InternalTenant>('/api/admin/tenants').then(setTenants);
@@ -49,7 +57,15 @@ export default function InsightsPage() {
       }),
     });
     const created = await res.json();
+    if (!res.ok) {
+      setToast({ message: created.error ?? 'Erro ao criar insight', type: 'error' });
+      return;
+    }
     setInsights((prev) => [created, ...prev]);
+    setToast({
+      message: form.visibleToClient ? 'Insight publicado no portal' : 'Insight salvo (rascunho)',
+      type: 'success',
+    });
     setForm({ tenantId: '', productId: '', title: '', body: '', visibleToClient: true });
   };
 
@@ -60,10 +76,19 @@ export default function InsightsPage() {
       body: JSON.stringify({ id: insight.id, visibleToClient: !insight.visibleToClient }),
     });
     const updated = await res.json();
+    if (!res.ok) {
+      setToast({ message: updated.error ?? 'Erro ao atualizar', type: 'error' });
+      return;
+    }
     setInsights((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+    setToast({
+      message: updated.visibleToClient ? 'Insight visível no portal' : 'Insight oculto do portal',
+      type: 'success',
+    });
   };
 
   return (
+    <>
     <div style={adminStyles.page}>
       <div>
         <h1 style={adminStyles.pageTitle}>Insights</h1>
@@ -73,7 +98,7 @@ export default function InsightsPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Novo insight" defaultOpen={false}>
+        <AdminPanelCard title="Novo insight" defaultOpen={openNewInsight}>
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -202,5 +227,7 @@ export default function InsightsPage() {
         </AdminPanelCard>
       </div>
     </div>
+    {toast && <Toast message={toast.message} type={toast.type} onDismiss={dismissToast} />}
+    </>
   );
 }

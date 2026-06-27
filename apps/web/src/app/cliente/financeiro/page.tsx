@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
@@ -41,6 +42,8 @@ interface FinanceData {
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 export default function ClienteFinanceiroPage() {
+  const searchParams = useSearchParams();
+  const openStatement = searchParams.get('tab') === 'extrato';
   const { data, loading } = useClientPollUrl<FinanceData>('/api/client/finance');
 
   const calendarCells = useMemo(() => {
@@ -186,7 +189,7 @@ export default function ClienteFinanceiroPage() {
           </div>
         </ClientPanelCard>
 
-        <ClientPanelCard title="Notas fiscais (NF-e)" defaultOpen={false}>
+        <ClientPanelCard title="Notas fiscais (NF-e)" defaultOpen={openStatement}>
           {data.nfs.length === 0 ? (
             <div className={styles.emptyState}>
               <p className={styles.emptyStateTitle}>Nenhuma NF-e registrada</p>

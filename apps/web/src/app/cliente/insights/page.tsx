@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
@@ -14,6 +15,8 @@ interface Insight {
 }
 
 export default function ClienteInsightsPage() {
+  const searchParams = useSearchParams();
+  const marketplaceTab = searchParams.get('tab') === 'marketplace';
   const { data, loading } = useClientPollUrl<{ items: Insight[] }>('/api/client/insights');
   const insights = data?.items ?? null;
 
@@ -28,9 +31,13 @@ export default function ClienteInsightsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageIntro}>
-        <h2 className={styles.pageTitle}>Insights da operação</h2>
+        <h2 className={styles.pageTitle}>
+          {marketplaceTab ? 'Insights de marketplace' : 'Insights da operação'}
+        </h2>
         <p className={styles.pageSubtitle}>
-          Análises e recomendações da equipe F5 sobre performance nos marketplaces.
+          {marketplaceTab
+            ? 'Análises da equipe F5 sobre canais, performance e oportunidades nos marketplaces.'
+            : 'Análises e recomendações da equipe F5 sobre performance nos marketplaces.'}
         </p>
       </div>
 
@@ -43,7 +50,14 @@ export default function ClienteInsightsPage() {
           </p>
         </div>
       ) : (
-        <ClientPanelCard title={`${insights.length} insights publicados`} defaultOpen>
+        <ClientPanelCard
+          title={
+            marketplaceTab
+              ? `${insights.length} insights de marketplace`
+              : `${insights.length} insights publicados`
+          }
+          defaultOpen
+        >
           <div className={styles.insightList}>
             {insights.map((insight) => (
               <article key={insight.id} className={styles.insightItem}>

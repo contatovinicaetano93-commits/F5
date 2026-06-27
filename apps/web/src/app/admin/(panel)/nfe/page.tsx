@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { Toast } from '@/components/admin/Toast';
 import { fetchAdminList } from '@/lib/admin/fetch';
@@ -8,13 +9,15 @@ import { Button } from '@f5/ui';
 import { adminStyles, formatBRL, formatDate } from '@/lib/admin/styles';
 import { type InternalTenant, type Marketplace, type NfRecord, MARKETPLACE_LABELS } from '@/types/internal';
 
-const parseXmlPreview = (xmlText: string) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xmlText, 'text/xml');
-  const nNF = doc.querySelector('nNF')?.textContent ?? '?';
-  const xNome = doc.querySelector('emit xNome')?.textContent ?? doc.querySelector('emit > xNome')?.textContent ?? '?';
-  const vNF = doc.querySelector('vNF')?.textContent ?? '?';
-  return { nNF, xNome, vNF };
+type NfUploadPreview = {
+  nfNumber: string;
+  nfSeries: string;
+  nfDate: string;
+  emitente: string;
+  destinatario: string;
+  valorTotal: number;
+  itemsCount: number;
+  items: { sku: string; descricao: string; quantidade: number; valorTotal: number }[];
 };
 
 const MARKETPLACES: Marketplace[] = [
@@ -26,6 +29,8 @@ const MARKETPLACES: Marketplace[] = [
 ];
 
 export default function NfePage() {
+  const searchParams = useSearchParams();
+  const openUpload = searchParams.get('upload') === '1';
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [nfs, setNfs] = useState<NfRecord[]>([]);
   const [payments, setPayments] = useState<
@@ -41,7 +46,9 @@ export default function NfePage() {
   const [uploadMarketplace, setUploadMarketplace] = useState<Marketplace>('mercado_livre');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [xmlPreview, setXmlPreview] = useState<{ nNF: string; xNome: string; vNF: string } | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [xmlPreview, setXmlPreview] = useState<NfUploadPreview | null>(null);
+  const [previewError, setPreviewError] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const dismissToast = useCallback(() => setToast(null), []);
   const [nfSearch, setNfSearch] = useState('');
@@ -87,17 +94,33 @@ export default function NfePage() {
   const handleFileSelect = async (file: File) => {
     setUploadFile(file);
     setXmlPreview(null);
+    setPreviewError('');
+    setPreviewLoading(true);
+
     try {
-      const text = await file.text();
-      setXmlPreview(parseXmlPreview(text));
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/admin/nfs/preview', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPreviewError(data.error ?? 'Não foi possível ler o XML');
+        return;
+      }
+      setXmlPreview(data as NfUploadPreview);
     } catch {
-      // preview falhou — segue sem preview
+      setPreviewError('Falha ao analisar o arquivo');
+    } finally {
+      setPreviewLoading(false);
     }
   };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uploadFile || !uploadTenantId) return;
+    if (!uploadFile || !uploadTenantId || !xmlPreview) return;
 
     setUploading(true);
     setToast(null);
@@ -179,7 +202,7 @@ export default function NfePage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Upload XML" defaultOpen={false}>
+        <AdminPanelCard title="Upload XML" defaultOpen={openUpload}>
           <form onSubmit={handleUpload} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
@@ -226,13 +249,53 @@ export default function NfePage() {
                 style={adminStyles.input}
               />
             </label>
+            {previewLoading && (
+              <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Analisando XML…</p>
+            )}
+            {previewError && (
+              <p style={{ fontSize: 13, color: '#B45309', margin: 0 }}>{previewError}</p>
+            )}
             {xmlPreview && (
-              <div style={{ background: '#1E2D3F', borderRadius: 8, padding: '12px 16px', fontSize: 13, color: '#E2E8F0', lineHeight: 1.6 }}>
-                <strong>Preview:</strong> NF-e nº {xmlPreview.nNF} — Emitente: {xmlPreview.xNome} — Valor: R$ {xmlPreview.vNF}
+              <div
+                style={{
+                  background: '#1E2D3F',
+                  borderRadius: 8,
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#E2E8F0',
+                  lineHeight: 1.6,
+                }}
+              >
+                <p style={{ margin: '0 0 8px' }}>
+                  <strong>NF-e {xmlPreview.nfNumber}/{xmlPreview.nfSeries}</strong>
+                  {' · '}
+                  {formatDate(xmlPreview.nfDate)}
+                </p>
+                <p style={{ margin: '0 0 8px' }}>
+                  Emitente: {xmlPreview.emitente} · Destinatário: {xmlPreview.destinatario}
+                </p>
+                <p style={{ margin: '0 0 8px' }}>
+                  Valor: {formatBRL(xmlPreview.valorTotal)} · {xmlPreview.itemsCount} item(ns)
+                </p>
+                {xmlPreview.items.length > 0 && (
+                  <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+                    {xmlPreview.items.map((item) => (
+                      <li key={`${item.sku}-${item.descricao}`}>
+                        {item.sku} — {item.descricao} ({item.quantidade} un.)
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p style={{ margin: '12px 0 0', color: '#94A3B8', fontSize: 12 }}>
+                  Revise os dados acima antes de confirmar a importação.
+                </p>
               </div>
             )}
-            <Button type="submit" disabled={uploading}>
-              {uploading ? 'Processando...' : 'Processar NF-e'}
+            <Button
+              type="submit"
+              disabled={uploading || previewLoading || !xmlPreview || !uploadTenantId}
+            >
+              {uploading ? 'Processando...' : 'Confirmar importação'}
             </Button>
             <a
               href="/fixtures/sample-nfe.xml"

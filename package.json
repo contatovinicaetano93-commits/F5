@@ -20,6 +20,8 @@
     "gate1:validate": "pnpm -F @f5/web gate1:validate",
     "gate3:validate": "pnpm -F @f5/web gate3:validate",
     "gate-pilot:e2e": "pnpm -F @f5/web gate-pilot:e2e",
+    "test:isolation": "pnpm -F @f5/web test:isolation",
+    "test:e2e": "pnpm -F @f5/web test:e2e",
     "smoke:prod": "node scripts/smoke-prod.mjs",
     "test:unit": "pnpm -F @f5/web test:unit",
     "db:recalc-all-tenants": "pnpm -F @f5/web db:recalc-all-tenants",

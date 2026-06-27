@@ -1,38 +1,54 @@
-# F5 — Regras de KPI
+# F5 — Regras de KPI (giro e performance)
 
-## Giro de produto (turnover)
+**Versão**: 1.0 · Junho 2026  
+**Fonte**: `docs/OPERATING_MODEL.md` · `docs/SIPOC.md`
 
-- **Giro alto**: > 0.5 unidades/dia (produto saudável)
-- **Giro médio**: 0.2–0.5 unidades/dia (monitorar)
-- **Giro baixo**: < 0.2 unidades/dia → badge laranja, acionar insight
-- **Giro zero**: 0 unidades/mês → badge vermelho, prioridade máxima
+---
 
-Calculado como: `unitsSold / diasNoMes`
+## Giro baixo (alerta operador)
 
-## Variação de vendas
+| Regra | Valor | Onde aparece |
+|-------|-------|--------------|
+| Conversão abaixo do limiar | `< 4%` (`conversionRate < 0.04`) | Admin central (`lowGiroCount`) |
+| Período | Lançamentos da semana corrente | `ProductMetric.periodStart` |
 
-- **Positiva**: mês atual > mês anterior → badge verde com `+X%`
-- **Negativa**: mês atual < mês anterior → badge vermelho com `−X%`
-- Mês base: mês anterior completo (não mês atual parcial)
+**Ação SIPOC (segunda):** revisar SKUs em giro baixo → otimizar anúncio (manual ML/Amazon) → registrar insight se relevante para o cliente.
 
-## Custos operacionais (estimativa MVP)
+---
 
-| Marketplace | Comissão | Logística | Total estimado |
-|-------------|----------|-----------|----------------|
-| Mercado Livre | 12–15% | 2% | ~17% |
-| Amazon | 8–15% | 3% | ~18% |
-| Shopee | 10–14% | 2% | ~16% |
+## Tendência no portal cliente
 
-*Será refinado com dados reais por segmento*
+| Taxa conversão | Badge |
+|----------------|-------|
+| ≥ 5% | Em alta |
+| > 0% e < 4% | Atenção |
+| Demais | Estável |
 
-## Repasses (PaymentSchedule)
+---
 
-- **D+15**: Mercado Livre (após data NF)
-- **D+60**: Amazon (após data NF)
-- **D+30**: Shopee e outros (estimativa)
+## Insights no prazo (SIPOC sexta)
 
-## Insights no prazo
+| Métrica | Cálculo |
+|---------|---------|
+| `% insights no prazo` | Insights publicados (`visibleToClient`) nos últimos 7 dias ÷ tenants ativos × 100 |
+| Meta | ≥ 75% (admin central) |
 
-- Meta: 1 insight publicado por semana por tenant ativo
-- "No prazo" = publicado até sexta-feira da semana de referência
-- KPI: `insightsOnTime / totalInsightsExpected × 100%`
+---
+
+## Recebimentos automáticos pós-NF
+
+| Marketplace | Prazo |
+|-------------|-------|
+| Mercado Livre / Shopee | D+15 |
+| Amazon | D+60 |
+| Outros | D+30 (default) |
+
+---
+
+## Idempotência NF-e
+
+Mesmo `nfNumber + nfSeries + emitente` **não processa duas vezes**.
+
+---
+
+**Referências:** `docs/ARCHITECTURE_STRATEGY.md` · `apps/web/src/lib/internal/data.ts` (overview, pilot readiness)

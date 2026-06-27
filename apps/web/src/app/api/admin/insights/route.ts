@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAdmin, getAdminEmail } from '@/lib/admin-auth';
 import { logAdminAudit } from '@/lib/admin/audit';
+import { requireDatabaseForWrite } from '@/lib/admin/system-status';
+import { PatchInsightSchema, zodErrorMessage } from '@/lib/admin/schemas';
 import { internalData } from '@/lib/internal/data';
+import type { InsightNote } from '@/types/internal';
 import { sendInsightNotification } from '@/lib/email/insight-notification';
 
 const CreateInsightSchema = z.object({
@@ -11,7 +14,23 @@ const CreateInsightSchema = z.object({
   body: z.string().min(1, 'Conteúdo é obrigatório').trim(),
   visibleToClient: z.boolean().default(false),
   weekOf: z.string().optional(),
+  productId: z.string().optional(),
 });
+
+async function notifyClientAboutInsight(insight: InsightNote) {
+  const tenant = await internalData.tenants.list().then((list) =>
+    list.find((t) => t.id === insight.tenantId),
+  );
+  if (!tenant) return;
+
+  sendInsightNotification({
+    tenantName: tenant.name,
+    recipientEmail: tenant.cnpj ?? 'cliente@f5digital.com.br',
+    insightTitle: insight.title,
+    insightBody: insight.body,
+    portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.f5digital.com.br'}/cliente`,
+  }).catch((e: unknown) => console.error('[insight email]', e));
+}
 
 export async function GET(request: NextRequest) {
   const authError = requireAdmin(request);
@@ -24,6 +43,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const dbError = requireDatabaseForWrite();
+  if (dbError) return dbError;
 
   const parseResult = CreateInsightSchema.safeParse(await request.json());
   if (!parseResult.success) {
@@ -45,18 +67,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (insight.visibleToClient) {
-    const tenant = await internalData.tenants.list().then((list) =>
-      list.find((t) => t.id === insight.tenantId),
-    );
-    if (tenant) {
-      sendInsightNotification({
-        tenantName: tenant.name,
-        recipientEmail: tenant.cnpj ?? 'cliente@f5digital.com.br',
-        insightTitle: insight.title,
-        insightBody: insight.body,
-        portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.f5digital.com.br'}/cliente`,
-      }).catch((e: unknown) => console.error('[insight email]', e));
-    }
+    notifyClientAboutInsight(insight).catch((e: unknown) => console.error('[insight email]', e));
   }
 
   return NextResponse.json(insight, { status: 201 });
@@ -66,8 +77,24 @@ export async function PATCH(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
 
+  const dbError = requireDatabaseForWrite();
+  if (dbError) return dbError;
+
   const body = await request.json();
-  const updated = await internalData.insights.update(body.id, body);
+  const parsed = PatchInsightSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 422 });
+  }
+
+  const { id, productId, ...rest } = parsed.data;
+  const patch: Partial<InsightNote> = { ...rest };
+  if (productId !== undefined) {
+    patch.productId = productId;
+  }
+  const previous = await internalData.insights.list().then((list) =>
+    list.find((insight) => insight.id === id),
+  );
+  const updated = await internalData.insights.update(id, patch);
   if (!updated) {
     return NextResponse.json({ error: 'Insight não encontrado' }, { status: 404 });
   }
@@ -83,6 +110,10 @@ export async function PATCH(request: NextRequest) {
       visibleToClient: updated.visibleToClient,
     },
   });
+
+  if (parsed.data.visibleToClient === true && !previous?.visibleToClient) {
+    notifyClientAboutInsight(updated).catch((e: unknown) => console.error('[insight email]', e));
+  }
 
   return NextResponse.json(updated);
 }

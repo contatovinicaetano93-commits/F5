@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import styles from '@/styles/client.module.css';
 
 export default function ClienteError({
@@ -11,6 +12,7 @@ export default function ClienteError({
   reset: () => void;
 }) {
   useEffect(() => {
+    Sentry.captureException(error);
     console.error('[F5 Portal]', error);
   }, [error]);
 
