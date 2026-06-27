@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-client';
 import { AdminDemoBanner } from '@/components/admin/AdminDemoBanner';
 import { AdminSearchBar } from '@/components/admin/AdminSearchBar';
@@ -166,9 +166,10 @@ function useSafePathname() {
 }
 
 /* ── Sidebar nav item ── */
-function NavItem({ item, pathname, sidebarOpen }: {
+function NavItem({ item, pathname, currentHref, sidebarOpen }: {
   item: MenuItem;
   pathname: string;
+  currentHref: string;
   sidebarOpen: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -229,7 +230,7 @@ function NavItem({ item, pathname, sidebarOpen }: {
         {sidebarOpen && expanded && (
           <div style={{ marginTop: 2, marginBottom: 4 }}>
             {item.children!.map((child) => {
-              const childActive = pathname === child.href.split('?')[0];
+              const childActive = currentHref === child.href;
               return (
                 <Link
                   key={child.href}
@@ -283,6 +284,9 @@ function NavItem({ item, pathname, sidebarOpen }: {
 /* ── Main layout ── */
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = useSafePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
+  const currentHref = search ? `${pathname}?${search}` : pathname;
   const [open, setOpen] = useState(true);
 
   const handleLogout = async () => {
@@ -365,6 +369,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               key={item.href}
               item={item}
               pathname={pathname}
+              currentHref={currentHref}
               sidebarOpen={open}
             />
           ))}

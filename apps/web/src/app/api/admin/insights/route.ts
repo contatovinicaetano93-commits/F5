@@ -17,6 +17,21 @@ const CreateInsightSchema = z.object({
   productId: z.string().optional(),
 });
 
+async function notifyClientAboutInsight(insight: InsightNote) {
+  const tenant = await internalData.tenants.list().then((list) =>
+    list.find((t) => t.id === insight.tenantId),
+  );
+  if (!tenant) return;
+
+  sendInsightNotification({
+    tenantName: tenant.name,
+    recipientEmail: tenant.cnpj ?? 'cliente@f5digital.com.br',
+    insightTitle: insight.title,
+    insightBody: insight.body,
+    portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.f5digital.com.br'}/cliente`,
+  }).catch((e: unknown) => console.error('[insight email]', e));
+}
+
 export async function GET(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
@@ -52,18 +67,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (insight.visibleToClient) {
-    const tenant = await internalData.tenants.list().then((list) =>
-      list.find((t) => t.id === insight.tenantId),
-    );
-    if (tenant) {
-      sendInsightNotification({
-        tenantName: tenant.name,
-        recipientEmail: tenant.cnpj ?? 'cliente@f5digital.com.br',
-        insightTitle: insight.title,
-        insightBody: insight.body,
-        portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.f5digital.com.br'}/cliente`,
-      }).catch((e: unknown) => console.error('[insight email]', e));
-    }
+    notifyClientAboutInsight(insight).catch((e: unknown) => console.error('[insight email]', e));
   }
 
   return NextResponse.json(insight, { status: 201 });
@@ -85,8 +89,11 @@ export async function PATCH(request: NextRequest) {
   const { id, productId, ...rest } = parsed.data;
   const patch: Partial<InsightNote> = { ...rest };
   if (productId !== undefined) {
-    patch.productId = productId ?? undefined;
+    patch.productId = productId;
   }
+  const previous = await internalData.insights.list().then((list) =>
+    list.find((insight) => insight.id === id),
+  );
   const updated = await internalData.insights.update(id, patch);
   if (!updated) {
     return NextResponse.json({ error: 'Insight não encontrado' }, { status: 404 });
@@ -103,6 +110,10 @@ export async function PATCH(request: NextRequest) {
       visibleToClient: updated.visibleToClient,
     },
   });
+
+  if (parsed.data.visibleToClient === true && !previous?.visibleToClient) {
+    notifyClientAboutInsight(updated).catch((e: unknown) => console.error('[insight email]', e));
+  }
 
   return NextResponse.json(updated);
 }

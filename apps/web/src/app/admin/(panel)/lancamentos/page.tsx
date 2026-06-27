@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { Toast } from '@/components/admin/Toast';
 import { fetchAdminList } from '@/lib/admin/fetch';
@@ -16,6 +17,8 @@ import {
 import { METRICS_CSV_TEMPLATE, parseMetricsCsv } from '@/lib/metrics/csv-import';
 
 export default function LancamentosPage() {
+  const searchParams = useSearchParams();
+  const openImport = searchParams.get('import') === '1';
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [products, setProducts] = useState<InternalProduct[]>([]);
   const [metrics, setMetrics] = useState<ProductMetric[]>([]);
@@ -361,7 +364,7 @@ export default function LancamentosPage() {
         </AdminPanelCard>
       </div>
 
-      <AdminPanelCard title="Importar CSV (quinta-feira)" defaultOpen={false}>
+      <AdminPanelCard title="Importar CSV (quinta-feira)" defaultOpen={openImport}>
         <p style={{ margin: '0 0 16px', fontSize: 14, color: '#64748B' }}>
           Exporte o relatório do ML/Amazon, ajuste colunas ou use o template F5.
           Colunas: sku, canal, impressoes, visitas, unidades, receita, posicao.

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { Toast } from '@/components/admin/Toast';
 import { fetchAdminList } from '@/lib/admin/fetch';
@@ -13,6 +14,8 @@ import {
 } from '@/types/internal';
 
 export default function InsightsPage() {
+  const searchParams = useSearchParams();
+  const openNewInsight = searchParams.get('novo') === '1';
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [products, setProducts] = useState<InternalProduct[]>([]);
   const [insights, setInsights] = useState<InsightNote[]>([]);
@@ -95,7 +98,7 @@ export default function InsightsPage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Novo insight" defaultOpen={false}>
+        <AdminPanelCard title="Novo insight" defaultOpen={openNewInsight}>
           <form onSubmit={handleSubmit} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente

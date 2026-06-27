@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { Toast } from '@/components/admin/Toast';
 import { fetchAdminList } from '@/lib/admin/fetch';
@@ -28,6 +29,8 @@ const MARKETPLACES: Marketplace[] = [
 ];
 
 export default function NfePage() {
+  const searchParams = useSearchParams();
+  const openUpload = searchParams.get('upload') === '1';
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [nfs, setNfs] = useState<NfRecord[]>([]);
   const [payments, setPayments] = useState<
@@ -105,13 +108,11 @@ export default function NfePage() {
       const data = await res.json();
       if (!res.ok) {
         setPreviewError(data.error ?? 'Não foi possível ler o XML');
-        setUploadFile(null);
         return;
       }
       setXmlPreview(data as NfUploadPreview);
     } catch {
       setPreviewError('Falha ao analisar o arquivo');
-      setUploadFile(null);
     } finally {
       setPreviewLoading(false);
     }
@@ -119,7 +120,7 @@ export default function NfePage() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uploadFile || !uploadTenantId) return;
+    if (!uploadFile || !uploadTenantId || !xmlPreview) return;
 
     setUploading(true);
     setToast(null);
@@ -201,7 +202,7 @@ export default function NfePage() {
       </div>
 
       <div style={adminStyles.grid2}>
-        <AdminPanelCard title="Upload XML" defaultOpen={false}>
+        <AdminPanelCard title="Upload XML" defaultOpen={openUpload}>
           <form onSubmit={handleUpload} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente

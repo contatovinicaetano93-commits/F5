@@ -58,7 +58,7 @@ export interface ProductMetric {
 export interface InsightNote {
   id: string;
   tenantId: string;
-  productId?: string;
+  productId?: string | null;
   title: string;
   body: string;
   visibleToClient: boolean;

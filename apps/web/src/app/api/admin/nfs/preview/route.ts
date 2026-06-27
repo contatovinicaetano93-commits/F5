@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { parseNfXml } from '@/lib/nf/parser';
+import {
+  assertUploadSize,
+  MAX_XML_UPLOAD_BYTES,
+} from '@/lib/resilience/upload-limits';
 
 export async function POST(request: NextRequest) {
   const authError = requireAdmin(request);
@@ -10,6 +14,11 @@ export async function POST(request: NextRequest) {
   const file = formData.get('file');
   if (!(file instanceof Blob)) {
     return NextResponse.json({ error: 'Arquivo XML obrigatório' }, { status: 422 });
+  }
+
+  const sizeError = assertUploadSize(file as File, MAX_XML_UPLOAD_BYTES, 'XML');
+  if (sizeError) {
+    return NextResponse.json({ error: sizeError }, { status: 413 });
   }
 
   try {

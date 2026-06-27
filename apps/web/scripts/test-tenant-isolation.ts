@@ -109,25 +109,29 @@ async function main() {
     const portalIdsA = productsPortalA.items.map((p) => p.id);
     const portalIdsB = productsPortalB.items.map((p) => p.id);
 
-    if (portalIdsA.length > 0) {
-      const dbA = await prisma.product.findMany({ where: { id: { in: portalIdsA } } });
-      const portalALeak = dbA.some((p) => p.tenantId !== a.id);
-      results.push({
-        check: 'Produtos portal A pertencem ao tenant A',
-        ok: !portalALeak,
-        detail: `${dbA.length} produtos verificados`,
-      });
-    }
+    const dbA = portalIdsA.length > 0
+      ? await prisma.product.findMany({ where: { id: { in: portalIdsA } } })
+      : [];
+    const portalALeak = dbA.some((p) => p.tenantId !== a.id);
+    results.push({
+      check: 'Produtos portal A pertencem ao tenant A',
+      ok: portalIdsA.length > 0 && !portalALeak,
+      detail: portalIdsA.length > 0
+        ? `${dbA.length} produtos verificados`
+        : 'nenhum produto retornado',
+    });
 
-    if (portalIdsB.length > 0) {
-      const dbB = await prisma.product.findMany({ where: { id: { in: portalIdsB } } });
-      const portalBLeak = dbB.some((p) => p.tenantId !== b.id);
-      results.push({
-        check: 'Produtos portal B pertencem ao tenant B',
-        ok: !portalBLeak,
-        detail: `${dbB.length} produtos verificados`,
-      });
-    }
+    const dbB = portalIdsB.length > 0
+      ? await prisma.product.findMany({ where: { id: { in: portalIdsB } } })
+      : [];
+    const portalBLeak = dbB.some((p) => p.tenantId !== b.id);
+    results.push({
+      check: 'Produtos portal B pertencem ao tenant B',
+      ok: portalIdsB.length > 0 && !portalBLeak,
+      detail: portalIdsB.length > 0
+        ? `${dbB.length} produtos verificados`
+        : 'nenhum produto retornado',
+    });
   } finally {
     await prisma.$disconnect();
   }

@@ -4,8 +4,8 @@ const marketplaceEnum = z.enum(['mercado_livre', 'amazon', 'shopee', 'tiktok', '
 
 export const CreateProductSchema = z.object({
   tenantId: z.string().min(1, 'tenantId é obrigatório'),
-  sku: z.string().min(1, 'SKU é obrigatório').trim(),
-  name: z.string().min(1, 'Nome é obrigatório').trim(),
+  sku: z.string().trim().min(1, 'SKU é obrigatório'),
+  name: z.string().trim().min(1, 'Nome é obrigatório'),
   description: z.string().trim().optional(),
   category: z.string().trim().optional(),
   marketplace: marketplaceEnum.default('mercado_livre'),
@@ -14,7 +14,7 @@ export const CreateProductSchema = z.object({
 
 export const UpdateProductSchema = z
   .object({
-    name: z.string().min(1).trim().optional(),
+    name: z.string().trim().min(1).optional(),
     description: z.string().trim().optional(),
     category: z.string().trim().optional(),
     marketplace: marketplaceEnum.optional(),

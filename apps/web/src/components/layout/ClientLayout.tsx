@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import styles from '@/styles/client.module.css';
 import { ClientFreshnessBadge } from '@/components/client/ClientFreshnessBadge';
 import { ClientRefreshProvider } from '@/components/client/ClientRefreshProvider';
@@ -118,10 +118,12 @@ const pageTitles: Record<string, { title: string; eyebrow: string }> = {
 function SideNavItem({
   item,
   pathname,
+  currentHref,
   collapsed,
 }: {
   item: MenuItem;
   pathname: string;
+  currentHref: string;
   collapsed: boolean;
 }) {
   const isActive = item.exact
@@ -161,7 +163,7 @@ function SideNavItem({
         {expanded && (
           <div style={{ marginBottom: 4 }}>
             {item.children!.map((child) => {
-              const childActive = pathname === child.href.split('?')[0];
+              const childActive = currentHref === child.href;
               return (
                 <Link
                   key={child.href}
@@ -219,6 +221,9 @@ function BottomNavItem({ item, pathname }: { item: MenuItem; pathname: string })
 /* ── Shell ── */
 function ClientLayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
+  const currentHref = search ? `${pathname}?${search}` : pathname;
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [tenantName, setTenantName] = useState('Indústria Piloto');
@@ -284,6 +289,7 @@ function ClientLayoutShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               item={item}
               pathname={pathname}
+              currentHref={currentHref}
               collapsed={collapsed}
             />
           ))}
@@ -348,7 +354,9 @@ function ClientLayoutShell({ children }: { children: React.ReactNode }) {
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClientRefreshProvider>
-      <ClientLayoutShell>{children}</ClientLayoutShell>
+      <Suspense fallback={null}>
+        <ClientLayoutShell>{children}</ClientLayoutShell>
+      </Suspense>
     </ClientRefreshProvider>
   );
 }

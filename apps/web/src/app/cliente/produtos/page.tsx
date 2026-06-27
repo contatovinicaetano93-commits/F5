@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import styles from '@/styles/client.module.css';
 import { ClientSkeleton } from '@/components/client/ClientSkeleton';
 import { ClientPanelCard } from '@/components/client/ClientPanelCard';
@@ -37,6 +38,8 @@ function trendClass(trend: ProductItem['trend']) {
 }
 
 export default function ClienteProdutosPage() {
+  const searchParams = useSearchParams();
+  const openCatalog = searchParams.get('tab') === 'catalogo';
   const { data, loading } = useClientPollUrl<ProductsData>('/api/client/products');
 
   if (loading && !data) {
@@ -74,7 +77,7 @@ export default function ClienteProdutosPage() {
         </div>
       </ClientPanelCard>
 
-      <ClientPanelCard title="Catálogo monitorado" defaultOpen={false}>
+      <ClientPanelCard title="Catálogo monitorado" defaultOpen={openCatalog}>
         {data.items.length === 0 ? (
           <div className={styles.emptyState}>
             <p className={styles.emptyStateTitle}>Nenhum produto monitorado</p>

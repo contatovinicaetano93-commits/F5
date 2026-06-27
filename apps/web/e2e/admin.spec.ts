@@ -14,7 +14,7 @@ test.describe('Admin portal', () => {
     await page.locator('input[type="password"]').first().fill(adminPassword);
     await page.getByRole('button', { name: /acessar|entrar/i }).click();
 
-    await expect(page).toHaveURL(/\/admin/);
-    await expect(page.locator('h1, h2').first()).toBeVisible();
+    await expect(page).toHaveURL(/\/admin\/?$/);
+    await expect(page.getByRole('heading', { name: /visão geral/i })).toBeVisible();
   });
 });

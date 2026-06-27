@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AdminPanelCard } from '@/components/admin/AdminPanelCard';
 import { Toast } from '@/components/admin/Toast';
 import { fetchAdminJson, fetchAdminList } from '@/lib/admin/fetch';
@@ -16,6 +17,8 @@ import {
 } from '@/types/internal';
 
 export default function CatalogoPage() {
+  const searchParams = useSearchParams();
+  const openImport = searchParams.get('import') === '1';
   const [tenants, setTenants] = useState<InternalTenant[]>([]);
   const [products, setProducts] = useState<InternalProduct[]>([]);
   const [metrics, setMetrics] = useState<ProductMetric[]>([]);
@@ -266,7 +269,7 @@ export default function CatalogoPage() {
           </form>
         </AdminPanelCard>
 
-        <AdminPanelCard title="Importar catálogo CSV" defaultOpen={false}>
+        <AdminPanelCard title="Importar catálogo CSV" defaultOpen={openImport}>
           <form onSubmit={handleImport} style={adminStyles.form}>
             <label style={adminStyles.label}>
               Cliente
